@@ -17,17 +17,18 @@ export class SchedulerService {
   @Cron(CronExpression.EVERY_MINUTE)
   async handleAppointmentReminders() {
     this.logger.log('Running appointment reminders cron job...');
-
+    const now = new Date();
     const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setDate(now.getDate() + 1);
 
     const upcomingAppointments = await this.prisma.appointment.findMany({
       where: {
         date: {
           lte: tomorrow,
-          gte: new Date(),
+          gte: now,
         },
         status: 'SCHEDULED',
+        notifiedAt: null
       },
       include: {
         pet: {
@@ -44,6 +45,12 @@ export class SchedulerService {
       if (client.phone) {
         const message = `Hello ${client.name}, this is a reminder for ${appointment.pet.name}'s appointment at ${appointment.clinic.name} on ${appointment.date.toLocaleString()}.`;
         await this.notificationsService.enqueueNotification(client.phone, message);
+
+        await this.prisma.appointment.update({
+  where: { id: appointment.id },
+  data: { notifiedAt: new Date() },
+});
+
       }
     }
   }
