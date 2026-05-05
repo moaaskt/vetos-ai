@@ -17,6 +17,7 @@ model Clinic {
   clients   Client[]
   pets      Pet[]
   users     User[]
+  appointments Appointment[]
 }
 
 model User {
@@ -54,9 +55,30 @@ model Pet {
   updatedAt DateTime @updatedAt
   client    Client   @relation(fields: [clientId], references: [id])
   clinic    Clinic   @relation(fields: [clinicId], references: [id])
+  appointments Appointment[]
+}
+
+model Appointment {
+  id        String            @id @default(uuid())
+  date      DateTime
+  reason    String?
+  status    AppointmentStatus @default(SCHEDULED)
+  petId     String
+  clinicId  String
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  pet    Pet    @relation(fields: [petId], references: [id])
+  clinic Clinic @relation(fields: [clinicId], references: [id])
 }
 
 enum Role {
   ADMIN
   STAFF
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
 }

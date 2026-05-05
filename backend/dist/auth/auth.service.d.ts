@@ -16,19 +16,19 @@ export declare class AuthService {
         access_token: string;
         user: {
             id: string;
-            email: string;
-            role: import(".prisma/client").$Enums.Role;
             createdAt: Date;
             updatedAt: Date;
+            email: string;
+            role: import(".prisma/client").$Enums.Role;
             clinicId: string;
         };
         clinic: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
             address: string | null;
             phone: string | null;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
 }

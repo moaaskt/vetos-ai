@@ -17,6 +17,8 @@ const users_module_1 = require("./users/users.module");
 const auth_module_1 = require("./auth/auth.module");
 const clients_module_1 = require("./clients/clients.module");
 const pets_module_1 = require("./pets/pets.module");
+const appointments_module_1 = require("./appointments/appointments.module");
+const dashboard_module_1 = require("./dashboard/dashboard.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -32,6 +34,8 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             clients_module_1.ClientsModule,
             pets_module_1.PetsModule,
+            appointments_module_1.AppointmentsModule,
+            dashboard_module_1.DashboardModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
