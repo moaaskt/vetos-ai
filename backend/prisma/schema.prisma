@@ -4,11 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-}
-
-enum Role {
-  ADMIN
-  STAFF
+  url      = env("DATABASE_URL")
 }
 
 model Clinic {
@@ -18,10 +14,9 @@ model Clinic {
   phone     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  users   User[]
-  clients Client[]
-  pets    Pet[]
+  clients   Client[]
+  pets      Pet[]
+  users     User[]
 }
 
 model User {
@@ -32,8 +27,7 @@ model User {
   clinicId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  clinic Clinic @relation(fields: [clinicId], references: [id])
+  clinic    Clinic   @relation(fields: [clinicId], references: [id])
 }
 
 model Client {
@@ -44,9 +38,8 @@ model Client {
   clinicId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  clinic Clinic @relation(fields: [clinicId], references: [id])
-  pets   Pet[]
+  clinic    Clinic   @relation(fields: [clinicId], references: [id])
+  pets      Pet[]
 }
 
 model Pet {
@@ -59,7 +52,11 @@ model Pet {
   clinicId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  client    Client   @relation(fields: [clientId], references: [id])
+  clinic    Clinic   @relation(fields: [clinicId], references: [id])
+}
 
-  client Client @relation(fields: [clientId], references: [id])
-  clinic Clinic @relation(fields: [clinicId], references: [id])
+enum Role {
+  ADMIN
+  STAFF
 }

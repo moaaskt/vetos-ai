@@ -22,3 +22,27 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Node
+node_modules/
+
+# Env
+.env
+.env.*
+
+# Logs
+logs
+*.log
+
+# OS
+.DS_Store
+
+# Prisma
+backend/prisma/dev.db
+
+# Build
+dist/
+build/
+
+# Docker
+*.pid

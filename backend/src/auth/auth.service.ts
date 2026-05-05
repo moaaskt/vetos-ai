@@ -43,8 +43,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
-    // Create Clinic and initial User (ADMIN) inside a transaction
-    return this.prisma.$transaction(async (prisma) => {
+    const result = await this.prisma.$transaction(async (prisma) => {
       const clinic = await prisma.clinic.create({
         data: {
           name: registerDto.clinicName,
@@ -60,8 +59,21 @@ export class AuthService {
         },
       });
 
-      const { password, ...result } = user;
-      return { user: result, clinic };
+      const { password, ...userWithoutPassword } = user;
+      return { user: userWithoutPassword, clinic };
     });
+
+    const payload = {
+      sub: result.user.id,
+      email: result.user.email,
+      clinicId: result.user.clinicId,
+      role: result.user.role,
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: result.user,
+      clinic: result.clinic,
+    };
   }
 }
