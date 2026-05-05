@@ -7,16 +7,17 @@ import { NotificationsService } from '../notifications/notifications.service';
 export class SchedulerService {
   private readonly logger = new Logger(SchedulerService.name);
 
+
   constructor(
     private prisma: PrismaService,
     private notificationsService: NotificationsService,
-  ) {}
+  ) { }
 
   // Every hour: Check for appointments in the next 24 hours
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_MINUTE)
   async handleAppointmentReminders() {
     this.logger.log('Running appointment reminders cron job...');
-    
+
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
@@ -51,7 +52,7 @@ export class SchedulerService {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleInactiveClients() {
     this.logger.log('Running inactive clients detection cron job...');
-    
+
     const ninetyDaysAgo = new Date();
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
