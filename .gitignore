@@ -1,0 +1,33 @@
+# Node
+node_modules/
+
+# Env
+.env
+.env.*
+
+# Logs
+logs
+*.log
+
+# OS
+.DS_Store
+
+# Build
+dist/
+build/
+
+# Prisma
+backend/prisma/dev.db
+
+# Docker
+*.pid
+
+# Frontend
+frontend/node_modules/
+
+# Backend
+backend/node_modules/
+
+.planning/
+.agents/
+.rules/
