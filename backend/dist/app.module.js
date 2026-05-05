@@ -19,6 +19,10 @@ const clients_module_1 = require("./clients/clients.module");
 const pets_module_1 = require("./pets/pets.module");
 const appointments_module_1 = require("./appointments/appointments.module");
 const dashboard_module_1 = require("./dashboard/dashboard.module");
+const notifications_module_1 = require("./notifications/notifications.module");
+const scheduler_module_1 = require("./scheduler/scheduler.module");
+const bullmq_1 = require("@nestjs/bullmq");
+const schedule_1 = require("@nestjs/schedule");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -28,6 +32,13 @@ exports.AppModule = AppModule = __decorate([
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
             }),
+            bullmq_1.BullModule.forRoot({
+                connection: {
+                    host: process.env.REDIS_HOST || 'localhost',
+                    port: parseInt(process.env.REDIS_PORT || '6379'),
+                },
+            }),
+            schedule_1.ScheduleModule.forRoot(),
             prisma_module_1.PrismaModule,
             clinics_module_1.ClinicsModule,
             users_module_1.UsersModule,
@@ -36,6 +47,8 @@ exports.AppModule = AppModule = __decorate([
             pets_module_1.PetsModule,
             appointments_module_1.AppointmentsModule,
             dashboard_module_1.DashboardModule,
+            notifications_module_1.NotificationsModule,
+            scheduler_module_1.SchedulerModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
