@@ -29,7 +29,7 @@ export function SuperAdminClinics() {
       setClinics(response.data)
       setError('')
     } catch {
-      setError('Unable to load clinics list. Please verify server connection.')
+      setError('Não foi possível carregar a lista de clínicas. Verifique a conexão com o servidor.')
     } finally {
       setIsLoading(false)
     }
@@ -46,7 +46,7 @@ export function SuperAdminClinics() {
       })
       .catch(() => {
         if (isMounted) {
-          setError('Unable to load clinics list. Please verify server connection.')
+          setError('Não foi possível carregar a lista de clínicas. Verifique a conexão com o servidor.')
         }
       })
       .finally(() => {
@@ -61,7 +61,7 @@ export function SuperAdminClinics() {
     try {
       await impersonate(clinicId)
     } catch (e) {
-      alert('Impersonation session failed. Please verify clinic credentials or console logs.')
+      alert('Falha ao iniciar a sessão de acesso à clínica. Verifique os logs de rede ou credenciais.')
       console.error(e)
     }
   }
@@ -78,14 +78,14 @@ export function SuperAdminClinics() {
   return (
     <div className="space-y-8 animate-in fade-in-0 duration-500 max-w-7xl mx-auto font-sans">
       <PageHeader
-        title="Multi-Tenant Clinic Workspaces"
-        badge="Platform Supervision"
-        description="Supervise enrolled clinic accounts, review creation dates, and securely impersonate tenant sessions for medical auditing and support."
+        title="Ambientes Hospitalares Cadastrados"
+        badge="Supervisão Multi-Tenant"
+        description="Supervisione as contas das clínicas parceiras, revise as datas de implantação e acesse os ambientes de forma segura para auditoria e suporte técnico."
         action={
           <div className="flex items-center gap-3">
             <Button onClick={loadClinics} variant="outline" className="border-border hover:border-teal-400/40 gap-2 font-semibold">
               <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Sync Clinic Database
+              Sincronizar Clínicas
             </Button>
           </div>
         }
@@ -104,16 +104,16 @@ export function SuperAdminClinics() {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <BaseInput
             type="search"
-            placeholder="Filter by clinic name or UUID identifier..."
+            placeholder="Filtrar por nome da clínica ou identificador UUID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 bg-background border-border h-10 font-medium"
           />
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium self-end sm:self-auto shrink-0">
-          <span>Displaying</span>
+          <span>Exibindo</span>
           <span className="px-2 py-0.5 rounded bg-secondary text-foreground font-bold">{filteredClinics.length}</span>
-          <span>of {clinics.length} enrolled clinics</span>
+          <span>de {clinics.length} clínicas parceiras</span>
         </div>
       </div>
 
@@ -122,13 +122,13 @@ export function SuperAdminClinics() {
           <div>
             <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2 tracking-tight">
               <Building2 className="h-5 w-5 text-teal-400" />
-              Tenant Workspaces Database
+              Banco de Dados de Unidades
             </CardTitle>
-            <CardDescription className="text-xs">Authorized impersonation access strictly monitored</CardDescription>
+            <CardDescription className="text-xs">Sessões de suporte e acesso de auditoria monitoradas ativamente</CardDescription>
           </div>
           <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-teal-400/10 border border-teal-400/20 text-xs font-bold uppercase tracking-wider text-teal-300">
             <Sparkles className="h-3.5 w-3.5 animate-pulse" />
-            Super Admin Vault
+            Cofre Super Admin
           </span>
         </CardHeader>
 
@@ -137,10 +137,10 @@ export function SuperAdminClinics() {
             <table className="w-full min-w-[760px] text-left text-sm">
               <thead className="bg-muted/40 text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground border-b border-border/80">
                 <tr>
-                  <th className="px-6 py-3.5 font-bold">Clinic Workspace Name</th>
-                  <th className="px-6 py-3.5 font-bold">Tenant UUID</th>
-                  <th className="px-6 py-3.5 font-bold">Enrolled Date</th>
-                  <th className="px-6 py-3.5 text-right font-bold">Supervision Actions</th>
+                  <th className="px-6 py-3.5 font-bold">Unidade Hospitalar / Clínica</th>
+                  <th className="px-6 py-3.5 font-bold">UUID do Tenant</th>
+                  <th className="px-6 py-3.5 font-bold">Data de Adesão</th>
+                  <th className="px-6 py-3.5 text-right font-bold">Ações de Suporte</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
@@ -153,7 +153,7 @@ export function SuperAdminClinics() {
                       <span>{clinic.name}</span>
                     </td>
                     <td className="px-6 py-4.5">
-                      <span className="font-mono text-xs text-muted-foreground bg-card border border-border px-2 py-1 rounded">
+                      <span className="font-mono text-xs text-muted-foreground bg-card border border-border px-2 py-1 rounded shadow-sm">
                         {clinic.id}
                       </span>
                     </td>
@@ -173,7 +173,7 @@ export function SuperAdminClinics() {
                         className="gap-2 border-border hover:border-teal-400/40 hover:text-teal-300 hover:bg-teal-500/10 text-xs font-bold transition-all shadow-sm group/btn"
                       >
                         <LogIn className="h-3.5 w-3.5 text-teal-400 group-hover/btn:translate-x-0.5 transition-transform" />
-                        <span>Login as Clinic</span>
+                        <span>Acessar Ambiente</span>
                         <ArrowUpRight className="h-3.5 w-3.5 opacity-60" />
                       </Button>
                     </td>
@@ -187,9 +187,9 @@ export function SuperAdminClinics() {
             <div className="py-12">
               <EmptyState
                 icon={Building2}
-                title={searchQuery ? "No tenant workspaces matching query" : "No tenant workspaces enrolled"}
-                description={searchQuery ? "Try refining your search UUID or clearing the filter input." : "There are no tenant clinics currently enrolled in the platform database."}
-                actionLabel={searchQuery ? "Clear Search" : "Reload Telemetry"}
+                title={searchQuery ? "Nenhuma clínica encontrada na busca" : "Nenhuma clínica cadastrada na plataforma"}
+                description={searchQuery ? "Tente refinar a busca do UUID ou limpe o campo de filtro." : "Não há clínicas ou hospitais veterinários cadastrados atualmente no banco de dados."}
+                actionLabel={searchQuery ? "Limpar Filtro" : "Sincronizar Clínicas"}
                 onAction={() => searchQuery ? setSearchQuery('') : loadClinics()}
               />
             </div>

@@ -26,15 +26,15 @@ type NavItem = {
 }
 
 const navItems: NavItem[] = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/clients', label: 'Clients', icon: Users },
-  { to: '/pets', label: 'Pets', icon: PawPrint },
-  { to: '/appointments', label: 'Appointments', icon: CalendarDays },
+  { to: '/dashboard', label: 'Painel', icon: LayoutDashboard },
+  { to: '/clients', label: 'Clientes', icon: Users },
+  { to: '/pets', label: 'Pacientes', icon: PawPrint },
+  { to: '/appointments', label: 'Consultas', icon: CalendarDays },
 ]
 
 const superAdminNavItems: NavItem[] = [
-  { to: '/super-admin/dashboard', label: 'Platform Stats', icon: LayoutDashboard },
-  { to: '/super-admin/clinics', label: 'Manage Clinics', icon: Users },
+  { to: '/super-admin/dashboard', label: 'Métricas da Plataforma', icon: LayoutDashboard },
+  { to: '/super-admin/clinics', label: 'Gerenciar Clínicas', icon: Users },
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -49,13 +49,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const getBreadcrumb = () => {
     const path = location.pathname
-    if (path.includes('super-admin/dashboard')) return 'Platform Overview'
-    if (path.includes('super-admin/clinics')) return 'Clinic Management'
-    if (path.includes('dashboard')) return 'Dashboard'
-    if (path.includes('clients')) return 'Client Directory'
-    if (path.includes('pets')) return 'Patient Records'
-    if (path.includes('appointments')) return 'Appointments Schedule'
-    return 'Workspace'
+    if (path.includes('super-admin/dashboard')) return 'Visão Geral da Plataforma'
+    if (path.includes('super-admin/clinics')) return 'Gestão de Clínicas'
+    if (path.includes('dashboard')) return 'Painel Central'
+    if (path.includes('clients')) return 'Diretório de Tutores'
+    if (path.includes('pets')) return 'Fichas de Pacientes'
+    if (path.includes('appointments')) return 'Agenda de Consultas'
+    return 'Ambiente de Trabalho'
   }
 
   return (
@@ -66,13 +66,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
           <AlertTriangle className="h-4 w-4 text-amber-400" />
           <span className="text-amber-200">
-            Active Impersonation Session: Clinic ID <strong className="text-white">{user.clinicId}</strong>
+            Sessão de Suporte Ativa: Acessando Unidade ID <strong className="text-white">{user.clinicId}</strong>
           </span>
           <button 
             onClick={exitImpersonation} 
             className="ml-4 inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1 text-xs font-semibold text-slate-950 hover:bg-amber-400 transition-colors shadow-sm"
           >
-            Exit Session
+            Encerrar Sessão
           </button>
         </div>
       )}
@@ -95,7 +95,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   <span className="font-semibold tracking-wide text-foreground truncate text-sm">VetOS AI</span>
                   <span className="text-xs text-muted-foreground truncate flex items-center gap-1">
                     <span className="h-1.5 w-1.5 rounded-full bg-teal-400 animate-pulse" />
-                    {clinic?.name ?? (user?.role === 'SUPERADMIN' ? 'Super Admin' : 'Workspace')}
+                    {clinic?.name ?? (user?.role === 'SUPERADMIN' ? 'Administração Geral' : 'Clínica')}
                   </span>
                 </div>
               )}
@@ -103,7 +103,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <button 
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="hidden lg:flex h-7 w-7 rounded-lg hover:bg-muted items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-              title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              title={isCollapsed ? "Expandir menu" : "Recolher menu"}
             >
               {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             </button>
@@ -148,8 +148,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </div>
               {!isCollapsed && (
                 <div className="flex flex-col overflow-hidden text-xs flex-1">
-                  <span className="font-medium text-foreground truncate">{user?.email ?? 'User'}</span>
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{user?.role ?? 'Tenant'}</span>
+                  <span className="font-medium text-foreground truncate">{user?.email ?? 'Usuário'}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                    {user?.role === 'SUPERADMIN' ? 'Administrador' : 'Gestor'}
+                  </span>
                 </div>
               )}
             </div>
@@ -160,13 +162,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 className="w-full mt-2 justify-start gap-2.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors rounded-lg text-xs h-8 px-2.5"
               >
                 <LogOut className="h-3.5 w-3.5" />
-                <span>Sign out</span>
+                <span>Sair da conta</span>
               </Button>
             )}
             {isCollapsed && (
               <button
                 onClick={logout}
-                title="Sign out"
+                title="Sair da conta"
                 className="w-full mt-2 flex items-center justify-center h-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
               >
                 <LogOut className="h-4 w-4" />
@@ -188,7 +190,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     </div>
                     <div>
                       <p className="font-bold text-foreground tracking-wide">VetOS AI</p>
-                      <p className="text-xs text-muted-foreground">{clinic?.name ?? 'Clinic workspace'}</p>
+                      <p className="text-xs text-muted-foreground">{clinic?.name ?? 'Clínica Operacional'}</p>
                     </div>
                   </div>
                   <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)} className="rounded-lg">
@@ -223,16 +225,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   </div>
                   <div className="overflow-hidden text-xs">
                     <p className="font-medium text-foreground truncate">{user?.email}</p>
-                    <p className="text-muted-foreground capitalize">{user?.role?.toLowerCase()}</p>
+                    <p className="text-muted-foreground uppercase text-[10px]">{user?.role === 'SUPERADMIN' ? 'Administrador' : 'Gestor'}</p>
                   </div>
                 </div>
                 <Button
                   variant="outline"
                   onClick={() => { setIsMobileMenuOpen(false); logout(); }}
-                  className="w-full gap-2 border-destructive/20 text-destructive hover:bg-destructive/10"
+                  className="w-full gap-2 border-destructive/20 text-destructive hover:bg-destructive/10 font-bold"
                 >
                   <LogOut className="h-4 w-4" />
-                  Sign out
+                  Sair da conta
                 </Button>
               </div>
             </div>
@@ -253,7 +255,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Menu className="h-5 w-5" />
               </Button>
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-muted-foreground hidden sm:inline">VetOS</span>
+                <span className="text-muted-foreground hidden sm:inline font-medium">VetOS</span>
                 <span className="text-muted-foreground hidden sm:inline">/</span>
                 <span className="font-semibold text-foreground tracking-tight flex items-center gap-2">
                   {getBreadcrumb()}
@@ -267,18 +269,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 {user?.role === 'SUPERADMIN' ? (
                   <>
                     <Building2 className="h-3.5 w-3.5 text-teal-400" />
-                    <span className="text-foreground">Super Admin Platform</span>
+                    <span className="text-foreground font-bold">Plataforma Global</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="h-3.5 w-3.5 text-teal-400 animate-pulse" />
-                    <span className="text-foreground">{clinic?.name ?? 'Clinic Operations'}</span>
+                    <span className="text-foreground font-bold">{clinic?.name ?? 'Clínica Operacional'}</span>
                   </>
                 )}
               </div>
 
               {/* Notifications Trigger */}
-              <button className="relative h-9 w-9 rounded-full border border-border bg-card/60 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-teal-400/40 hover:bg-muted transition-all shadow-sm">
+              <button title="Notificações do sistema" className="relative h-9 w-9 rounded-full border border-border bg-card/60 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-teal-400/40 hover:bg-muted transition-all shadow-sm">
                 <Bell className="h-4 w-4" />
                 <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-teal-400 ring-2 ring-background animate-pulse" />
               </button>

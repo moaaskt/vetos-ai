@@ -34,7 +34,7 @@ export function SuperAdminDashboard() {
       setMetrics(response.data)
       setError('')
     } catch {
-      setError('Unable to load global metrics. Please verify network or server status.')
+      setError('Não foi possível carregar as métricas globais. Verifique a conexão com o servidor.')
     } finally {
       setIsLoading(false)
     }
@@ -51,7 +51,7 @@ export function SuperAdminDashboard() {
       })
       .catch(() => {
         if (isMounted) {
-          setError('Unable to load global metrics. Please verify network or server status.')
+          setError('Não foi possível carregar as métricas globais. Verifique a conexão com o servidor.')
         }
       })
       .finally(() => {
@@ -64,27 +64,27 @@ export function SuperAdminDashboard() {
 
   const cards = [
     { 
-      label: 'Enrolled Tenant Clinics', 
+      label: 'Clínicas Registradas', 
       value: metrics.totalClinics, 
       icon: Building2,
-      trend: '+12% vs last month',
+      trend: '+12% vs mês anterior',
       badge: 'Multi-tenant',
       glow: 'from-blue-500/20'
     },
     { 
-      label: 'Active Workspaces Today', 
+      label: 'Clínicas Ativas Hoje', 
       value: metrics.activeClinicsToday, 
       icon: Activity,
-      trend: 'Live telemetry',
-      badge: 'Operational',
+      trend: 'Telemetria em tempo real',
+      badge: 'Operacional',
       glow: 'from-emerald-500/20'
     },
     { 
-      label: 'Platform Monthly MRR', 
-      value: `$${metrics.mrr.toLocaleString()}`, 
+      label: 'Faturamento Mensal (MRR)', 
+      value: `R$ ${metrics.mrr.toLocaleString()}`, 
       icon: DollarSign,
-      trend: '+18.4% MRR growth',
-      badge: 'Revenue',
+      trend: '+18.4% de expansão',
+      badge: 'Receita',
       glow: 'from-purple-500/20'
     },
   ]
@@ -92,18 +92,18 @@ export function SuperAdminDashboard() {
   return (
     <div className="space-y-8 animate-in fade-in-0 duration-500 max-w-7xl mx-auto font-sans">
       <PageHeader
-        title="Global Platform Control"
-        badge="Super Admin Analytics"
-        description="High-density multi-tenant monitoring, revenue metrics, and real-time infrastructure performance."
+        title="Painel Global do Sistema"
+        badge="Telemetria e Controle"
+        description="Monitoramento central de infraestrutura, faturamento global e atividade de múltiplos tenants da plataforma."
         action={
           <div className="flex items-center gap-3">
             <Button onClick={loadMetrics} variant="outline" className="border-border hover:border-teal-400/40 gap-2 font-semibold">
               <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Reload Telemetry
+              Atualizar Telemetria
             </Button>
             <Button onClick={() => navigate('/super-admin/clinics')} className="bg-gradient-to-r from-teal-400 to-emerald-400 text-slate-950 font-bold shadow-lg shadow-teal-500/20 gap-2">
               <Users className="h-4 w-4" />
-              Manage All Clinics
+              Gerenciar Clínicas
             </Button>
           </div>
         }
@@ -111,7 +111,7 @@ export function SuperAdminDashboard() {
 
       {error && (
         <div className="rounded-xl bg-destructive/15 border border-destructive/30 px-5 py-4 text-sm font-medium text-destructive shadow-sm flex items-center gap-3">
-          <span className="flex h-2 w-2 rounded-full bg-destructive animate-ping" />
+          <span className="flex h-2 w-2 rounded-full bg-destructive animate-ping shrink-0" />
           <span>{error}</span>
         </div>
       )}
@@ -140,8 +140,8 @@ export function SuperAdminDashboard() {
                     <p className="text-4xl font-extrabold tracking-tight text-foreground group-hover:text-teal-300 transition-colors">
                       {card.value}
                     </p>
-                    <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 tracking-wide">
-                      <TrendingUp className="h-3 w-3" />
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 tracking-wide shrink-0">
+                      <TrendingUp className="h-3 w-3 shrink-0" />
                       {card.trend}
                     </span>
                   </div>
@@ -160,36 +160,36 @@ export function SuperAdminDashboard() {
               <div>
                 <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                   <Cpu className="h-5 w-5 text-teal-400" />
-                  Infrastructure Telemetry & Health
+                  Saúde do Cluster & Infraestrutura
                 </CardTitle>
-                <CardDescription className="text-xs">Live API gateway metrics & multi-tenant cluster status</CardDescription>
+                <CardDescription className="text-xs">Métricas globais de gateway API e desempenho do banco de dados</CardDescription>
               </div>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-400">
                 <ShieldCheck className="h-3.5 w-3.5" />
-                Cluster Healthy
+                Cluster Excelente
               </span>
             </div>
           </CardHeader>
           <CardContent className="p-6 flex-1 grid grid-cols-2 sm:grid-cols-4 gap-6 items-center text-center">
             <div className="p-4 rounded-xl bg-card border border-border shadow-sm space-y-1.5">
-              <span className="text-xs text-muted-foreground uppercase tracking-wider block font-semibold">Cluster Load</span>
+              <span className="text-xs text-muted-foreground uppercase tracking-wider block font-semibold">Carga da CPU</span>
               <span className="text-2xl font-extrabold text-foreground tracking-tight block">24.2%</span>
-              <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">Optimal</span>
+              <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">Estável</span>
             </div>
             <div className="p-4 rounded-xl bg-card border border-border shadow-sm space-y-1.5">
-              <span className="text-xs text-muted-foreground uppercase tracking-wider block font-semibold">API Latency</span>
+              <span className="text-xs text-muted-foreground uppercase tracking-wider block font-semibold">Latência API</span>
               <span className="text-2xl font-extrabold text-teal-400 tracking-tight block">18ms</span>
-              <span className="text-[10px] text-teal-300 font-bold bg-teal-500/10 px-1.5 py-0.5 rounded">p99 Fast</span>
+              <span className="text-[10px] text-teal-300 font-bold bg-teal-500/10 px-1.5 py-0.5 rounded">p99 Rápido</span>
             </div>
             <div className="p-4 rounded-xl bg-card border border-border shadow-sm space-y-1.5">
-              <span className="text-xs text-muted-foreground uppercase tracking-wider block font-semibold">Database IOPS</span>
-              <span className="text-2xl font-extrabold text-purple-400 tracking-tight block">1,420</span>
-              <span className="text-[10px] text-purple-300 font-bold bg-purple-500/10 px-1.5 py-0.5 rounded">Stable</span>
+              <span className="text-xs text-muted-foreground uppercase tracking-wider block font-semibold">IOPS do Banco</span>
+              <span className="text-2xl font-extrabold text-purple-400 tracking-tight block">1.420</span>
+              <span className="text-[10px] text-purple-300 font-bold bg-purple-500/10 px-1.5 py-0.5 rounded">Equilibrado</span>
             </div>
             <div className="p-4 rounded-xl bg-card border border-border shadow-sm space-y-1.5">
               <span className="text-xs text-muted-foreground uppercase tracking-wider block font-semibold">Uptime SLA</span>
               <span className="text-2xl font-extrabold text-emerald-400 tracking-tight block">99.99%</span>
-              <span className="text-[10px] text-emerald-300 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">Verified</span>
+              <span className="text-[10px] text-emerald-300 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">Verificado</span>
             </div>
           </CardContent>
         </Card>
@@ -198,14 +198,14 @@ export function SuperAdminDashboard() {
           <CardHeader className="border-b border-border/60 pb-4">
             <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
               <HardDrive className="h-5 w-5 text-teal-400" />
-              Tenant Operations
+              Volume Operacional
             </CardTitle>
-            <CardDescription className="text-xs">Quick tenant administration</CardDescription>
+            <CardDescription className="text-xs">Uso agregado da plataforma</CardDescription>
           </CardHeader>
           <CardContent className="p-6 flex-1 flex flex-col justify-center space-y-4">
             <div className="rounded-xl bg-card border border-border p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-muted-foreground">Total Booked Consultations</span>
+                <span className="font-semibold text-muted-foreground">Consultas Totais Agendadas</span>
                 <span className="font-bold text-teal-400">{metrics.totalAppointments.toLocaleString()}</span>
               </div>
               <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
@@ -216,7 +216,7 @@ export function SuperAdminDashboard() {
             <Button onClick={() => navigate('/super-admin/clinics')} variant="outline" className="w-full border-border hover:border-teal-400/40 justify-between group h-11 px-4">
               <span className="flex items-center gap-2 font-bold text-sm text-foreground group-hover:text-teal-300 transition-colors">
                 <Sparkles className="h-4 w-4 text-teal-400" />
-                Access Clinic Accounts
+                Gerenciar Tenants
               </span>
               <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-teal-400 transition-colors" />
             </Button>

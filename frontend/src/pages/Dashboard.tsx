@@ -33,7 +33,7 @@ export function Dashboard() {
         }
       } catch {
         if (isMounted) {
-          setError('Dashboard statistics are unavailable.')
+          setError('As estatísticas do painel estão indisponíveis no momento.')
         }
       } finally {
         if (isMounted) {
@@ -51,36 +51,36 @@ export function Dashboard() {
 
   const metrics = [
     { 
-      label: 'Total Registered Clients', 
+      label: 'Clientes Proprietários', 
       value: stats.totalClients, 
       icon: Users,
-      trend: '+14% this month',
+      trend: '+14% neste mês',
       color: 'from-blue-500/20 to-teal-500/0 text-blue-400',
-      badge: 'Active'
+      badge: 'Ativo'
     },
     { 
-      label: 'Total Patient Pets', 
+      label: 'Pacientes Cadastrados', 
       value: stats.totalPets, 
       icon: PawPrint,
-      trend: '+8% vs last month',
+      trend: '+8% vs mês anterior',
       color: 'from-teal-500/20 to-emerald-500/0 text-teal-400',
-      badge: 'Growing'
+      badge: 'Crescimento'
     },
     { 
-      label: 'Scheduled Appointments', 
+      label: 'Consultas Agendadas', 
       value: stats.totalAppointments, 
       icon: CalendarDays,
-      trend: 'Today & upcoming',
+      trend: 'Hoje e próximos dias',
       color: 'from-purple-500/20 to-pink-500/0 text-purple-400',
-      badge: 'Live'
+      badge: 'Em tempo real'
     },
   ]
 
   const recentActivities = [
-    { id: 1, text: 'Dr. Sarah completed checkup for Bella (Golden Retriever)', time: '12m ago', type: 'checkup' },
-    { id: 2, text: 'New client registration: Michael Chen & pet Max', time: '1h ago', type: 'client' },
-    { id: 3, text: 'Vaccination reminder scheduled for Luna (Siamese)', time: '3h ago', type: 'reminder' },
-    { id: 4, text: 'Appointment booked: Routine dental scaling for Rocky', time: '5h ago', type: 'booking' },
+    { id: 1, text: 'Dra. Sarah concluiu atendimento de rotina para Bella (Golden Retriever)', time: 'Há 12 min', type: 'checkup' },
+    { id: 2, text: 'Novo cliente cadastrado: Michael Chen & paciente Max', time: 'Há 1 hora', type: 'client' },
+    { id: 3, text: 'Lembrete de vacina anual agendado para Luna (Siamês)', time: 'Há 3 horas', type: 'reminder' },
+    { id: 4, text: 'Consulta marcada: Limpeza de tártaro e exames para Rocky', time: 'Há 5 horas', type: 'booking' },
   ]
 
   return (
@@ -92,23 +92,23 @@ export function Dashboard() {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-400/10 border border-teal-400/20 text-xs font-semibold text-teal-300">
               <Sparkles className="h-3.5 w-3.5 animate-pulse" />
-              Premium Veterinary Workspace
+              Ambiente Hospitalar Premium
             </div>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-              Welcome back, <span className="bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">{clinic?.name ?? 'Dr. Vet'}</span>
+              Bem-vindo(a) de volta, <span className="bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">{clinic?.name ?? 'Dr. Vet'}</span>
             </h1>
             <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground font-normal">
-              Here is what is happening across your clinic operations, patient appointments, and daily medical workflows.
+              Acompanhe as operações em tempo real da clínica, gestão de leitos, consultas agendadas e fluxos diários de atendimento.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <Button onClick={() => navigate('/appointments')} className="bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-semibold hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/20 gap-2">
+            <Button onClick={() => navigate('/appointments')} className="bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-semibold hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/20 gap-2 font-bold">
               <Plus className="h-4 w-4" />
-              New Appointment
+              Nova Consulta
             </Button>
-            <Button onClick={() => navigate('/pets')} variant="outline" className="border-border hover:border-teal-400/30 gap-2">
+            <Button onClick={() => navigate('/pets')} variant="outline" className="border-border hover:border-teal-400/30 gap-2 font-semibold">
               <PawPrint className="h-4 w-4 text-teal-400" />
-              Register Patient
+              Cadastrar Paciente
             </Button>
           </div>
         </div>
@@ -128,12 +128,12 @@ export function Dashboard() {
           className="group cursor-pointer rounded-xl border border-border bg-card/60 p-4 transition-all hover:border-teal-400/40 hover:bg-card hover:shadow-lg hover:shadow-teal-500/5 flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-400/10 text-teal-400 group-hover:scale-110 transition-transform">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-400/10 text-teal-400 group-hover:scale-110 transition-transform font-bold">
               <CalendarDays className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-semibold text-sm text-foreground group-hover:text-teal-300 transition-colors">Appointments</p>
-              <p className="text-xs text-muted-foreground">Manage schedule</p>
+              <p className="font-bold text-sm text-foreground group-hover:text-teal-300 transition-colors">Consultas</p>
+              <p className="text-xs text-muted-foreground font-medium">Gestão de agenda</p>
             </div>
           </div>
           <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-teal-400 transition-colors" />
@@ -144,12 +144,12 @@ export function Dashboard() {
           className="group cursor-pointer rounded-xl border border-border bg-card/60 p-4 transition-all hover:border-teal-400/40 hover:bg-card hover:shadow-lg hover:shadow-teal-500/5 flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-400 group-hover:scale-110 transition-transform">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-400 group-hover:scale-110 transition-transform font-bold">
               <PawPrint className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-semibold text-sm text-foreground group-hover:text-emerald-300 transition-colors">Patients & Pets</p>
-              <p className="text-xs text-muted-foreground">Medical records</p>
+              <p className="font-bold text-sm text-foreground group-hover:text-emerald-300 transition-colors">Pacientes</p>
+              <p className="text-xs text-muted-foreground font-medium">Prontuários e fichas</p>
             </div>
           </div>
           <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-emerald-400 transition-colors" />
@@ -160,12 +160,12 @@ export function Dashboard() {
           className="group cursor-pointer rounded-xl border border-border bg-card/60 p-4 transition-all hover:border-teal-400/40 hover:bg-card hover:shadow-lg hover:shadow-teal-500/5 flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-400/10 text-blue-400 group-hover:scale-110 transition-transform">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-400/10 text-blue-400 group-hover:scale-110 transition-transform font-bold">
               <Users className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-semibold text-sm text-foreground group-hover:text-blue-300 transition-colors">Client Directory</p>
-              <p className="text-xs text-muted-foreground">Pet owners</p>
+              <p className="font-bold text-sm text-foreground group-hover:text-blue-300 transition-colors">Clientes</p>
+              <p className="text-xs text-muted-foreground font-medium">Tutores e contatos</p>
             </div>
           </div>
           <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-blue-400 transition-colors" />
@@ -173,12 +173,12 @@ export function Dashboard() {
 
         <div className="rounded-xl border border-border bg-card/40 p-4 flex items-center justify-between opacity-80">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-400/10 text-purple-400">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-400/10 text-purple-400 font-bold">
               <Activity className="h-5 w-5 animate-pulse" />
             </div>
             <div>
-              <p className="font-semibold text-sm text-foreground">Clinic Health</p>
-              <p className="text-xs text-teal-400 font-medium">100% Operational</p>
+              <p className="font-bold text-sm text-foreground">Status do Sistema</p>
+              <p className="text-xs text-teal-400 font-bold">100% Operacional</p>
             </div>
           </div>
           <span className="flex h-2 w-2 rounded-full bg-teal-400 animate-ping" />
@@ -192,24 +192,24 @@ export function Dashboard() {
             <div className={`absolute top-0 right-0 h-32 w-32 bg-gradient-to-br ${m.color} blur-3xl opacity-20 pointer-events-none transition-opacity group-hover:opacity-40`} />
             <CardContent className="p-6 relative z-10 space-y-4">
               <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-card border border-border shadow-inner text-teal-400 group-hover:scale-105 transition-transform">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-card border border-border shadow-inner text-teal-400 group-hover:scale-105 transition-transform font-bold">
                   <m.icon className="h-6 w-6" />
                 </div>
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wider uppercase bg-secondary border border-border text-muted-foreground">
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-secondary border border-border text-muted-foreground shadow-sm">
                   {m.badge}
                 </span>
               </div>
 
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{m.label}</p>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{m.label}</p>
                 {isLoading ? (
-                  <Skeleton className="mt-2 h-10 w-28 rounded-lg" />
+                  <Skeleton className="mt-2 h-10 w-28 rounded-lg bg-muted" />
                 ) : (
                   <div className="flex items-baseline gap-3 mt-1">
                     <p className="text-4xl font-extrabold tracking-tight text-foreground group-hover:text-teal-300 transition-colors">
                       {m.value.toLocaleString()}
                     </p>
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                       <TrendingUp className="h-3 w-3" />
                       {m.trend}
                     </span>
@@ -225,30 +225,30 @@ export function Dashboard() {
       <div className="grid gap-6 md:grid-cols-2">
         {/* Recent Activity Card */}
         <Card className="border-border bg-card/60 backdrop-blur-sm flex flex-col">
-          <CardHeader className="pb-4 border-b border-border">
+          <CardHeader className="pb-4 border-b border-border/60">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2 tracking-tight">
                   <Clock className="h-5 w-5 text-teal-400" />
-                  Recent Clinic Activity
+                  Atividade Recente da Clínica
                 </CardTitle>
-                <CardDescription className="text-xs">Live activity audit across all staff members</CardDescription>
+                <CardDescription className="text-xs">Registro de eventos e auditoria da equipe médica</CardDescription>
               </div>
-              <span className="text-xs font-semibold text-teal-400 bg-teal-400/10 px-2.5 py-1 rounded-full border border-teal-400/20 animate-pulse">
-                Live Feed
+              <span className="text-xs font-bold text-teal-400 bg-teal-400/10 px-2.5 py-1 rounded-full border border-teal-400/20 animate-pulse tracking-wide uppercase text-[10px]">
+                Em tempo real
               </span>
             </div>
           </CardHeader>
           <CardContent className="p-6 flex-1">
-            <div className="relative pl-6 border-l-2 border-border space-y-6">
+            <div className="relative pl-6 border-l-2 border-border/80 space-y-6">
               {recentActivities.map((act, idx) => (
                 <div key={act.id} className="relative group">
                   <div className={`absolute -left-[31px] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-background ${
-                    idx === 0 ? 'bg-teal-400 ring-4 ring-teal-400/20' : 'bg-secondary border-border'
+                    idx === 0 ? 'bg-teal-400 ring-4 ring-teal-400/20 shadow-[0_0_10px_rgba(45,212,191,0.5)]' : 'bg-secondary border-border'
                   }`} />
                   <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-                    <p className="text-sm font-medium text-foreground group-hover:text-teal-300 transition-colors">{act.text}</p>
-                    <span className="text-xs text-muted-foreground shrink-0">{act.time}</span>
+                    <p className="text-sm font-semibold text-foreground group-hover:text-teal-300 transition-colors">{act.text}</p>
+                    <span className="text-xs font-medium text-muted-foreground shrink-0">{act.time}</span>
                   </div>
                 </div>
               ))}
@@ -258,36 +258,36 @@ export function Dashboard() {
 
         {/* Operational Overview Card */}
         <Card className="border-border bg-card/60 backdrop-blur-sm flex flex-col">
-          <CardHeader className="pb-4 border-b border-border">
+          <CardHeader className="pb-4 border-b border-border/60">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2 tracking-tight">
                   <Activity className="h-5 w-5 text-emerald-400" />
-                  Workspace Summary
+                  Resumo Operacional
                 </CardTitle>
-                <CardDescription className="text-xs">Daily operational status</CardDescription>
+                <CardDescription className="text-xs">Métricas de integridade do ambiente</CardDescription>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/appointments')} className="text-xs text-teal-400 hover:text-teal-300">
-                View All Schedule
+              <Button variant="ghost" size="sm" onClick={() => navigate('/appointments')} className="text-xs text-teal-400 hover:text-teal-300 font-semibold">
+                Ver Agenda Completa
               </Button>
             </div>
           </CardHeader>
           <CardContent className="p-6 flex-1 flex flex-col justify-center items-center text-center">
-            <div className="h-20 w-20 rounded-full bg-gradient-to-tr from-teal-500/10 to-emerald-500/20 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-4 shadow-lg shadow-teal-500/10">
+            <div className="h-20 w-20 rounded-full bg-gradient-to-tr from-teal-500/10 to-emerald-500/20 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-4 shadow-lg shadow-teal-500/10 font-bold">
               <Sparkles className="h-8 w-8 animate-pulse" />
             </div>
-            <h3 className="font-bold text-lg text-foreground mb-1">Clinic Operations Streamlined</h3>
-            <p className="text-xs text-muted-foreground max-w-sm mb-6">
-              All cloud patient records and upcoming consultation slots are fully synchronized and secure.
+            <h3 className="font-extrabold tracking-tight text-lg text-foreground mb-1">Operações Otimizadas e Seguras</h3>
+            <p className="text-xs text-muted-foreground max-w-sm mb-6 font-medium">
+              Todos os prontuários eletrônicos e agendamentos estão sincronizados na nuvem com criptografia e backup contínuo.
             </p>
             <div className="grid grid-cols-2 gap-4 w-full max-w-md text-left">
               <div className="p-3.5 rounded-xl bg-card border border-border shadow-sm">
-                <span className="text-xs text-muted-foreground block mb-1">Server Latency</span>
-                <span className="font-bold text-sm text-emerald-400">12ms (Optimized)</span>
+                <span className="text-xs font-semibold text-muted-foreground block mb-1">Latência do Gateway</span>
+                <span className="font-extrabold tracking-tight text-sm text-emerald-400">12ms (Excelente)</span>
               </div>
               <div className="p-3.5 rounded-xl bg-card border border-border shadow-sm">
-                <span className="text-xs text-muted-foreground block mb-1">Data Backup</span>
-                <span className="font-bold text-sm text-teal-400">100% Secure</span>
+                <span className="text-xs font-semibold text-muted-foreground block mb-1">Status do Backup</span>
+                <span className="font-extrabold tracking-tight text-sm text-teal-400">100% Protegido</span>
               </div>
             </div>
           </CardContent>

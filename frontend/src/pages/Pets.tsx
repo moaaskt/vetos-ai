@@ -29,7 +29,7 @@ export function Pets() {
       setClients(clientsResponse.data)
       setError('')
     } catch {
-      setError('Could not load pets.')
+      setError('Não foi possível carregar as fichas dos pacientes.')
     } finally {
       setIsLoading(false)
     }
@@ -48,7 +48,7 @@ export function Pets() {
       })
       .catch(() => {
         if (isMounted) {
-          setError('Could not load pets.')
+          setError('Não foi possível carregar as fichas dos pacientes.')
         }
       })
       .finally(() => {
@@ -63,7 +63,7 @@ export function Pets() {
   }, [])
 
   function ownerName(pet: Pet) {
-    return pet.client?.name ?? clients.find((client) => client.id === pet.clientId)?.name ?? 'No Owner Linked'
+    return pet.client?.name ?? clients.find((client) => client.id === pet.clientId)?.name ?? 'Sem Tutor Vinculado'
   }
 
   const filteredPets = useMemo(() => {
@@ -80,14 +80,14 @@ export function Pets() {
   return (
     <div className="space-y-8 animate-in fade-in-0 duration-500">
       <PageHeader
-        title="Patients & Pets"
-        badge="Medical Records"
-        description="Search, view, and register new animals into the clinic database. Connect each pet to its client owner."
+        title="Pacientes Cadastrados"
+        badge="Prontuários Médicos"
+        description="Pesquise, visualize e cadastre novos pacientes no banco de dados da clínica. Conecte cada animal à ficha de seu tutor responsável."
         action={
           <div className="flex items-center gap-3">
             <Button onClick={() => setIsModalOpen(true)} className="bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-bold hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/20 gap-2">
               <Plus className="h-4 w-4" />
-              Register Patient
+              Cadastrar Paciente
             </Button>
           </div>
         }
@@ -106,17 +106,17 @@ export function Pets() {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <BaseInput
             type="search"
-            placeholder="Search by pet name, species, breed, or owner..."
+            placeholder="Pesquisar por paciente, espécie, raça ou tutor..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-background border-border"
+            className="pl-10 bg-background border-border font-medium"
           />
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium self-end sm:self-auto shrink-0">
-          <span>Showing</span>
+          <span>Exibindo</span>
           <span className="px-2 py-0.5 rounded bg-secondary text-foreground font-bold">{filteredPets.length}</span>
-          <span>of {pets.length} pets</span>
-          <Button onClick={loadData} variant="ghost" size="icon" title="Refresh" className="ml-1 h-8 w-8">
+          <span>de {pets.length} pacientes</span>
+          <Button onClick={loadData} variant="ghost" size="icon" title="Atualizar dados" className="ml-1 h-8 w-8 text-muted-foreground hover:text-foreground">
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
         </div>
@@ -124,7 +124,7 @@ export function Pets() {
 
       <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {filteredPets.map((pet) => (
-          <Card key={pet.id} className="group relative overflow-hidden border-border bg-card/60 backdrop-blur-sm transition-all duration-300 hover:border-teal-400/40 hover:shadow-xl hover:shadow-teal-500/5 flex flex-col justify-between">
+          <Card key={pet.id} className="group relative overflow-hidden border-border bg-card/60 backdrop-blur-sm transition-all duration-300 hover:border-teal-400/40 hover:shadow-xl hover:shadow-teal-500/5 flex flex-col justify-between font-medium">
             <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-teal-400/5 blur-2xl group-hover:bg-teal-400/10 transition-colors pointer-events-none" />
             <CardContent className="p-6 relative z-10 flex-1 flex flex-col justify-between space-y-6">
               <div className="flex items-start justify-between gap-4">
@@ -137,32 +137,32 @@ export function Pets() {
                       {pet.name}
                       <Heart className="h-4 w-4 text-rose-500/50 fill-rose-500/20 group-hover:fill-rose-500 group-hover:text-rose-500 transition-colors" />
                     </h2>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 truncate">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 truncate font-semibold">
                       <User className="h-3.5 w-3.5 text-teal-400 shrink-0" />
                       <span className="truncate">{ownerName(pet)}</span>
                     </p>
                   </div>
                 </div>
-                <span className="rounded-full bg-teal-400/10 border border-teal-400/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-teal-400 shrink-0 shadow-sm">
+                <span className="rounded-full bg-teal-400/10 border border-teal-400/20 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-teal-400 shrink-0 shadow-sm">
                   {pet.species}
                 </span>
               </div>
 
               <dl className="grid grid-cols-2 gap-3 pt-2">
                 <div className="rounded-xl bg-muted/40 border border-border p-3.5 space-y-1">
-                  <dt className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <dt className="text-xs text-muted-foreground flex items-center gap-1.5 font-semibold">
                     <Tag className="h-3 w-3 text-teal-400" />
-                    <span>Breed</span>
+                    <span>Raça / Pelagem</span>
                   </dt>
-                  <dd className="text-sm text-foreground font-bold truncate">{pet.breed || 'Not specified'}</dd>
+                  <dd className="text-sm text-foreground font-bold truncate">{pet.breed || 'Não especificada'}</dd>
                 </div>
                 <div className="rounded-xl bg-muted/40 border border-border p-3.5 space-y-1">
-                  <dt className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <dt className="text-xs text-muted-foreground flex items-center gap-1.5 font-semibold">
                     <Cake className="h-3 w-3 text-teal-400" />
-                    <span>Age</span>
+                    <span>Idade Estimada</span>
                   </dt>
                   <dd className="text-sm text-foreground font-bold truncate">
-                    {pet.age !== null && pet.age !== undefined ? `${pet.age} ${pet.age === 1 ? 'year' : 'years'}` : 'Unknown'}
+                    {pet.age !== null && pet.age !== undefined ? `${pet.age} ${pet.age === 1 ? 'ano' : 'anos'}` : 'Desconhecida'}
                   </dd>
                 </div>
               </dl>
@@ -179,9 +179,9 @@ export function Pets() {
         <div className="py-12">
           <EmptyState
             icon={PawPrint}
-            title={searchQuery ? "No patients matching query" : "No patients registered"}
-            description={searchQuery ? "Try refining your search terms or clearing the filter." : "Add your first animal patient to start recording medical consultations and checkups."}
-            actionLabel={searchQuery ? "Clear Search" : "Register Patient"}
+            title={searchQuery ? "Nenhum paciente encontrado na busca" : "Nenhum paciente cadastrado"}
+            description={searchQuery ? "Tente ajustar os termos da pesquisa ou limpe o filtro." : "Cadastre o primeiro animal para iniciar o registro de prontuários clínicos e agendamentos."}
+            actionLabel={searchQuery ? "Limpar Filtro" : "Cadastrar Paciente"}
             onAction={() => searchQuery ? setSearchQuery('') : setIsModalOpen(true)}
           />
         </div>
@@ -233,22 +233,22 @@ function PetModal({
       })
       onCreated()
     } catch {
-      setError('Could not create pet.')
+      setError('Não foi possível cadastrar o paciente. Verifique os dados informados.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <Modal title="Register New Patient Pet" onClose={onClose}>
+    <Modal title="Cadastrar Novo Paciente" onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-5 pt-2">
-        <Input label="Pet Name" placeholder="e.g. Bella" value={name} onChange={setName} required />
-        <Input label="Species" placeholder="e.g. Dog, Cat, Rabbit" value={species} onChange={setSpecies} required />
-        <Input label="Breed (Optional)" placeholder="e.g. Golden Retriever" value={breed} onChange={setBreed} />
-        <Input label="Age in Years (Optional)" placeholder="e.g. 3" value={age} onChange={setAge} type="number" min="0" />
+        <Input label="Nome do Paciente" placeholder="Ex: Thor, Mel" value={name} onChange={setName} required />
+        <Input label="Espécie" placeholder="Ex: Canino, Felino, Silvestre" value={species} onChange={setSpecies} required />
+        <Input label="Raça ou Pelagem (Opcional)" placeholder="Ex: Poodle, SRD" value={breed} onChange={setBreed} />
+        <Input label="Idade em Anos (Opcional)" placeholder="Ex: 4" value={age} onChange={setAge} type="number" min="0" />
         
         <label className="block space-y-2">
-          <span className="block text-sm font-semibold text-foreground">Client / Owner</span>
+          <span className="block text-sm font-semibold text-foreground">Tutor Responsável</span>
           <select
             className="flex h-10 w-full rounded-lg border border-input bg-card px-3 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-foreground font-medium"
             value={clientId}
@@ -257,7 +257,7 @@ function PetModal({
           >
             {clients.map((client) => (
               <option key={client.id} value={client.id} className="bg-background text-foreground font-medium">
-                {client.name} ({client.email || 'No email'})
+                {client.name} ({client.email || 'Sem e-mail'})
               </option>
             ))}
           </select>
@@ -266,7 +266,7 @@ function PetModal({
         {clients.length === 0 && (
           <div className="flex items-center gap-3 rounded-lg bg-amber-500/15 border border-amber-500/30 px-4 py-3 text-sm text-amber-400 font-medium">
             <AlertCircle className="h-5 w-5 shrink-0 text-amber-400" />
-            <span>Please register at least one client before adding pet records.</span>
+            <span>Cadastre ao menos um tutor responsável antes de incluir prontuários de pacientes.</span>
           </div>
         )}
 
@@ -278,15 +278,15 @@ function PetModal({
         )}
 
         <div className="pt-4 border-t border-border/60 flex items-center justify-end gap-3">
-          <Button type="button" variant="ghost" onClick={onClose}>
-            Cancel
+          <Button type="button" variant="ghost" onClick={onClose} className="font-semibold">
+            Cancelar
           </Button>
           <Button
             type="submit"
             className="bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-bold hover:from-teal-300 hover:to-teal-400 shadow-md shadow-teal-500/20"
             disabled={isSubmitting || clients.length === 0}
           >
-            {isSubmitting ? 'Registering...' : 'Confirm Registration'}
+            {isSubmitting ? 'Salvando ficha...' : 'Confirmar Cadastro'}
           </Button>
         </div>
       </form>

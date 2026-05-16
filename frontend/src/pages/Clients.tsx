@@ -24,7 +24,7 @@ export function Clients() {
       setClients(response.data)
       setError('')
     } catch {
-      setError('Could not load clients.')
+      setError('Não foi possível carregar o diretório de clientes.')
     } finally {
       setIsLoading(false)
     }
@@ -43,7 +43,7 @@ export function Clients() {
       })
       .catch(() => {
         if (isMounted) {
-          setError('Could not load clients.')
+          setError('Não foi possível carregar o diretório de clientes.')
         }
       })
       .finally(() => {
@@ -70,13 +70,13 @@ export function Clients() {
   return (
     <div className="space-y-8 animate-in fade-in-0 duration-500">
       <PageHeader
-        title="Client Directory"
-        badge="Pet Owners"
-        description="Manage registered pet owners, their verified email addresses, telephone numbers, and enrollment dates."
+        title="Diretório de Clientes"
+        badge="Tutores Responsáveis"
+        description="Gerencie os cadastros de clientes e tutores, contatos telefônicos, e-mails verificados e histórico de relacionamento."
         action={
           <Button onClick={() => setIsModalOpen(true)} className="bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-bold hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/20 gap-2">
             <UserPlus className="h-4 w-4" />
-            Register Client
+            Cadastrar Cliente
           </Button>
         }
       />
@@ -94,17 +94,17 @@ export function Clients() {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <BaseInput
             type="search"
-            placeholder="Search clients by name, email, or telephone..."
+            placeholder="Buscar por nome do cliente, e-mail ou telefone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-background border-border"
+            className="pl-10 bg-background border-border font-medium"
           />
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium self-end sm:self-auto shrink-0">
-          <span>Showing</span>
+          <span>Exibindo</span>
           <span className="px-2 py-0.5 rounded bg-secondary text-foreground font-bold">{filteredClients.length}</span>
-          <span>of {clients.length} clients</span>
-          <Button onClick={loadClients} variant="ghost" size="icon" title="Refresh list" className="ml-1 h-8 w-8 text-muted-foreground hover:text-foreground">
+          <span>de {clients.length} clientes</span>
+          <Button onClick={loadClients} variant="ghost" size="icon" title="Atualizar lista" className="ml-1 h-8 w-8 text-muted-foreground hover:text-foreground">
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
         </div>
@@ -115,34 +115,34 @@ export function Clients() {
           <div>
             <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
               <Users className="h-5 w-5 text-teal-400" />
-              Registered Client Database
+              Banco de Dados de Tutores
             </CardTitle>
-            <CardDescription className="text-xs">Secure records available across clinic workstations</CardDescription>
+            <CardDescription className="text-xs">Cadastros sincronizados em todas as estações de atendimento</CardDescription>
           </div>
-          <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-400/10 border border-teal-400/20 text-xs font-semibold text-teal-300">
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-400/10 border border-teal-400/20 text-xs font-semibold text-teal-300 uppercase tracking-wider">
             <Sparkles className="h-3 w-3 animate-pulse" />
-            Verified Records
+            Cadastros Ativos
           </span>
         </CardHeader>
 
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-muted/40 text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/80">
+              <thead className="bg-muted/40 text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground border-b border-border/80">
                 <tr>
-                  <th className="px-6 py-3.5 font-bold">Client Owner</th>
-                  <th className="px-6 py-3.5 font-bold">Email Address</th>
-                  <th className="px-6 py-3.5 font-bold">Telephone Contact</th>
-                  <th className="px-6 py-3.5 font-bold">Registered Date</th>
-                  <th className="px-6 py-3.5 text-right font-bold">Actions</th>
+                  <th className="px-6 py-3.5 font-bold">Cliente / Tutor</th>
+                  <th className="px-6 py-3.5 font-bold">Endereço de E-mail</th>
+                  <th className="px-6 py-3.5 font-bold">Telefone de Contato</th>
+                  <th className="px-6 py-3.5 font-bold">Data de Cadastro</th>
+                  <th className="px-6 py-3.5 text-right font-bold">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
                 {filteredClients.map((client) => (
-                  <tr key={client.id} className="group hover:bg-muted/40 transition-colors">
+                  <tr key={client.id} className="group hover:bg-muted/40 transition-colors font-medium">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-teal-500/10 to-teal-500/30 border border-teal-500/40 flex items-center justify-center font-bold text-teal-400 text-xs shadow-sm group-hover:scale-105 transition-transform">
+                        <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-teal-500/10 to-teal-500/30 border border-teal-500/40 flex items-center justify-center font-bold text-teal-400 text-xs shadow-sm group-hover:scale-105 transition-transform font-bold">
                           {client.name.charAt(0).toUpperCase()}
                         </div>
                         <span className="font-bold text-foreground group-hover:text-teal-300 transition-colors">
@@ -157,7 +157,7 @@ export function Clients() {
                           <span>{client.email}</span>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground/60 italic text-xs">Unregistered</span>
+                        <span className="text-muted-foreground/60 italic text-xs">Não cadastrado</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
@@ -167,20 +167,20 @@ export function Clients() {
                           <span>{client.phone}</span>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground/60 italic text-xs">Unregistered</span>
+                        <span className="text-muted-foreground/60 italic text-xs">Não informado</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
                         <Calendar className="h-3.5 w-3.5 text-slate-500 shrink-0" />
                         <span>
-                          {client.createdAt ? new Date(client.createdAt).toLocaleDateString([], { dateStyle: 'medium' }) : 'Unknown'}
+                          {client.createdAt ? new Date(client.createdAt).toLocaleDateString([], { dateStyle: 'medium' }) : 'Desconhecida'}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-teal-300 hover:bg-teal-500/10 gap-1 rounded-lg text-xs font-semibold">
-                        <span>Details</span>
+                        <span>Detalhes</span>
                         <ChevronRight className="h-3.5 w-3.5" />
                       </Button>
                     </td>
@@ -194,9 +194,9 @@ export function Clients() {
             <div className="py-12">
               <EmptyState
                 icon={Users}
-                title={searchQuery ? "No clients matching query" : "No clients found in database"}
-                description={searchQuery ? "Try refining your search keywords or clearing the filter input." : "Your clinic client directory is currently empty. Add your first client to connect pet medical records."}
-                actionLabel={searchQuery ? "Clear Search" : "Register Client"}
+                title={searchQuery ? "Nenhum cliente encontrado na busca" : "Nenhum cliente cadastrado"}
+                description={searchQuery ? "Tente refinar os termos da pesquisa ou limpe o campo de filtro." : "Seu diretório de clientes está vazio. Cadastre o primeiro tutor para iniciar o vínculo de prontuários."}
+                actionLabel={searchQuery ? "Limpar Busca" : "Cadastrar Cliente"}
                 onAction={() => searchQuery ? setSearchQuery('') : setIsModalOpen(true)}
               />
             </div>
@@ -245,18 +245,18 @@ function ClientModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
       })
       onCreated()
     } catch {
-      setError('Could not create client. Please verify your details.')
+      setError('Não foi possível efetuar o cadastro. Verifique os dados e tente novamente.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <Modal title="Register New Client / Pet Owner" onClose={onClose}>
+    <Modal title="Cadastrar Cliente / Tutor" onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-5 pt-2">
-        <Field label="Full Legal Name" placeholder="e.g. Dr. Robert Vance" value={name} onChange={setName} required />
-        <Field label="Email Address (Optional)" placeholder="e.g. robert@example.com" value={email} onChange={setEmail} type="email" />
-        <Field label="Telephone Number (Optional)" placeholder="e.g. +1 (555) 019-2834" value={phone} onChange={setPhone} type="tel" />
+        <Field label="Nome Completo do Tutor" placeholder="Ex: Dr. Roberto Guimarães" value={name} onChange={setName} required />
+        <Field label="E-mail de Contato (Opcional)" placeholder="Ex: roberto@email.com" value={email} onChange={setEmail} type="email" />
+        <Field label="Telefone com DDD (Opcional)" placeholder="Ex: (11) 98888-0123" value={phone} onChange={setPhone} type="tel" />
         
         {error && (
           <div className="flex items-center gap-3 rounded-lg bg-destructive/15 border border-destructive/30 px-4 py-3 text-sm text-destructive font-medium">
@@ -265,16 +265,16 @@ function ClientModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
           </div>
         )}
 
-        <div className="pt-4 border-t border-border/60 flex items-center justify-end gap-3">
+        <div className="pt-4 border-t border-border/60 flex items-center justify-end gap-3 font-semibold">
           <Button type="button" variant="ghost" onClick={onClose}>
-            Cancel
+            Cancelar
           </Button>
           <Button
             type="submit"
             className="bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-bold hover:from-teal-300 hover:to-teal-400 shadow-md shadow-teal-500/20"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Registering...' : 'Confirm Registration'}
+            {isSubmitting ? 'Cadastrando...' : 'Confirmar Cadastro'}
           </Button>
         </div>
       </form>
@@ -298,7 +298,7 @@ function Field({
   required?: boolean
 }) {
   return (
-    <label className="block space-y-2">
+    <label className="block space-y-2 font-semibold">
       <span className="block text-sm font-semibold text-foreground">
         {label} {required && <span className="text-teal-400">*</span>}
       </span>
