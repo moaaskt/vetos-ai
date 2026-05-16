@@ -17,8 +17,8 @@ export function Login() {
     setIsSubmitting(true)
 
     try {
-      await login(email, password)
-      navigate('/dashboard')
+      const user = await login(email, password)
+      navigate(user?.role === 'SUPERADMIN' ? '/super-admin/dashboard' : '/dashboard')
     } catch {
       setError('Invalid email or password.')
     } finally {

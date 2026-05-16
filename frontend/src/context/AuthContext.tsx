@@ -27,8 +27,8 @@ type AuthContextValue = {
   user: User | null
   clinic: Clinic | null
   isAuthenticated: boolean
-  login: (email: string, password: string) => Promise<void>
-  register: (clinicName: string, email: string, password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<User | null>
+  register: (clinicName: string, email: string, password: string) => Promise<User | null>
   logout: () => void
   impersonate: (clinicId: string) => Promise<void>
   exitImpersonation: () => void
@@ -122,7 +122,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       })
       const nextToken = response.data.access_token
-      persistSession(nextToken, decodeUser(nextToken), null)
+      const nextUser = decodeUser(nextToken)
+      persistSession(nextToken, nextUser, null)
+      return nextUser
     },
     [persistSession],
   )
@@ -139,11 +141,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       })
       const nextToken = response.data.access_token
+      const nextUser = response.data.user ?? decodeUser(nextToken)
       persistSession(
         nextToken,
-        response.data.user ?? decodeUser(nextToken),
+        nextUser,
         response.data.clinic ?? { name: clinicName },
       )
+      return nextUser
     },
     [persistSession],
   )

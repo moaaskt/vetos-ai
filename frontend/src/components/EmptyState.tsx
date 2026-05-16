@@ -1,5 +1,5 @@
 import * as React from "react"
-import { LucideIcon } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { Button } from "./ui/button"
 
 interface EmptyStateProps {
@@ -23,7 +23,7 @@ export function EmptyState({
         {React.isValidElement(Icon) ? (
           Icon
         ) : (
-          // @ts-ignore - Assuming it's a component like LucideIcon
+          // @ts-expect-error - Assuming it's a component like LucideIcon
           <Icon className="h-10 w-10 text-teal-400" />
         )}
       </div>
