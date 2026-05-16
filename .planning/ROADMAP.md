@@ -31,3 +31,7 @@
 - AI-powered appointment optimization.
 - Client retention insights.
 - Advanced reports.
+
+## Phase 7: Super Admin platform dashboard for managing clinics, plans, tenants, global metrics and support operations
+- Goal: Create a centralized super admin dashboard.
+- Features: Manage clinics, plans, tenants, global metrics, and support operations.

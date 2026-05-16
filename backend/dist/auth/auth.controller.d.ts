@@ -1,6 +1,7 @@
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ImpersonateDto } from './dto/impersonate.dto';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
@@ -12,7 +13,7 @@ export declare class AuthController {
             updatedAt: Date;
             email: string;
             role: import(".prisma/client").$Enums.Role;
-            clinicId: string;
+            clinicId: string | null;
         };
         clinic: {
             id: string;
@@ -24,6 +25,9 @@ export declare class AuthController {
         };
     }>;
     login(loginDto: LoginDto): Promise<{
+        access_token: string;
+    }>;
+    impersonate(req: any, dto: ImpersonateDto): Promise<{
         access_token: string;
     }>;
 }

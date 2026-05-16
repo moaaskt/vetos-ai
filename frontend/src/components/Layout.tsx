@@ -22,8 +22,17 @@ const navItems: NavItem[] = [
   { to: '/appointments', label: 'Appointments', icon: CalendarDays },
 ]
 
+const superAdminNavItems: NavItem[] = [
+  { to: '/super-admin/dashboard', label: 'Platform Stats', icon: LayoutDashboard },
+  { to: '/super-admin/clinics', label: 'Manage Clinics', icon: Users },
+]
+
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { user, clinic, logout } = useAuth()
+  const { user, clinic, logout, exitImpersonation } = useAuth()
+  
+  const currentNavItems = (user?.role === 'SUPERADMIN' && !user?.isImpersonating) 
+    ? superAdminNavItems 
+    : navItems
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -41,7 +50,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="space-y-2">
-          {navItems.map((item) => (
+          {currentNavItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -62,6 +71,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="lg:pl-72">
+        {user?.isImpersonating && (
+          <div className="bg-red-500 text-white p-2 text-center text-sm font-medium">
+            Impersonating Clinic (ID: {user.clinicId}) 
+            <button onClick={exitImpersonation} className="underline font-bold ml-2">
+              Exit Impersonation
+            </button>
+          </div>
+        )}
         <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/85 px-4 py-4 backdrop-blur md:px-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
@@ -69,7 +86,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <p className="font-medium">{user?.email ?? 'Signed in'}</p>
             </div>
             <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:hidden">
-              {navItems.map((item) => (
+              {currentNavItems.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}

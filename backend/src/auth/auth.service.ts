@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ImpersonateDto } from './dto/impersonate.dto';
 import { Role } from '@prisma/client';
 
 @Injectable()
@@ -74,6 +75,38 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
       user: result.user,
       clinic: result.clinic,
+    };
+  }
+
+  async impersonateClinic(superAdminId: string, dto: ImpersonateDto) {
+    const superAdmin = await this.prisma.user.findUnique({ where: { id: superAdminId } });
+    if (!superAdmin || superAdmin.role !== Role.SUPERADMIN) {
+      throw new UnauthorizedException('Only Super Admins can impersonate clinics');
+    }
+
+    const clinic = await this.prisma.clinic.findUnique({ where: { id: dto.targetClinicId } });
+    if (!clinic) {
+      throw new BadRequestException('Target clinic not found');
+    }
+
+    await this.prisma.impersonationLog.create({
+      data: {
+        superAdminId,
+        targetClinicId: dto.targetClinicId,
+        reason: dto.reason,
+      },
+    });
+
+    const payload = {
+      sub: superAdmin.id,
+      email: superAdmin.email,
+      role: superAdmin.role,
+      clinicId: dto.targetClinicId,
+      isImpersonating: true,
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload),
     };
   }
 }

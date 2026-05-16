@@ -14,6 +14,7 @@ type User = {
   email: string
   role?: string
   clinicId?: string
+  isImpersonating?: boolean
 }
 
 type Clinic = {
@@ -29,11 +30,14 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<void>
   register: (clinicName: string, email: string, password: string) => Promise<void>
   logout: () => void
+  impersonate: (clinicId: string) => Promise<void>
+  exitImpersonation: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 const TOKEN_KEY = 'vetos_token'
+const ORIGINAL_TOKEN_KEY = 'vetos_original_token'
 const USER_KEY = 'vetos_user'
 const CLINIC_KEY = 'vetos_clinic'
 
@@ -51,6 +55,7 @@ function decodeUser(token: string): User | null {
       role?: string
       clinicId?: string
       sub?: string
+      isImpersonating?: boolean
     }
 
     if (!decoded.email) {
@@ -62,6 +67,7 @@ function decodeUser(token: string): User | null {
       email: decoded.email,
       role: decoded.role,
       clinicId: decoded.clinicId,
+      isImpersonating: decoded.isImpersonating,
     }
   } catch {
     return null
@@ -144,12 +150,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(ORIGINAL_TOKEN_KEY)
     localStorage.removeItem(USER_KEY)
     localStorage.removeItem(CLINIC_KEY)
     setToken(null)
     setUser(null)
     setClinic(null)
   }, [])
+
+  const impersonate = useCallback(
+    async (clinicId: string) => {
+      const response = await api.post<{ access_token: string }>('/auth/impersonate', {
+        targetClinicId: clinicId,
+        reason: 'Super Admin Access'
+      })
+      const nextToken = response.data.access_token
+      if (token) localStorage.setItem(ORIGINAL_TOKEN_KEY, token)
+      persistSession(nextToken, decodeUser(nextToken), null)
+    },
+    [persistSession, token],
+  )
+
+  const exitImpersonation = useCallback(() => {
+    const originalToken = localStorage.getItem(ORIGINAL_TOKEN_KEY)
+    if (originalToken) {
+      localStorage.removeItem(ORIGINAL_TOKEN_KEY)
+      persistSession(originalToken, decodeUser(originalToken), null)
+    } else {
+      logout()
+    }
+  }, [persistSession, logout])
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -160,8 +190,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
+      impersonate,
+      exitImpersonation,
     }),
-    [clinic, login, logout, register, token, user],
+    [clinic, login, logout, register, token, user, impersonate, exitImpersonation],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
