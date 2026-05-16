@@ -27,34 +27,34 @@ export function Login() {
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-slate-950 px-4 py-10 text-slate-100 font-sans selection:bg-teal-500/20 selection:text-teal-300">
+    <main className="grid min-h-screen place-items-center bg-background px-4 py-10 text-foreground font-sans selection:bg-primary/20 selection:text-primary">
       <section className="w-full max-w-md animate-in fade-in-0 duration-500">
         <div className="mb-8 flex items-center gap-3 justify-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 text-slate-950 shadow-lg shadow-teal-500/20 font-bold">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm font-bold">
             <PawPrint className="h-7 w-7" />
           </div>
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight">VetOS AI</h1>
-            <p className="text-xs text-teal-400 font-semibold tracking-wide uppercase">Gestão Veterinária Inteligente</p>
+            <p className="text-xs text-primary font-semibold tracking-wide uppercase">Gestão Veterinária Inteligente</p>
           </div>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-xl p-8 shadow-2xl space-y-6"
+          className="rounded-2xl border border-border bg-card/80 backdrop-blur-xl p-8 shadow-md space-y-6"
         >
           <div className="space-y-1 text-center">
-            <h2 className="text-2xl font-bold tracking-tight text-white">Acessar Sistema</h2>
-            <p className="text-xs text-slate-400">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">Acessar Sistema</h2>
+            <p className="text-xs text-muted-foreground">
               Acesse o ambiente de gestão da sua clínica e prontuários de pacientes.
             </p>
           </div>
 
           <div className="space-y-4">
             <label className="block space-y-2">
-              <span className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">E-mail Profissional</span>
+              <span className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">E-mail Profissional</span>
               <input
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-medium outline-none transition placeholder:text-slate-600 focus:border-teal-400 text-white shadow-inner"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium outline-none transition placeholder:text-muted-foreground/50 focus:border-primary text-foreground shadow-inner"
                 type="email"
                 placeholder="medico@clinica.com.br"
                 value={email}
@@ -65,9 +65,9 @@ export function Login() {
             </label>
 
             <label className="block space-y-2">
-              <span className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Senha de Acesso</span>
+              <span className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">Senha de Acesso</span>
               <input
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-medium outline-none transition placeholder:text-slate-600 focus:border-teal-400 text-white shadow-inner"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium outline-none transition placeholder:text-muted-foreground/50 focus:border-primary text-foreground shadow-inner"
                 type="password"
                 placeholder="••••••••"
                 value={password}
@@ -79,7 +79,7 @@ export function Login() {
           </div>
 
           {error && (
-            <div className="rounded-xl bg-destructive/15 border border-destructive/30 px-4 py-3 text-xs font-semibold text-red-200 text-center animate-shake">
+            <div className="rounded-xl bg-destructive/15 border border-destructive/30 px-4 py-3 text-xs font-semibold text-destructive text-center animate-shake">
               {error}
             </div>
           )}
@@ -87,14 +87,14 @@ export function Login() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-gradient-to-r from-teal-400 to-teal-500 px-4 py-3.5 text-sm font-bold text-slate-950 shadow-lg shadow-teal-500/20 transition hover:from-teal-300 hover:to-teal-400 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl bg-primary px-4 py-3.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? 'Autenticando...' : 'Entrar na Conta'}
           </button>
 
-          <p className="text-center text-xs text-slate-400 pt-2 border-t border-white/10">
+          <p className="text-center text-xs text-muted-foreground pt-2 border-t border-border">
             Nova clínica parceira?{' '}
-            <Link className="font-bold text-teal-300 hover:text-teal-200 transition-colors" to="/register">
+            <Link className="font-bold text-primary hover:opacity-80 transition-colors" to="/register">
               Cadastre sua unidade
             </Link>
           </p>

@@ -74,7 +74,7 @@ export function Clients() {
         badge="Tutores Responsáveis"
         description="Gerencie os cadastros de clientes e tutores, contatos telefônicos, e-mails verificados e histórico de relacionamento."
         action={
-          <Button onClick={() => setIsModalOpen(true)} className="bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-bold hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/20 gap-2">
+          <Button onClick={() => setIsModalOpen(true)} className="bg-primary text-primary-foreground font-bold hover:opacity-90 shadow-sm gap-2">
             <UserPlus className="h-4 w-4" />
             Cadastrar Cliente
           </Button>
@@ -110,16 +110,16 @@ export function Clients() {
         </div>
       </div>
 
-      <Card className="border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-xl">
+      <Card className="border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-md">
         <CardHeader className="border-b border-border/60 bg-card/80 py-5 px-6 flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-              <Users className="h-5 w-5 text-teal-400" />
+              <Users className="h-5 w-5 text-primary" />
               Banco de Dados de Tutores
             </CardTitle>
             <CardDescription className="text-xs">Cadastros sincronizados em todas as estações de atendimento</CardDescription>
           </div>
-          <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-400/10 border border-teal-400/20 text-xs font-semibold text-teal-300 uppercase tracking-wider">
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 border border-primary/20 text-xs font-semibold text-primary uppercase tracking-wider">
             <Sparkles className="h-3 w-3 animate-pulse" />
             Cadastros Ativos
           </span>
@@ -142,10 +142,10 @@ export function Clients() {
                   <tr key={client.id} className="group hover:bg-muted/40 transition-colors font-medium">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-teal-500/10 to-teal-500/30 border border-teal-500/40 flex items-center justify-center font-bold text-teal-400 text-xs shadow-sm group-hover:scale-105 transition-transform font-bold">
+                        <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary text-xs shadow-sm group-hover:scale-105 transition-transform">
                           {client.name.charAt(0).toUpperCase()}
                         </div>
-                        <span className="font-bold text-foreground group-hover:text-teal-300 transition-colors">
+                        <span className="font-bold text-foreground group-hover:text-primary transition-colors">
                           {client.name}
                         </span>
                       </div>
@@ -153,7 +153,7 @@ export function Clients() {
                     <td className="px-6 py-4">
                       {client.email ? (
                         <div className="flex items-center gap-2 text-muted-foreground font-medium group-hover:text-slate-300 transition-colors">
-                          <Mail className="h-3.5 w-3.5 text-teal-400/70 shrink-0" />
+                          <Mail className="h-3.5 w-3.5 text-primary/70 shrink-0" />
                           <span>{client.email}</span>
                         </div>
                       ) : (
@@ -163,7 +163,7 @@ export function Clients() {
                     <td className="px-6 py-4">
                       {client.phone ? (
                         <div className="flex items-center gap-2 text-muted-foreground font-medium group-hover:text-slate-300 transition-colors">
-                          <Phone className="h-3.5 w-3.5 text-teal-400/70 shrink-0" />
+                          <Phone className="h-3.5 w-3.5 text-primary/70 shrink-0" />
                           <span>{client.phone}</span>
                         </div>
                       ) : (
@@ -179,7 +179,7 @@ export function Clients() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-teal-300 hover:bg-teal-500/10 gap-1 rounded-lg text-xs font-semibold">
+                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10 gap-1 rounded-lg text-xs font-semibold">
                         <span>Detalhes</span>
                         <ChevronRight className="h-3.5 w-3.5" />
                       </Button>
@@ -271,7 +271,7 @@ function ClientModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
           </Button>
           <Button
             type="submit"
-            className="bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-bold hover:from-teal-300 hover:to-teal-400 shadow-md shadow-teal-500/20"
+            className="bg-primary text-primary-foreground font-bold hover:opacity-90 shadow-sm"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Cadastrando...' : 'Confirmar Cadastro'}
@@ -300,7 +300,7 @@ function Field({
   return (
     <label className="block space-y-2 font-semibold">
       <span className="block text-sm font-semibold text-foreground">
-        {label} {required && <span className="text-teal-400">*</span>}
+        {label} {required && <span className="text-primary">*</span>}
       </span>
       <BaseInput
         type={type}
@@ -308,7 +308,7 @@ function Field({
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
         required={required}
-        className="bg-background border-border focus-visible:ring-teal-400 font-medium h-10"
+        className="bg-background border-border focus-visible:ring-primary font-medium h-10"
       />
     </label>
   )

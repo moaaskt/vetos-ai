@@ -96,7 +96,7 @@ export function Appointments() {
         badge="Tempo Real"
         description="Acompanhe as consultas clínicas, exames laboratoriais de rotina e procedimentos cirúrgicos agendados."
         action={
-          <Button onClick={loadAppointments} variant="outline" className="border-border hover:border-teal-400/40 gap-2 font-semibold">
+          <Button onClick={loadAppointments} variant="outline" className="border-border hover:border-primary/40 gap-2 font-semibold">
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             Atualizar Agenda
           </Button>
@@ -114,7 +114,7 @@ export function Appointments() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-xl border border-border bg-card/60 p-4 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-400/10 text-teal-400 font-bold">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold">
               <CalendarDays className="h-5 w-5" />
             </div>
             <div>
@@ -122,12 +122,12 @@ export function Appointments() {
               <p className="text-xl font-bold text-foreground">{appointments.length}</p>
             </div>
           </div>
-          <span className="flex h-2 w-2 rounded-full bg-teal-400 animate-pulse" />
+          <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
         </div>
         
         <div className="rounded-xl border border-border bg-card/60 p-4 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-400 font-bold">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 font-bold">
               <CheckCircle2 className="h-5 w-5" />
             </div>
             <div>
@@ -141,7 +141,7 @@ export function Appointments() {
 
         <div className="rounded-xl border border-border bg-card/60 p-4 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-400/10 text-blue-400 font-bold">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 font-bold">
               <Clock className="h-5 w-5" />
             </div>
             <div>
@@ -154,16 +154,16 @@ export function Appointments() {
         </div>
       </div>
 
-      <Card className="border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-xl">
+      <Card className="border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-md">
         <CardHeader className="border-b border-border/60 bg-card/80 py-5 px-6 flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-              <CalendarClock className="h-5 w-5 text-teal-400" />
+              <CalendarClock className="h-5 w-5 text-primary" />
               Próximos Atendimentos
             </CardTitle>
             <CardDescription className="text-xs">Ordenados cronologicamente pelo horário da consulta</CardDescription>
           </div>
-          <span className="text-xs font-bold text-teal-300 px-3 py-1 rounded-md bg-teal-400/10 border border-teal-400/20 uppercase tracking-wide">
+          <span className="text-xs font-semibold text-primary px-3 py-1 rounded-md bg-primary/10 border border-primary/20 uppercase tracking-wide">
             {upcomingAppointments.length} Consultas
           </span>
         </CardHeader>
@@ -174,14 +174,14 @@ export function Appointments() {
                 key={appointment.id}
                 className="group flex flex-col gap-4 px-6 py-5 transition-all hover:bg-muted/40 md:flex-row md:items-center md:justify-between relative overflow-hidden font-medium"
               >
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-hover:bg-teal-400 transition-colors" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-hover:bg-primary transition-colors" />
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-card to-secondary border border-border text-teal-400 shadow-md group-hover:scale-105 transition-transform font-bold">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-card border border-border text-primary shadow-sm group-hover:scale-105 transition-transform font-bold">
                     <PawPrint className="h-6 w-6" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2.5">
-                      <h3 className="font-bold text-base text-foreground group-hover:text-teal-300 transition-colors">
+                      <h3 className="font-bold text-base text-foreground group-hover:text-primary transition-colors">
                         {appointment.pet?.name ?? 'Paciente Animal'}
                       </h3>
                       {appointment.pet?.breed && (
@@ -195,7 +195,7 @@ export function Appointments() {
                     </p>
                     {appointment.pet?.client && (
                       <p className="text-xs text-slate-400 flex items-center gap-1 pt-1 font-semibold">
-                        <User className="h-3.5 w-3.5 text-teal-400 shrink-0" />
+                        <User className="h-3.5 w-3.5 text-primary shrink-0" />
                         Tutor: <span className="text-slate-300 font-bold">{appointment.pet.client.name}</span>
                       </p>
                     )}
@@ -203,13 +203,13 @@ export function Appointments() {
                 </div>
                 <div className="flex flex-wrap items-center gap-3 text-sm">
                   <div className="flex items-center gap-2 rounded-xl bg-card border border-border px-3.5 py-2 shadow-inner text-xs font-bold text-slate-300">
-                    <Clock className="h-3.5 w-3.5 text-teal-400" />
+                    <Clock className="h-3.5 w-3.5 text-primary" />
                     {new Date(appointment.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
                   </div>
                   <span className={`rounded-full px-3.5 py-1 text-xs font-extrabold border uppercase tracking-wider shadow-sm ${getStatusColor(appointment.status)}`}>
                     {getStatusText(appointment.status)}
                   </span>
-                  <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-teal-300 hover:bg-teal-500/10">
+                  <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>

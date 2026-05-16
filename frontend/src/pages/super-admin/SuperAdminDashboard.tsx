@@ -97,11 +97,11 @@ export function SuperAdminDashboard() {
         description="Monitoramento central de infraestrutura, faturamento global e atividade de múltiplos tenants da plataforma."
         action={
           <div className="flex items-center gap-3">
-            <Button onClick={loadMetrics} variant="outline" className="border-border hover:border-teal-400/40 gap-2 font-semibold">
+            <Button onClick={loadMetrics} variant="outline" className="border-border hover:border-primary/40 gap-2 font-semibold">
               <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
               Atualizar Telemetria
             </Button>
-            <Button onClick={() => navigate('/super-admin/clinics')} className="bg-gradient-to-r from-teal-400 to-emerald-400 text-slate-950 font-bold shadow-lg shadow-teal-500/20 gap-2">
+            <Button onClick={() => navigate('/super-admin/clinics')} className="bg-primary text-primary-foreground font-bold shadow-sm hover:opacity-90 gap-2">
               <Users className="h-4 w-4" />
               Gerenciar Clínicas
             </Button>
@@ -119,11 +119,11 @@ export function SuperAdminDashboard() {
       {/* Global Analytics Cards */}
       <section className="grid gap-6 md:grid-cols-3">
         {cards.map((card) => (
-          <Card key={card.label} className="group relative overflow-hidden border-border bg-card/60 backdrop-blur-sm transition-all duration-300 hover:border-teal-400/40 hover:shadow-xl hover:shadow-teal-500/5">
-            <div className={`absolute top-0 right-0 h-32 w-32 bg-gradient-to-br ${card.glow} to-transparent blur-3xl opacity-30 pointer-events-none group-hover:opacity-50 transition-opacity`} />
+          <Card key={card.label} className="group relative overflow-hidden border-border bg-card/60 backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md">
+            <div className={`absolute top-0 right-0 h-32 w-32 bg-gradient-to-br ${card.glow} to-transparent blur-2xl opacity-10 pointer-events-none group-hover:opacity-20 transition-opacity`} />
             <CardContent className="p-6 relative z-10 space-y-4">
               <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-card border border-border shadow-inner text-teal-400 group-hover:scale-105 transition-transform font-bold">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-card border border-border shadow-inner text-primary group-hover:scale-105 transition-transform font-bold">
                   <card.icon className="h-6 w-6" />
                 </div>
                 <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-secondary border border-border text-muted-foreground shadow-sm">
@@ -137,7 +137,7 @@ export function SuperAdminDashboard() {
                   <Skeleton className="mt-2 h-10 w-32 rounded-lg bg-muted" />
                 ) : (
                   <div className="flex items-baseline gap-3 mt-1">
-                    <p className="text-4xl font-extrabold tracking-tight text-foreground group-hover:text-teal-300 transition-colors">
+                    <p className="text-4xl font-extrabold tracking-tight text-foreground group-hover:text-primary transition-colors">
                       {card.value}
                     </p>
                     <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 tracking-wide shrink-0">
@@ -159,7 +159,7 @@ export function SuperAdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-                  <Cpu className="h-5 w-5 text-teal-400" />
+                  <Cpu className="h-5 w-5 text-primary" />
                   Saúde do Cluster & Infraestrutura
                 </CardTitle>
                 <CardDescription className="text-xs">Métricas globais de gateway API e desempenho do banco de dados</CardDescription>
@@ -178,8 +178,8 @@ export function SuperAdminDashboard() {
             </div>
             <div className="p-4 rounded-xl bg-card border border-border shadow-sm space-y-1.5">
               <span className="text-xs text-muted-foreground uppercase tracking-wider block font-semibold">Latência API</span>
-              <span className="text-2xl font-extrabold text-teal-400 tracking-tight block">18ms</span>
-              <span className="text-[10px] text-teal-300 font-bold bg-teal-500/10 px-1.5 py-0.5 rounded">p99 Rápido</span>
+              <span className="text-2xl font-extrabold text-primary tracking-tight block">18ms</span>
+              <span className="text-[10px] text-primary font-bold bg-primary/10 px-1.5 py-0.5 rounded">p99 Rápido</span>
             </div>
             <div className="p-4 rounded-xl bg-card border border-border shadow-sm space-y-1.5">
               <span className="text-xs text-muted-foreground uppercase tracking-wider block font-semibold">IOPS do Banco</span>
@@ -197,7 +197,7 @@ export function SuperAdminDashboard() {
         <Card className="border-border bg-card/60 backdrop-blur-sm flex flex-col justify-between">
           <CardHeader className="border-b border-border/60 pb-4">
             <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-              <HardDrive className="h-5 w-5 text-teal-400" />
+              <HardDrive className="h-5 w-5 text-primary" />
               Volume Operacional
             </CardTitle>
             <CardDescription className="text-xs">Uso agregado da plataforma</CardDescription>
@@ -206,19 +206,19 @@ export function SuperAdminDashboard() {
             <div className="rounded-xl bg-card border border-border p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-muted-foreground">Consultas Totais Agendadas</span>
-                <span className="font-bold text-teal-400">{metrics.totalAppointments.toLocaleString()}</span>
+                <span className="font-bold text-primary">{metrics.totalAppointments.toLocaleString()}</span>
               </div>
               <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
-                <div className="bg-gradient-to-r from-teal-400 to-emerald-400 h-full w-3/4 rounded-full" />
+                <div className="bg-primary h-full w-3/4 rounded-full" />
               </div>
             </div>
 
-            <Button onClick={() => navigate('/super-admin/clinics')} variant="outline" className="w-full border-border hover:border-teal-400/40 justify-between group h-11 px-4">
-              <span className="flex items-center gap-2 font-bold text-sm text-foreground group-hover:text-teal-300 transition-colors">
-                <Sparkles className="h-4 w-4 text-teal-400" />
+            <Button onClick={() => navigate('/super-admin/clinics')} variant="outline" className="w-full border-border hover:border-primary/40 justify-between group h-11 px-4 font-semibold">
+              <span className="flex items-center gap-2 font-bold text-sm text-foreground group-hover:text-primary transition-colors">
+                <Sparkles className="h-4 w-4 text-primary" />
                 Gerenciar Tenants
               </span>
-              <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-teal-400 transition-colors" />
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
             </Button>
           </CardContent>
         </Card>

@@ -83,7 +83,7 @@ export function SuperAdminClinics() {
         description="Supervisione as contas das clínicas parceiras, revise as datas de implantação e acesse os ambientes de forma segura para auditoria e suporte técnico."
         action={
           <div className="flex items-center gap-3">
-            <Button onClick={loadClinics} variant="outline" className="border-border hover:border-teal-400/40 gap-2 font-semibold">
+            <Button onClick={loadClinics} variant="outline" className="border-border hover:border-primary/40 gap-2 font-semibold">
               <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
               Sincronizar Clínicas
             </Button>
@@ -117,16 +117,16 @@ export function SuperAdminClinics() {
         </div>
       </div>
 
-      <Card className="border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-2xl">
+      <Card className="border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-md">
         <CardHeader className="border-b border-border/60 bg-card/80 py-5 px-6 flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2 tracking-tight">
-              <Building2 className="h-5 w-5 text-teal-400" />
+              <Building2 className="h-5 w-5 text-primary" />
               Banco de Dados de Unidades
             </CardTitle>
             <CardDescription className="text-xs">Sessões de suporte e acesso de auditoria monitoradas ativamente</CardDescription>
           </div>
-          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-teal-400/10 border border-teal-400/20 text-xs font-bold uppercase tracking-wider text-teal-300">
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-primary/10 border border-primary/20 text-xs font-bold uppercase tracking-wider text-primary">
             <Sparkles className="h-3.5 w-3.5 animate-pulse" />
             Cofre Super Admin
           </span>
@@ -146,8 +146,8 @@ export function SuperAdminClinics() {
               <tbody className="divide-y divide-border/60">
                 {filteredClinics.map((clinic) => (
                   <tr key={clinic.id} className="group hover:bg-muted/40 transition-colors font-medium">
-                    <td className="px-6 py-4.5 font-bold text-foreground group-hover:text-teal-300 transition-colors flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-teal-500/10 to-teal-500/30 border border-teal-500/40 flex items-center justify-center font-bold text-teal-400 text-xs shadow-sm group-hover:scale-105 transition-transform">
+                    <td className="px-6 py-4.5 font-bold text-foreground group-hover:text-primary transition-colors flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary text-xs shadow-sm group-hover:scale-105 transition-transform">
                         {clinic.name.charAt(0).toUpperCase()}
                       </div>
                       <span>{clinic.name}</span>
@@ -170,9 +170,9 @@ export function SuperAdminClinics() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleImpersonate(clinic.id)}
-                        className="gap-2 border-border hover:border-teal-400/40 hover:text-teal-300 hover:bg-teal-500/10 text-xs font-bold transition-all shadow-sm group/btn"
+                        className="gap-2 border-border hover:border-primary/40 hover:text-primary hover:bg-primary/10 text-xs font-bold transition-all shadow-sm group/btn"
                       >
-                        <LogIn className="h-3.5 w-3.5 text-teal-400 group-hover/btn:translate-x-0.5 transition-transform" />
+                        <LogIn className="h-3.5 w-3.5 text-primary group-hover/btn:translate-x-0.5 transition-transform" />
                         <span>Acessar Ambiente</span>
                         <ArrowUpRight className="h-3.5 w-3.5 opacity-60" />
                       </Button>

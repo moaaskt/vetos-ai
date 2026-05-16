@@ -38,36 +38,36 @@
 
 @layer base {
   :root {
-    /* Based on slate-950 and teal-400 */
-    --background: oklch(0.129 0.042 264.695); /* slate-950 */
-    --foreground: oklch(0.985 0 0); /* white */
+    /* Premium Medical SaaS Dark Palette (Inspired by Linear, Stripe & Attio) */
+    --background: oklch(0.16 0.015 255); /* Clean, deep neutral dark slate #0a0c10 */
+    --foreground: oklch(0.98 0 0); /* Crisp white */
     
-    --card: oklch(0.145 0.04 264.695); /* slate-900 */
-    --card-foreground: oklch(0.985 0 0);
+    --card: oklch(0.20 0.02 255); /* Elevated surface #12151c */
+    --card-foreground: oklch(0.98 0 0);
     
-    --popover: oklch(0.145 0.04 264.695);
-    --popover-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.20 0.02 255);
+    --popover-foreground: oklch(0.98 0 0);
     
-    --primary: oklch(0.811 0.111 180.316); /* teal-400 */
-    --primary-foreground: oklch(0.129 0.042 264.695); /* slate-950 text on primary */
+    --primary: oklch(0.65 0.11 185); /* Trustworthy medical teal #0d9488 */
+    --primary-foreground: oklch(0.98 0 0); /* White text on primary buttons */
     
-    --secondary: oklch(0.208 0.042 265.755); /* slate-800 */
-    --secondary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.26 0.025 255); /* Subtle interactive surface #1e222e */
+    --secondary-foreground: oklch(0.98 0 0);
     
-    --muted: oklch(0.208 0.042 265.755);
-    --muted-foreground: oklch(0.704 0.04 264.065); /* slate-400 */
+    --muted: oklch(0.26 0.025 255);
+    --muted-foreground: oklch(0.70 0.02 255); /* Clean slate-400 */
     
-    --accent: oklch(0.208 0.042 265.755);
-    --accent-foreground: oklch(0.985 0 0);
+    --accent: oklch(0.26 0.025 255);
+    --accent-foreground: oklch(0.98 0 0);
     
-    --destructive: oklch(0.627 0.265 29.234); /* red-500 */
-    --destructive-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.62 0.18 25); /* Accessible soft red */
+    --destructive-foreground: oklch(0.98 0 0);
     
-    --border: oklch(0.208 0.042 265.755);
-    --input: oklch(0.208 0.042 265.755);
-    --ring: oklch(0.811 0.111 180.316); /* teal-400 */
+    --border: oklch(0.26 0.025 255);
+    --input: oklch(0.26 0.025 255);
+    --ring: oklch(0.65 0.11 185); /* Medical teal ring */
     
-    --radius: 0.5rem;
+    --radius: 0.6rem;
   }
 }
 

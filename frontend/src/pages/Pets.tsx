@@ -85,7 +85,7 @@ export function Pets() {
         description="Pesquise, visualize e cadastre novos pacientes no banco de dados da clínica. Conecte cada animal à ficha de seu tutor responsável."
         action={
           <div className="flex items-center gap-3">
-            <Button onClick={() => setIsModalOpen(true)} className="bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-bold hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/20 gap-2">
+            <Button onClick={() => setIsModalOpen(true)} className="bg-primary text-primary-foreground font-bold hover:opacity-90 shadow-sm gap-2">
               <Plus className="h-4 w-4" />
               Cadastrar Paciente
             </Button>
@@ -124,26 +124,26 @@ export function Pets() {
 
       <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {filteredPets.map((pet) => (
-          <Card key={pet.id} className="group relative overflow-hidden border-border bg-card/60 backdrop-blur-sm transition-all duration-300 hover:border-teal-400/40 hover:shadow-xl hover:shadow-teal-500/5 flex flex-col justify-between font-medium">
-            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-teal-400/5 blur-2xl group-hover:bg-teal-400/10 transition-colors pointer-events-none" />
+          <Card key={pet.id} className="group relative overflow-hidden border-border bg-card/60 backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md flex flex-col justify-between font-medium">
+            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-primary/5 blur-2xl group-hover:bg-primary/10 transition-colors pointer-events-none" />
             <CardContent className="p-6 relative z-10 flex-1 flex flex-col justify-between space-y-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3.5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-card to-secondary border border-border text-teal-400 shadow-md group-hover:scale-105 transition-transform font-bold">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary shadow-sm group-hover:scale-105 transition-transform font-bold">
                     <PawPrint className="h-6 w-6" />
                   </div>
                   <div className="space-y-1 overflow-hidden">
-                    <h2 className="text-xl font-extrabold tracking-tight text-foreground truncate group-hover:text-teal-300 transition-colors flex items-center gap-2">
+                    <h2 className="text-xl font-extrabold tracking-tight text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-2">
                       {pet.name}
                       <Heart className="h-4 w-4 text-rose-500/50 fill-rose-500/20 group-hover:fill-rose-500 group-hover:text-rose-500 transition-colors" />
                     </h2>
                     <p className="text-xs text-muted-foreground flex items-center gap-1.5 truncate font-semibold">
-                      <User className="h-3.5 w-3.5 text-teal-400 shrink-0" />
+                      <User className="h-3.5 w-3.5 text-primary shrink-0" />
                       <span className="truncate">{ownerName(pet)}</span>
                     </p>
                   </div>
                 </div>
-                <span className="rounded-full bg-teal-400/10 border border-teal-400/20 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-teal-400 shrink-0 shadow-sm">
+                <span className="rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary shrink-0 shadow-sm">
                   {pet.species}
                 </span>
               </div>
@@ -151,14 +151,14 @@ export function Pets() {
               <dl className="grid grid-cols-2 gap-3 pt-2">
                 <div className="rounded-xl bg-muted/40 border border-border p-3.5 space-y-1">
                   <dt className="text-xs text-muted-foreground flex items-center gap-1.5 font-semibold">
-                    <Tag className="h-3 w-3 text-teal-400" />
+                    <Tag className="h-3 w-3 text-primary" />
                     <span>Raça / Pelagem</span>
                   </dt>
                   <dd className="text-sm text-foreground font-bold truncate">{pet.breed || 'Não especificada'}</dd>
                 </div>
                 <div className="rounded-xl bg-muted/40 border border-border p-3.5 space-y-1">
                   <dt className="text-xs text-muted-foreground flex items-center gap-1.5 font-semibold">
-                    <Cake className="h-3 w-3 text-teal-400" />
+                    <Cake className="h-3 w-3 text-primary" />
                     <span>Idade Estimada</span>
                   </dt>
                   <dd className="text-sm text-foreground font-bold truncate">
@@ -283,7 +283,7 @@ function PetModal({
           </Button>
           <Button
             type="submit"
-            className="bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-bold hover:from-teal-300 hover:to-teal-400 shadow-md shadow-teal-500/20"
+            className="bg-primary text-primary-foreground font-bold hover:opacity-90 shadow-sm"
             disabled={isSubmitting || clients.length === 0}
           >
             {isSubmitting ? 'Salvando ficha...' : 'Confirmar Cadastro'}
@@ -314,7 +314,7 @@ function Input({
   return (
     <label className="block space-y-2">
       <span className="block text-sm font-semibold text-foreground">
-        {label} {required && <span className="text-teal-400">*</span>}
+        {label} {required && <span className="text-primary">*</span>}
       </span>
       <BaseInput
         type={type}
@@ -323,7 +323,7 @@ function Input({
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
         required={required}
-        className="bg-background border-border focus-visible:ring-teal-400 font-medium h-10"
+        className="bg-background border-border focus-visible:ring-primary font-medium h-10"
       />
     </label>
   )

@@ -24,7 +24,7 @@ export function EmptyState({
           Icon
         ) : (
           // @ts-expect-error - Assuming it's a component like LucideIcon
-          <Icon className="h-10 w-10 text-teal-400" />
+          <Icon className="h-10 w-10 text-primary" />
         )}
       </div>
       <h3 className="mb-2 text-xl font-semibold text-foreground">{title}</h3>
