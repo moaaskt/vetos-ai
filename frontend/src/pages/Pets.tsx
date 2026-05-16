@@ -1,5 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { PawPrint, Plus, RefreshCw } from 'lucide-react'
+import { useEffect, useState, useMemo, type FormEvent } from 'react'
+import { PawPrint, Plus, RefreshCw, Search, User, Cake, Tag, AlertCircle, Heart } from 'lucide-react'
 import { Modal } from '../components/Modal'
 import { PageHeader } from '../components/PageHeader'
 import { api, type Client, type Pet } from '../lib/api'
@@ -15,6 +15,7 @@ export function Pets() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   async function loadData() {
     setIsLoading(true)
@@ -62,72 +63,128 @@ export function Pets() {
   }, [])
 
   function ownerName(pet: Pet) {
-    return pet.client?.name ?? clients.find((client) => client.id === pet.clientId)?.name ?? '-'
+    return pet.client?.name ?? clients.find((client) => client.id === pet.clientId)?.name ?? 'No Owner Linked'
   }
 
+  const filteredPets = useMemo(() => {
+    if (!searchQuery) return pets
+    const query = searchQuery.toLowerCase()
+    return pets.filter(p => 
+      p.name.toLowerCase().includes(query) || 
+      p.species.toLowerCase().includes(query) ||
+      p.breed?.toLowerCase().includes(query) ||
+      ownerName(p).toLowerCase().includes(query)
+    )
+  }, [pets, clients, searchQuery])
+
   return (
-    <div className="animate-in fade-in-0 duration-500">
+    <div className="space-y-8 animate-in fade-in-0 duration-500">
       <PageHeader
-        title="Pets"
-        description="Track patient details and connect each pet to its owner."
+        title="Patients & Pets"
+        badge="Medical Records"
+        description="Search, view, and register new animals into the clinic database. Connect each pet to its client owner."
         action={
-          <Button onClick={() => setIsModalOpen(true)} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add pet
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button onClick={() => setIsModalOpen(true)} className="bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-bold hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/20 gap-2">
+              <Plus className="h-4 w-4" />
+              Register Patient
+            </Button>
+          </div>
         }
       />
 
-      {error && <p className="mb-5 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>}
+      {error && (
+        <div className="flex items-center gap-3 rounded-xl bg-destructive/15 border border-destructive/30 px-5 py-4 text-sm font-medium text-destructive-foreground shadow-sm">
+          <AlertCircle className="h-5 w-5 shrink-0 text-destructive" />
+          <span>{error}</span>
+        </div>
+      )}
 
-      <section className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-        {pets.map((pet) => (
-          <Card key={pet.id}>
-            <CardContent className="p-5">
-              <div className="mb-4 flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-foreground">{pet.name}</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">{ownerName(pet)}</p>
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card/60 border border-border p-4 rounded-xl shadow-sm backdrop-blur-sm">
+        <div className="relative w-full sm:w-96">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <BaseInput
+            type="search"
+            placeholder="Search by pet name, species, breed, or owner..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-background border-border"
+          />
+        </div>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium self-end sm:self-auto shrink-0">
+          <span>Showing</span>
+          <span className="px-2 py-0.5 rounded bg-secondary text-foreground font-bold">{filteredPets.length}</span>
+          <span>of {pets.length} pets</span>
+          <Button onClick={loadData} variant="ghost" size="icon" title="Refresh" className="ml-1 h-8 w-8">
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
+      </div>
+
+      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {filteredPets.map((pet) => (
+          <Card key={pet.id} className="group relative overflow-hidden border-border bg-card/60 backdrop-blur-sm transition-all duration-300 hover:border-teal-400/40 hover:shadow-xl hover:shadow-teal-500/5 flex flex-col justify-between">
+            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-teal-400/5 blur-2xl group-hover:bg-teal-400/10 transition-colors pointer-events-none" />
+            <CardContent className="p-6 relative z-10 flex-1 flex flex-col justify-between space-y-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-card to-secondary border border-border text-teal-400 shadow-md group-hover:scale-105 transition-transform font-bold">
+                    <PawPrint className="h-6 w-6" />
+                  </div>
+                  <div className="space-y-1 overflow-hidden">
+                    <h2 className="text-xl font-extrabold tracking-tight text-foreground truncate group-hover:text-teal-300 transition-colors flex items-center gap-2">
+                      {pet.name}
+                      <Heart className="h-4 w-4 text-rose-500/50 fill-rose-500/20 group-hover:fill-rose-500 group-hover:text-rose-500 transition-colors" />
+                    </h2>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 truncate">
+                      <User className="h-3.5 w-3.5 text-teal-400 shrink-0" />
+                      <span className="truncate">{ownerName(pet)}</span>
+                    </p>
+                  </div>
                 </div>
-                <span className="rounded-lg bg-teal-400/15 px-3 py-1 text-xs font-medium text-teal-400">
+                <span className="rounded-full bg-teal-400/10 border border-teal-400/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-teal-400 shrink-0 shadow-sm">
                   {pet.species}
                 </span>
               </div>
-              <dl className="grid grid-cols-2 gap-3 text-sm">
-                <div className="rounded-lg bg-muted/50 p-3">
-                  <dt className="text-muted-foreground">Breed</dt>
-                  <dd className="mt-1 text-foreground font-medium">{pet.breed ?? '-'}</dd>
+
+              <dl className="grid grid-cols-2 gap-3 pt-2">
+                <div className="rounded-xl bg-muted/40 border border-border p-3.5 space-y-1">
+                  <dt className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <Tag className="h-3 w-3 text-teal-400" />
+                    <span>Breed</span>
+                  </dt>
+                  <dd className="text-sm text-foreground font-bold truncate">{pet.breed || 'Not specified'}</dd>
                 </div>
-                <div className="rounded-lg bg-muted/50 p-3">
-                  <dt className="text-muted-foreground">Age</dt>
-                  <dd className="mt-1 text-foreground font-medium">{pet.age ?? '-'}</dd>
+                <div className="rounded-xl bg-muted/40 border border-border p-3.5 space-y-1">
+                  <dt className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <Cake className="h-3 w-3 text-teal-400" />
+                    <span>Age</span>
+                  </dt>
+                  <dd className="text-sm text-foreground font-bold truncate">
+                    {pet.age !== null && pet.age !== undefined ? `${pet.age} ${pet.age === 1 ? 'year' : 'years'}` : 'Unknown'}
+                  </dd>
                 </div>
               </dl>
             </CardContent>
           </Card>
         ))}
-        {isLoading && Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-40 w-full" />
+
+        {isLoading && Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-56 w-full rounded-2xl bg-card" />
         ))}
       </section>
 
-      {!isLoading && pets.length > 0 && (
-        <div className="mt-6 flex justify-center">
-          <Button onClick={loadData} variant="outline" className="gap-2">
-            <RefreshCw className="h-4 w-4" />
-            Refresh
-          </Button>
+      {!isLoading && filteredPets.length === 0 && (
+        <div className="py-12">
+          <EmptyState
+            icon={PawPrint}
+            title={searchQuery ? "No patients matching query" : "No patients registered"}
+            description={searchQuery ? "Try refining your search terms or clearing the filter." : "Add your first animal patient to start recording medical consultations and checkups."}
+            actionLabel={searchQuery ? "Clear Search" : "Register Patient"}
+            onAction={() => searchQuery ? setSearchQuery('') : setIsModalOpen(true)}
+          />
         </div>
-      )}
-
-      {!isLoading && pets.length === 0 && (
-        <EmptyState
-          icon={PawPrint}
-          title="No pets registered"
-          description="Add your first patient to start managing their records."
-          actionLabel="Add pet"
-          onAction={() => setIsModalOpen(true)}
-        />
       )}
 
       {isModalOpen && (
@@ -183,40 +240,53 @@ function PetModal({
   }
 
   return (
-    <Modal title="Add pet" onClose={onClose}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="Name" value={name} onChange={setName} required />
-        <Input label="Species" value={species} onChange={setSpecies} required />
-        <Input label="Breed" value={breed} onChange={setBreed} />
-        <Input label="Age" value={age} onChange={setAge} type="number" min="0" />
-        <label className="block">
-          <span className="mb-2 block text-sm font-medium text-foreground">Owner</span>
+    <Modal title="Register New Patient Pet" onClose={onClose}>
+      <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+        <Input label="Pet Name" placeholder="e.g. Bella" value={name} onChange={setName} required />
+        <Input label="Species" placeholder="e.g. Dog, Cat, Rabbit" value={species} onChange={setSpecies} required />
+        <Input label="Breed (Optional)" placeholder="e.g. Golden Retriever" value={breed} onChange={setBreed} />
+        <Input label="Age in Years (Optional)" placeholder="e.g. 3" value={age} onChange={setAge} type="number" min="0" />
+        
+        <label className="block space-y-2">
+          <span className="block text-sm font-semibold text-foreground">Client / Owner</span>
           <select
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex h-10 w-full rounded-lg border border-input bg-card px-3 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-foreground font-medium"
             value={clientId}
             onChange={(event) => setClientId(event.target.value)}
             required
           >
             {clients.map((client) => (
-              <option key={client.id} value={client.id} className="bg-background text-foreground">
-                {client.name}
+              <option key={client.id} value={client.id} className="bg-background text-foreground font-medium">
+                {client.name} ({client.email || 'No email'})
               </option>
             ))}
           </select>
         </label>
+
         {clients.length === 0 && (
-          <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-500">
-            Add a client before registering pets.
-          </p>
+          <div className="flex items-center gap-3 rounded-lg bg-amber-500/15 border border-amber-500/30 px-4 py-3 text-sm text-amber-400 font-medium">
+            <AlertCircle className="h-5 w-5 shrink-0 text-amber-400" />
+            <span>Please register at least one client before adding pet records.</span>
+          </div>
         )}
-        {error && <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
-        <div className="pt-2">
+
+        {error && (
+          <div className="flex items-center gap-3 rounded-lg bg-destructive/15 border border-destructive/30 px-4 py-3 text-sm text-destructive font-medium">
+            <AlertCircle className="h-5 w-5 shrink-0 text-destructive" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <div className="pt-4 border-t border-border/60 flex items-center justify-end gap-3">
+          <Button type="button" variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
           <Button
             type="submit"
-            className="w-full"
+            className="bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-bold hover:from-teal-300 hover:to-teal-400 shadow-md shadow-teal-500/20"
             disabled={isSubmitting || clients.length === 0}
           >
-            {isSubmitting ? 'Saving...' : 'Save pet'}
+            {isSubmitting ? 'Registering...' : 'Confirm Registration'}
           </Button>
         </div>
       </form>
@@ -228,6 +298,7 @@ function Input({
   label,
   value,
   onChange,
+  placeholder,
   type = 'text',
   required = false,
   min,
@@ -235,19 +306,24 @@ function Input({
   label: string
   value: string
   onChange: (value: string) => void
+  placeholder?: string
   type?: string
   required?: boolean
   min?: string
 }) {
   return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-medium text-foreground">{label}</span>
+    <label className="block space-y-2">
+      <span className="block text-sm font-semibold text-foreground">
+        {label} {required && <span className="text-teal-400">*</span>}
+      </span>
       <BaseInput
         type={type}
         min={min}
         value={value}
+        placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
         required={required}
+        className="bg-background border-border focus-visible:ring-teal-400 font-medium h-10"
       />
     </label>
   )
