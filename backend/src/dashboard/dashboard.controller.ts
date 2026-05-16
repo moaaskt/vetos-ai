@@ -12,4 +12,12 @@ export class DashboardController {
   getStats(@CurrentUser() user: any) {
     return this.dashboardService.getStats(user.clinicId);
   }
+
+  @Get('super-admin/metrics')
+  getSuperAdminMetrics(@CurrentUser() user: any) {
+    if (user.role !== 'SUPERADMIN') {
+      throw new Error('Unauthorized');
+    }
+    return this.dashboardService.getSuperAdminMetrics();
+  }
 }

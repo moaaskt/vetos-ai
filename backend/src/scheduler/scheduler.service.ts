@@ -84,4 +84,25 @@ export class SchedulerService {
       }
     }
   }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async handleGlobalMetricsAggregation() {
+    this.logger.log('Aggregating global metrics...');
+    try {
+      const totalClinics = await this.prisma.clinic.count();
+      const totalAppointments = await this.prisma.appointment.count();
+      // For MRR, we'd normally join subscriptions and plans. 
+      // For now, we simulate MRR aggregation.
+      const mrr = totalClinics * 100; // Mock MRR calculation
+      
+      const metrics = { totalClinics, totalAppointments, mrr, lastUpdated: new Date() };
+      
+      const Redis = require('ioredis');
+      const redis = new Redis(process.env.REDIS_HOST ? { host: process.env.REDIS_HOST, port: parseInt(process.env.REDIS_PORT || '6379') } : 'redis://localhost:6379');
+      await redis.set('global_metrics:cache', JSON.stringify(metrics));
+      redis.disconnect();
+    } catch (e) {
+      this.logger.error('Failed to aggregate global metrics', e);
+    }
+  }
 }

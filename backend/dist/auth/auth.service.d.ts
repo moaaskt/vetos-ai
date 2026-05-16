@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ImpersonateDto } from './dto/impersonate.dto';
 export declare class AuthService {
     private usersService;
     private prisma;
@@ -20,7 +21,7 @@ export declare class AuthService {
             updatedAt: Date;
             email: string;
             role: import(".prisma/client").$Enums.Role;
-            clinicId: string;
+            clinicId: string | null;
         };
         clinic: {
             id: string;
@@ -30,5 +31,8 @@ export declare class AuthService {
             createdAt: Date;
             updatedAt: Date;
         };
+    }>;
+    impersonateClinic(superAdminId: string, dto: ImpersonateDto): Promise<{
+        access_token: string;
     }>;
 }

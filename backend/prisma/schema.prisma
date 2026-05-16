@@ -18,6 +18,8 @@ model Clinic {
   pets      Pet[]
   users     User[]
   appointments Appointment[]
+  impersonationLogs ImpersonationLog[]
+  subscription ClinicSubscription?
 }
 
 model User {
@@ -25,10 +27,11 @@ model User {
   email     String   @unique
   password  String
   role      Role     @default(STAFF)
-  clinicId  String
+  clinicId  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  clinic    Clinic   @relation(fields: [clinicId], references: [id])
+  clinic    Clinic?  @relation(fields: [clinicId], references: [id])
+  impersonationLogs ImpersonationLog[]
 }
 
 model Client {
@@ -76,9 +79,44 @@ model Appointment {
   clinic Clinic @relation(fields: [clinicId], references: [id])
 }
 
+model ImpersonationLog {
+  id             String   @id @default(uuid())
+  superAdminId   String
+  targetClinicId String
+  reason         String
+  startedAt      DateTime @default(now())
+
+  superAdmin     User     @relation(fields: [superAdminId], references: [id])
+  targetClinic   Clinic   @relation(fields: [targetClinicId], references: [id])
+}
+
+model Plan {
+  id               String   @id @default(uuid())
+  name             String   @unique
+  maxStaffSeats    Int
+  maxNotifications Int
+  maxStorage       Int
+  features         Json
+  subscriptions    ClinicSubscription[]
+}
+
+model ClinicSubscription {
+  id                     String  @id @default(uuid())
+  clinicId               String  @unique
+  planId                 String
+  customMaxStaffSeats    Int?
+  customMaxNotifications Int?
+  customMaxStorage       Int?
+  customFeatures         Json?
+
+  clinic Clinic @relation(fields: [clinicId], references: [id])
+  plan   Plan   @relation(fields: [planId], references: [id])
+}
+
 enum Role {
   ADMIN
   STAFF
+  SUPERADMIN
 }
 
 enum AppointmentStatus {
