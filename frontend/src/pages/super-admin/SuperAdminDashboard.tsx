@@ -1,6 +1,8 @@
 import { Activity, Users, DollarSign } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api'
+import { Card, CardContent } from '../../components/ui/card'
+import { Skeleton } from '../../components/ui/skeleton'
 
 type SuperAdminMetrics = {
   totalClinics: number
@@ -57,30 +59,36 @@ export function SuperAdminDashboard() {
   ]
 
   return (
-    <div>
-      <section className="mb-8 rounded-lg border border-white/10 bg-white/[0.04] p-6">
-        <p className="text-sm font-medium text-teal-300">System Overview</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+    <div className="space-y-8 animate-in fade-in-0 duration-500">
+      <section className="rounded-lg border border-border bg-card/40 p-6 shadow-sm">
+        <p className="text-sm font-medium text-teal-400">System Overview</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
           Platform Statistics
         </h1>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
           High-level metrics across all tenant clinics.
         </p>
       </section>
 
-      {error && <p className="mb-5 rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</p>}
+      {error && <p className="mb-5 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>}
 
       <section className="grid gap-4 md:grid-cols-3">
         {cards.map((card) => (
-          <article key={card.label} className="rounded-lg border border-white/10 bg-slate-900 p-5">
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-lg bg-teal-400/15 text-teal-300">
-              <card.icon className="h-6 w-6" />
-            </div>
-            <p className="text-sm text-slate-400">{card.label}</p>
-            <p className="mt-2 text-4xl font-semibold text-white">
-              {isLoading ? '...' : card.value}
-            </p>
-          </article>
+          <Card key={card.label} className="border-border">
+            <CardContent className="p-6">
+              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-lg bg-teal-400/15 text-teal-400">
+                <card.icon className="h-6 w-6" />
+              </div>
+              <p className="text-sm text-muted-foreground">{card.label}</p>
+              {isLoading ? (
+                <Skeleton className="mt-2 h-10 w-24" />
+              ) : (
+                <p className="mt-2 text-4xl font-semibold text-foreground">
+                  {card.value}
+                </p>
+              )}
+            </CardContent>
+          </Card>
         ))}
       </section>
     </div>

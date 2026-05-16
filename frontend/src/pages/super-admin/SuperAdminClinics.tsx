@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
-import { LogIn } from 'lucide-react'
+import { LogIn, Building2 } from 'lucide-react'
+import { Card, CardContent } from '../../components/ui/card'
+import { Button } from '../../components/ui/button'
+import { Skeleton } from '../../components/ui/skeleton'
+import { EmptyState } from '../../components/EmptyState'
 
 type Clinic = {
   id: string
@@ -17,8 +21,6 @@ export function SuperAdminClinics() {
   useEffect(() => {
     async function loadClinics() {
       try {
-        // Mocking clinics list since we don't have a clinics controller for superadmin yet.
-        // In a real scenario, this would call /super-admin/clinics
         const response = await api.get<{id: string, name: string, createdAt: string}[]>('/clinics')
         setClinics(response.data)
       } catch (e) {
@@ -33,7 +35,6 @@ export function SuperAdminClinics() {
   const handleImpersonate = async (clinicId: string) => {
     try {
       await impersonate(clinicId)
-      // Redirect handled by router due to state change
     } catch (e) {
       alert('Impersonation failed. Check console for details.')
       console.error(e)
@@ -41,46 +42,61 @@ export function SuperAdminClinics() {
   }
 
   return (
-    <div>
-      <h1 className="mb-6 text-2xl font-semibold text-white">Manage Clinics</h1>
+    <div className="animate-in fade-in-0 duration-500">
+      <h1 className="mb-6 text-2xl font-semibold text-foreground">Manage Clinics</h1>
       
-      {isLoading ? (
-        <p className="text-slate-400">Loading clinics...</p>
-      ) : clinics.length === 0 ? (
-        <div className="rounded-lg border border-white/10 bg-slate-900 p-8 text-center">
-          <p className="text-lg font-medium text-white">No clinics found</p>
-          <p className="mt-2 text-sm text-slate-400">There are no clinics matching the selected filter criteria.</p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto rounded-lg border border-white/10 bg-slate-900">
-          <table className="w-full text-left text-sm text-slate-300">
-            <thead className="border-b border-white/10 bg-white/5 text-slate-200">
-              <tr>
-                <th className="px-4 py-3 font-medium">Clinic Name</th>
-                <th className="px-4 py-3 font-medium">Created At</th>
-                <th className="px-4 py-3 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/10">
-              {clinics.map((clinic) => (
-                <tr key={clinic.id} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3">{clinic.name}</td>
-                  <td className="px-4 py-3">{new Date(clinic.createdAt).toLocaleDateString()}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button 
-                      onClick={() => handleImpersonate(clinic.id)}
-                      className="inline-flex items-center gap-2 rounded-lg bg-teal-400 px-3 py-1.5 text-xs font-medium text-slate-950 transition hover:bg-teal-300"
-                    >
-                      <LogIn className="h-3 w-3" />
-                      Login as Clinic
-                    </button>
-                  </td>
+      <Card>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-foreground">
+              <thead className="border-b border-border bg-muted/50 text-muted-foreground">
+                <tr>
+                  <th className="px-6 py-4 font-medium">Clinic Name</th>
+                  <th className="px-6 py-4 font-medium">Created At</th>
+                  <th className="px-6 py-4 font-medium text-right">Actions</th>
                 </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {clinics.map((clinic) => (
+                  <tr key={clinic.id} className="hover:bg-muted/50 transition-colors">
+                    <td className="px-6 py-4">{clinic.name}</td>
+                    <td className="px-6 py-4">{new Date(clinic.createdAt).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 text-right">
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleImpersonate(clinic.id)}
+                        className="gap-2"
+                      >
+                        <LogIn className="h-4 w-4" />
+                        Login as Clinic
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {!isLoading && clinics.length === 0 && (
+            <div className="p-6">
+              <EmptyState
+                icon={Building2}
+                title="No clinics found"
+                description="There are no clinics matching the selected filter criteria."
+              />
+            </div>
+          )}
+
+          {isLoading && (
+            <div className="p-6 space-y-4">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-14 w-full" />
               ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

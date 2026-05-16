@@ -1,8 +1,13 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Plus, RefreshCw } from 'lucide-react'
+import { PawPrint, Plus, RefreshCw } from 'lucide-react'
 import { Modal } from '../components/Modal'
 import { PageHeader } from '../components/PageHeader'
 import { api, type Client, type Pet } from '../lib/api'
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
+import { Button } from '../components/ui/button'
+import { Skeleton } from '../components/ui/skeleton'
+import { EmptyState } from '../components/EmptyState'
+import { Input as BaseInput } from '../components/ui/input'
 
 export function Pets() {
   const [pets, setPets] = useState<Pet[]>([])
@@ -61,67 +66,69 @@ export function Pets() {
   }
 
   return (
-    <div>
+    <div className="animate-in fade-in-0 duration-500">
       <PageHeader
         title="Pets"
         description="Track patient details and connect each pet to its owner."
         action={
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-teal-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-teal-300"
-          >
+          <Button onClick={() => setIsModalOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
             Add pet
-          </button>
+          </Button>
         }
       />
 
-      {error && <p className="mb-5 rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</p>}
+      {error && <p className="mb-5 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>}
 
       <section className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
         {pets.map((pet) => (
-          <article key={pet.id} className="rounded-lg border border-white/10 bg-slate-900 p-5">
-            <div className="mb-4 flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-semibold text-white">{pet.name}</h2>
-                <p className="mt-1 text-sm text-slate-400">{ownerName(pet)}</p>
+          <Card key={pet.id}>
+            <CardContent className="p-5">
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-foreground">{pet.name}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">{ownerName(pet)}</p>
+                </div>
+                <span className="rounded-lg bg-teal-400/15 px-3 py-1 text-xs font-medium text-teal-400">
+                  {pet.species}
+                </span>
               </div>
-              <span className="rounded-lg bg-teal-400/15 px-3 py-1 text-xs font-medium text-teal-200">
-                {pet.species}
-              </span>
-            </div>
-            <dl className="grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-lg bg-white/[0.03] p-3">
-                <dt className="text-slate-500">Breed</dt>
-                <dd className="mt-1 text-slate-200">{pet.breed ?? '-'}</dd>
-              </div>
-              <div className="rounded-lg bg-white/[0.03] p-3">
-                <dt className="text-slate-500">Age</dt>
-                <dd className="mt-1 text-slate-200">{pet.age ?? '-'}</dd>
-              </div>
-            </dl>
-          </article>
+              <dl className="grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <dt className="text-muted-foreground">Breed</dt>
+                  <dd className="mt-1 text-foreground font-medium">{pet.breed ?? '-'}</dd>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <dt className="text-muted-foreground">Age</dt>
+                  <dd className="mt-1 text-foreground font-medium">{pet.age ?? '-'}</dd>
+                </div>
+              </dl>
+            </CardContent>
+          </Card>
+        ))}
+        {isLoading && Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-40 w-full" />
         ))}
       </section>
 
-      <div className="mt-5 flex justify-center">
-        <button
-          type="button"
-          onClick={loadData}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/10 px-4 text-sm text-slate-200 transition hover:bg-white/10"
-        >
-          <RefreshCw className="h-4 w-4" />
-          Refresh
-        </button>
-      </div>
+      {!isLoading && pets.length > 0 && (
+        <div className="mt-6 flex justify-center">
+          <Button onClick={loadData} variant="outline" className="gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
+      )}
 
       {!isLoading && pets.length === 0 && (
-        <p className="rounded-lg border border-white/10 bg-slate-900 px-5 py-8 text-center text-sm text-slate-400">
-          No pets registered yet.
-        </p>
+        <EmptyState
+          icon={PawPrint}
+          title="No pets registered"
+          description="Add your first patient to start managing their records."
+          actionLabel="Add pet"
+          onAction={() => setIsModalOpen(true)}
+        />
       )}
-      {isLoading && <p className="text-center text-sm text-slate-400">Loading pets...</p>}
 
       {isModalOpen && (
         <PetModal
@@ -183,33 +190,35 @@ function PetModal({
         <Input label="Breed" value={breed} onChange={setBreed} />
         <Input label="Age" value={age} onChange={setAge} type="number" min="0" />
         <label className="block">
-          <span className="mb-2 block text-sm font-medium text-slate-300">Owner</span>
+          <span className="mb-2 block text-sm font-medium text-foreground">Owner</span>
           <select
-            className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-3 text-sm outline-none transition focus:border-teal-300"
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             value={clientId}
             onChange={(event) => setClientId(event.target.value)}
             required
           >
             {clients.map((client) => (
-              <option key={client.id} value={client.id}>
+              <option key={client.id} value={client.id} className="bg-background text-foreground">
                 {client.name}
               </option>
             ))}
           </select>
         </label>
         {clients.length === 0 && (
-          <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-100">
+          <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-500">
             Add a client before registering pets.
           </p>
         )}
-        {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-200">{error}</p>}
-        <button
-          type="submit"
-          disabled={isSubmitting || clients.length === 0}
-          className="w-full rounded-lg bg-teal-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-teal-300 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isSubmitting ? 'Saving...' : 'Save pet'}
-        </button>
+        {error && <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
+        <div className="pt-2">
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isSubmitting || clients.length === 0}
+          >
+            {isSubmitting ? 'Saving...' : 'Save pet'}
+          </Button>
+        </div>
       </form>
     </Modal>
   )
@@ -232,9 +241,8 @@ function Input({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm font-medium text-slate-300">{label}</span>
-      <input
-        className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-3 text-sm outline-none transition focus:border-teal-300"
+      <span className="mb-2 block text-sm font-medium text-foreground">{label}</span>
+      <BaseInput
         type={type}
         min={min}
         value={value}
