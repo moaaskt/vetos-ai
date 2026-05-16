@@ -1,11 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class DashboardService {
   constructor(private prisma: PrismaService) {}
 
-  async getStats(clinicId: string) {
+  async getStats(clinicId: string | null) {
+    if (!clinicId) {
+      throw new BadRequestException('Clinic context is required for tenant dashboard stats');
+    }
+
     const [totalClients, totalPets, totalAppointments] = await Promise.all([
       this.prisma.client.count({ where: { clinicId } }),
       this.prisma.pet.count({ where: { clinicId } }),

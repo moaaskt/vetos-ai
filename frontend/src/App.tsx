@@ -10,6 +10,10 @@ import { Register } from './pages/Register'
 import { SuperAdminDashboard } from './pages/super-admin/SuperAdminDashboard'
 import { SuperAdminClinics } from './pages/super-admin/SuperAdminClinics'
 
+function defaultAuthenticatedRoute(role?: string) {
+  return role === 'SUPERADMIN' ? '/super-admin/dashboard' : '/dashboard'
+}
+
 function SuperAdminRoute() {
   const { user, isAuthenticated } = useAuth()
 
@@ -25,10 +29,14 @@ function SuperAdminRoute() {
 }
 
 function ProtectedRoute() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
+  }
+
+  if (user?.role === 'SUPERADMIN' && !user.isImpersonating) {
+    return <Navigate to="/super-admin/dashboard" replace />
   }
 
   return (
@@ -39,13 +47,18 @@ function ProtectedRoute() {
 }
 
 function PublicOnlyRoute() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to={defaultAuthenticatedRoute(user?.role)} replace />
   }
 
   return <Outlet />
+}
+
+function RootRedirect() {
+  const { user } = useAuth()
+  return <Navigate to={defaultAuthenticatedRoute(user?.role)} replace />
 }
 
 const router = createBrowserRouter([
@@ -59,7 +72,7 @@ const router = createBrowserRouter([
   {
     element: <ProtectedRoute />,
     children: [
-      { path: '/', element: <Navigate to="/dashboard" replace /> },
+      { path: '/', element: <RootRedirect /> },
       { path: '/dashboard', element: <Dashboard /> },
       { path: '/clients', element: <Clients /> },
       { path: '/pets', element: <Pets /> },
@@ -73,7 +86,7 @@ const router = createBrowserRouter([
       { path: '/super-admin/clinics', element: <SuperAdminClinics /> },
     ],
   },
-  { path: '*', element: <Navigate to="/dashboard" replace /> },
+  { path: '*', element: <RootRedirect /> },
 ])
 
 export default function App() {

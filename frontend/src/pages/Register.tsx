@@ -18,8 +18,8 @@ export function Register() {
     setIsSubmitting(true)
 
     try {
-      await register(clinicName, email, password)
-      navigate('/dashboard')
+      const user = await register(clinicName, email, password)
+      navigate(user?.role === 'SUPERADMIN' ? '/super-admin/dashboard' : '/dashboard')
     } catch {
       setError('Could not create this clinic account.')
     } finally {
