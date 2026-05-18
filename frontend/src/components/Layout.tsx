@@ -12,10 +12,13 @@ import {
   Building2,
   X,
   AlertTriangle,
+  Sun,
+  Moon,
   type LucideIcon,
 } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { Button } from './ui/button'
 
 type NavItem = {
@@ -38,6 +41,7 @@ const superAdminNavItems: NavItem[] = [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, clinic, logout, exitImpersonation } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const location = useLocation()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -282,6 +286,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <button title="Notificações do sistema" className="relative h-9 w-9 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-muted transition-all shadow-sm">
                 <Bell className="h-4 w-4" />
                 <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary/80" />
+              </button>
+
+              {/* Theme Toggle Button */}
+              <button 
+                onClick={toggleTheme}
+                title={theme === 'dark' ? 'Alternar para modo claro' : 'Alternar para modo escuro'}
+                className="relative h-9 w-9 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-muted transition-all shadow-sm"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="h-4 w-4 text-amber-400 transition-all" />
+                ) : (
+                  <Moon className="h-4 w-4 text-slate-700 transition-all" />
+                )}
               </button>
 
               {/* Profile Avatar Mobile Button */}
