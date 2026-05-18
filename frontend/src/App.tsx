@@ -89,10 +89,15 @@ const router = createBrowserRouter([
   { path: '*', element: <RootRedirect /> },
 ])
 
+import { ThemeProvider } from './context/ThemeContext'
+
 export default function App() {
   return (
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
+
