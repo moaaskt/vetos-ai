@@ -39,3 +39,7 @@
 ## [x] Phase 8: UI/UX premium refinement for tenant admin and super admin dashboards (2026-05-16)
 - Goal: Refine UI/UX for all dashboards with premium design, responsiveness, accessibility, empty states, loading states and visual consistency.
 - Plans: Pending
+
+## [x] Phase 9: Light/Dark Theme Support (2026-05-18)
+- Goal: Implement premium light and dark theme support across the VetOS AI frontend with persistence and a topbar toggle. Default to light mode.
+- Plans: Completed
