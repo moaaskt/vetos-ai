@@ -38,12 +38,24 @@ export type Pet = {
   client?: Client
 }
 
+export type AppointmentStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
+
 export type Appointment = {
   id: string
-  date: string
+  scheduledAt: string
+  date?: string
   reason?: string | null
-  status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
+  status: AppointmentStatus
   petId: string
   clientId: string
   pet?: Pet
+  client?: Client
+}
+
+export type CreateAppointmentPayload = {
+  scheduledAt: string
+  petId: string
+  clientId: string
+  reason?: string
+  status?: AppointmentStatus
 }
