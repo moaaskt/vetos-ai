@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { api } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
-import { LogIn, Building2, Search, RefreshCw, Calendar, Sparkles, AlertCircle, ArrowUpRight } from 'lucide-react'
+import { LogIn, Building2, Search, RefreshCw, Calendar, ShieldCheck, AlertCircle, ArrowUpRight } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Skeleton } from '../../components/ui/skeleton'
@@ -83,7 +83,7 @@ export function SuperAdminClinics() {
         description="Supervisione as contas das clínicas parceiras, revise as datas de implantação e acesse os ambientes de forma segura para auditoria e suporte técnico."
         action={
           <div className="flex items-center gap-3">
-            <Button onClick={loadClinics} variant="outline" className="border-border hover:border-primary/40 gap-2 font-semibold">
+            <Button onClick={loadClinics} variant="outline" className="border-border hover:border-primary/30 gap-2 font-semibold">
               <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
               Sincronizar Clínicas
             </Button>
@@ -99,7 +99,7 @@ export function SuperAdminClinics() {
       )}
 
       {/* High-Density Search and Supervision Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card/60 border border-border p-4 rounded-xl shadow-sm backdrop-blur-sm">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card border border-border p-4 rounded-xl shadow-sm">
         <div className="relative w-full sm:w-[420px]">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <BaseInput
@@ -117,17 +117,17 @@ export function SuperAdminClinics() {
         </div>
       </div>
 
-      <Card className="border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-md">
-        <CardHeader className="border-b border-border/60 bg-card/80 py-5 px-6 flex flex-row items-center justify-between">
+      <Card className="border-border bg-card overflow-hidden">
+        <CardHeader className="border-b border-border/60 bg-card py-5 px-6 flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2 tracking-tight">
+            <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2 tracking-tight">
               <Building2 className="h-5 w-5 text-primary" />
               Banco de Dados de Unidades
             </CardTitle>
             <CardDescription className="text-xs">Sessões de suporte e acesso de auditoria monitoradas ativamente</CardDescription>
           </div>
-          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-primary/10 border border-primary/20 text-xs font-bold uppercase tracking-wider text-primary">
-            <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-primary/10 border border-primary/15 text-xs font-semibold uppercase tracking-wide text-primary">
+            <ShieldCheck className="h-3.5 w-3.5" />
             Cofre Super Admin
           </span>
         </CardHeader>
@@ -135,7 +135,7 @@ export function SuperAdminClinics() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-muted/40 text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground border-b border-border/80">
+              <thead className="bg-muted/35 text-[11px] font-bold uppercase tracking-wide text-muted-foreground border-b border-border/80">
                 <tr>
                   <th className="px-6 py-3.5 font-bold">Unidade Hospitalar / Clínica</th>
                   <th className="px-6 py-3.5 font-bold">UUID do Tenant</th>
@@ -147,7 +147,7 @@ export function SuperAdminClinics() {
                 {filteredClinics.map((clinic) => (
                   <tr key={clinic.id} className="group hover:bg-muted/40 transition-colors font-medium">
                     <td className="px-6 py-4.5 font-bold text-foreground group-hover:text-primary transition-colors flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary text-xs shadow-sm group-hover:scale-105 transition-transform">
+                      <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center font-semibold text-primary text-xs shadow-sm">
                         {clinic.name.charAt(0).toUpperCase()}
                       </div>
                       <span>{clinic.name}</span>
@@ -170,7 +170,7 @@ export function SuperAdminClinics() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleImpersonate(clinic.id)}
-                        className="gap-2 border-border hover:border-primary/40 hover:text-primary hover:bg-primary/10 text-xs font-bold transition-all shadow-sm group/btn"
+                        className="gap-2 border-border hover:border-primary/30 hover:text-primary hover:bg-primary/10 text-xs font-semibold transition-all shadow-sm group/btn"
                       >
                         <LogIn className="h-3.5 w-3.5 text-primary group-hover/btn:translate-x-0.5 transition-transform" />
                         <span>Acessar Ambiente</span>

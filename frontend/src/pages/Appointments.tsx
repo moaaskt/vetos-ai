@@ -64,13 +64,13 @@ export function Appointments() {
   const getStatusColor = (status?: string) => {
     switch (status?.toUpperCase()) {
       case 'CONFIRMED':
-        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+        return 'bg-emerald-500/10 text-emerald-300 border-emerald-500/15'
       case 'CANCELLED':
-        return 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+        return 'bg-rose-500/10 text-rose-300 border-rose-500/15'
       case 'COMPLETED':
-        return 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+        return 'bg-sky-500/10 text-sky-300 border-sky-500/15'
       default:
-        return 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+        return 'bg-amber-500/10 text-amber-300 border-amber-500/15'
     }
   }
 
@@ -96,7 +96,7 @@ export function Appointments() {
         badge="Tempo Real"
         description="Acompanhe as consultas clínicas, exames laboratoriais de rotina e procedimentos cirúrgicos agendados."
         action={
-          <Button onClick={loadAppointments} variant="outline" className="border-border hover:border-primary/40 gap-2 font-semibold">
+          <Button onClick={loadAppointments} variant="outline" className="border-border hover:border-primary/30 gap-2 font-semibold">
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             Atualizar Agenda
           </Button>
@@ -112,7 +112,7 @@ export function Appointments() {
 
       {/* Quick Overview Pill Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-border bg-card/60 p-4 flex items-center justify-between shadow-sm">
+        <div className="rounded-xl border border-border bg-card p-4 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold">
               <CalendarDays className="h-5 w-5" />
@@ -122,31 +122,31 @@ export function Appointments() {
               <p className="text-xl font-bold text-foreground">{appointments.length}</p>
             </div>
           </div>
-          <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
+          <span className="flex h-2 w-2 rounded-full bg-primary/80" />
         </div>
         
-        <div className="rounded-xl border border-border bg-card/60 p-4 flex items-center justify-between shadow-sm">
+        <div className="rounded-xl border border-border bg-card p-4 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 font-bold">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-300 font-bold">
               <CheckCircle2 className="h-5 w-5" />
             </div>
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Confirmados</p>
-              <p className="text-xl font-bold text-emerald-400">
+              <p className="text-xl font-semibold text-emerald-300">
                 {appointments.filter(a => a.status?.toUpperCase() === 'CONFIRMED').length}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card/60 p-4 flex items-center justify-between shadow-sm">
+        <div className="rounded-xl border border-border bg-card p-4 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 font-bold">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-500/10 text-sky-300 font-bold">
               <Clock className="h-5 w-5" />
             </div>
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Pendentes</p>
-              <p className="text-xl font-bold text-blue-400">
+              <p className="text-xl font-semibold text-sky-300">
                 {appointments.filter(a => !['CONFIRMED', 'CANCELLED'].includes(a.status?.toUpperCase() || '')).length}
               </p>
             </div>
@@ -154,16 +154,16 @@ export function Appointments() {
         </div>
       </div>
 
-      <Card className="border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-md">
-        <CardHeader className="border-b border-border/60 bg-card/80 py-5 px-6 flex flex-row items-center justify-between">
+      <Card className="border-border bg-card overflow-hidden">
+        <CardHeader className="border-b border-border/60 bg-card py-5 px-6 flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
               <CalendarClock className="h-5 w-5 text-primary" />
               Próximos Atendimentos
             </CardTitle>
             <CardDescription className="text-xs">Ordenados cronologicamente pelo horário da consulta</CardDescription>
           </div>
-          <span className="text-xs font-semibold text-primary px-3 py-1 rounded-md bg-primary/10 border border-primary/20 uppercase tracking-wide">
+          <span className="text-xs font-semibold text-primary px-3 py-1 rounded-md bg-primary/10 border border-primary/15 uppercase tracking-wide">
             {upcomingAppointments.length} Consultas
           </span>
         </CardHeader>
@@ -174,14 +174,14 @@ export function Appointments() {
                 key={appointment.id}
                 className="group flex flex-col gap-4 px-6 py-5 transition-all hover:bg-muted/40 md:flex-row md:items-center md:justify-between relative overflow-hidden font-medium"
               >
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-hover:bg-primary transition-colors" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-hover:bg-primary/70 transition-colors" />
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-card border border-border text-primary shadow-sm group-hover:scale-105 transition-transform font-bold">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-secondary/45 border border-border text-primary shadow-sm font-bold">
                     <PawPrint className="h-6 w-6" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2.5">
-                      <h3 className="font-bold text-base text-foreground group-hover:text-primary transition-colors">
+                      <h3 className="font-semibold text-base text-foreground group-hover:text-primary transition-colors">
                         {appointment.pet?.name ?? 'Paciente Animal'}
                       </h3>
                       {appointment.pet?.breed && (
@@ -196,17 +196,17 @@ export function Appointments() {
                     {appointment.pet?.client && (
                       <p className="text-xs text-slate-400 flex items-center gap-1 pt-1 font-semibold">
                         <User className="h-3.5 w-3.5 text-primary shrink-0" />
-                        Tutor: <span className="text-slate-300 font-bold">{appointment.pet.client.name}</span>
+                        Tutor: <span className="text-slate-300 font-semibold">{appointment.pet.client.name}</span>
                       </p>
                     )}
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-3 text-sm">
-                  <div className="flex items-center gap-2 rounded-xl bg-card border border-border px-3.5 py-2 shadow-inner text-xs font-bold text-slate-300">
+                  <div className="flex items-center gap-2 rounded-xl bg-secondary/40 border border-border px-3.5 py-2 shadow-sm text-xs font-semibold text-slate-300">
                     <Clock className="h-3.5 w-3.5 text-primary" />
                     {new Date(appointment.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
                   </div>
-                  <span className={`rounded-full px-3.5 py-1 text-xs font-extrabold border uppercase tracking-wider shadow-sm ${getStatusColor(appointment.status)}`}>
+                  <span className={`rounded-full px-3.5 py-1 text-xs font-bold border uppercase tracking-wide shadow-sm ${getStatusColor(appointment.status)}`}>
                     {getStatusText(appointment.status)}
                   </span>
                   <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-primary/10">

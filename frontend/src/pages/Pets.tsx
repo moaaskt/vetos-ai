@@ -85,7 +85,7 @@ export function Pets() {
         description="Pesquise, visualize e cadastre novos pacientes no banco de dados da clínica. Conecte cada animal à ficha de seu tutor responsável."
         action={
           <div className="flex items-center gap-3">
-            <Button onClick={() => setIsModalOpen(true)} className="bg-primary text-primary-foreground font-bold hover:opacity-90 shadow-sm gap-2">
+            <Button onClick={() => setIsModalOpen(true)} className="bg-primary text-primary-foreground font-semibold hover:opacity-90 shadow-sm gap-2">
               <Plus className="h-4 w-4" />
               Cadastrar Paciente
             </Button>
@@ -101,7 +101,7 @@ export function Pets() {
       )}
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card/60 border border-border p-4 rounded-xl shadow-sm backdrop-blur-sm">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card border border-border p-4 rounded-xl shadow-sm">
         <div className="relative w-full sm:w-96">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <BaseInput
@@ -124,18 +124,17 @@ export function Pets() {
 
       <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {filteredPets.map((pet) => (
-          <Card key={pet.id} className="group relative overflow-hidden border-border bg-card/60 backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md flex flex-col justify-between font-medium">
-            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-primary/5 blur-2xl group-hover:bg-primary/10 transition-colors pointer-events-none" />
+          <Card key={pet.id} className="group relative overflow-hidden border-border bg-card transition-all duration-300 hover:border-primary/25 flex flex-col justify-between font-medium">
             <CardContent className="p-6 relative z-10 flex-1 flex flex-col justify-between space-y-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3.5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary shadow-sm group-hover:scale-105 transition-transform font-bold">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/15 text-primary shadow-sm font-bold">
                     <PawPrint className="h-6 w-6" />
                   </div>
                   <div className="space-y-1 overflow-hidden">
-                    <h2 className="text-xl font-extrabold tracking-tight text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-2">
+                    <h2 className="text-xl font-semibold tracking-tight text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-2">
                       {pet.name}
-                      <Heart className="h-4 w-4 text-rose-500/50 fill-rose-500/20 group-hover:fill-rose-500 group-hover:text-rose-500 transition-colors" />
+                      <Heart className="h-4 w-4 text-rose-300/60 fill-rose-300/20 group-hover:fill-rose-300/50 group-hover:text-rose-300 transition-colors" />
                     </h2>
                     <p className="text-xs text-muted-foreground flex items-center gap-1.5 truncate font-semibold">
                       <User className="h-3.5 w-3.5 text-primary shrink-0" />
@@ -143,7 +142,7 @@ export function Pets() {
                     </p>
                   </div>
                 </div>
-                <span className="rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary shrink-0 shadow-sm">
+                <span className="rounded-full bg-primary/10 border border-primary/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary shrink-0 shadow-sm">
                   {pet.species}
                 </span>
               </div>
@@ -283,7 +282,7 @@ function PetModal({
           </Button>
           <Button
             type="submit"
-            className="bg-primary text-primary-foreground font-bold hover:opacity-90 shadow-sm"
+            className="bg-primary text-primary-foreground font-semibold hover:opacity-90 shadow-sm"
             disabled={isSubmitting || clients.length === 0}
           >
             {isSubmitting ? 'Salvando ficha...' : 'Confirmar Cadastro'}

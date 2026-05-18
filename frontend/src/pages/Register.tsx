@@ -35,30 +35,30 @@ export function Register() {
             <PawPrint className="h-7 w-7" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">VetOS AI</h1>
-            <p className="text-xs text-primary font-semibold tracking-wide uppercase">Criação de Ambiente Hospitalar</p>
+            <h1 className="text-2xl font-bold tracking-tight">VetOS AI</h1>
+            <p className="text-xs text-primary font-medium tracking-wide uppercase">Criação de ambiente hospitalar</p>
           </div>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl border border-border bg-card/80 backdrop-blur-xl p-8 shadow-md space-y-6"
+          className="rounded-2xl border border-border bg-card p-8 shadow-[0_22px_70px_-44px_rgba(0,0,0,0.75)] space-y-6"
         >
           <div className="flex items-center gap-3.5 pb-2 border-b border-border">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/15 flex items-center justify-center text-primary shrink-0">
               <Building2 className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold tracking-tight text-foreground">Cadastrar Clínica / Hospital</h2>
+              <h2 className="text-xl font-semibold tracking-tight text-foreground">Cadastrar Clínica / Hospital</h2>
               <p className="text-xs text-muted-foreground">Configure a unidade de atendimento e o primeiro administrador.</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <label className="block space-y-2">
-              <span className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">Nome da Unidade Veterinária</span>
+              <span className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide">Nome da Unidade Veterinária</span>
               <input
-                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium outline-none transition placeholder:text-muted-foreground/50 focus:border-primary text-foreground shadow-inner"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium outline-none transition placeholder:text-muted-foreground/60 focus:border-primary text-foreground shadow-sm"
                 placeholder="Hospital Veterinário Central"
                 value={clinicName}
                 onChange={(event) => setClinicName(event.target.value)}
@@ -67,9 +67,9 @@ export function Register() {
             </label>
 
             <label className="block space-y-2">
-              <span className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">E-mail do Gestor / Responsável Técnico</span>
+              <span className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide">E-mail do Gestor / Responsável Técnico</span>
               <input
-                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium outline-none transition placeholder:text-muted-foreground/50 focus:border-primary text-foreground shadow-inner"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium outline-none transition placeholder:text-muted-foreground/60 focus:border-primary text-foreground shadow-sm"
                 type="email"
                 placeholder="diretor@hospitalvet.com.br"
                 value={email}
@@ -80,9 +80,9 @@ export function Register() {
             </label>
 
             <label className="block space-y-2">
-              <span className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">Senha de Segurança</span>
+              <span className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide">Senha de Segurança</span>
               <input
-                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium outline-none transition placeholder:text-muted-foreground/50 focus:border-primary text-foreground shadow-inner"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium outline-none transition placeholder:text-muted-foreground/60 focus:border-primary text-foreground shadow-sm"
                 type="password"
                 placeholder="Mínimo 6 caracteres"
                 value={password}
@@ -103,14 +103,14 @@ export function Register() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-primary px-4 py-3.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? 'Configurando ambiente...' : 'Criar Ambiente da Clínica'}
           </button>
 
           <p className="text-center text-xs text-muted-foreground pt-2 border-t border-border">
             A unidade já possui cadastro?{' '}
-            <Link className="font-bold text-primary hover:opacity-80 transition-colors" to="/login">
+            <Link className="font-semibold text-primary hover:opacity-80 transition-colors" to="/login">
               Acessar painel
             </Link>
           </p>

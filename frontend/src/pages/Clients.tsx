@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, type FormEvent } from 'react'
-import { RefreshCw, Users, Search, Phone, Mail, Calendar, UserPlus, AlertCircle, ChevronRight, Sparkles } from 'lucide-react'
+import { RefreshCw, Users, Search, Phone, Mail, Calendar, UserPlus, AlertCircle, ChevronRight, CheckCircle2 } from 'lucide-react'
 import { Modal } from '../components/Modal'
 import { PageHeader } from '../components/PageHeader'
 import { api, type Client } from '../lib/api'
@@ -74,7 +74,7 @@ export function Clients() {
         badge="Tutores Responsáveis"
         description="Gerencie os cadastros de clientes e tutores, contatos telefônicos, e-mails verificados e histórico de relacionamento."
         action={
-          <Button onClick={() => setIsModalOpen(true)} className="bg-primary text-primary-foreground font-bold hover:opacity-90 shadow-sm gap-2">
+          <Button onClick={() => setIsModalOpen(true)} className="bg-primary text-primary-foreground font-semibold hover:opacity-90 shadow-sm gap-2">
             <UserPlus className="h-4 w-4" />
             Cadastrar Cliente
           </Button>
@@ -89,7 +89,7 @@ export function Clients() {
       )}
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card/60 border border-border p-4 rounded-xl shadow-sm backdrop-blur-sm">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card border border-border p-4 rounded-xl shadow-sm">
         <div className="relative w-full sm:w-96">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <BaseInput
@@ -110,17 +110,17 @@ export function Clients() {
         </div>
       </div>
 
-      <Card className="border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-md">
-        <CardHeader className="border-b border-border/60 bg-card/80 py-5 px-6 flex flex-row items-center justify-between">
+      <Card className="border-border bg-card overflow-hidden">
+        <CardHeader className="border-b border-border/60 bg-card py-5 px-6 flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
               Banco de Dados de Tutores
             </CardTitle>
             <CardDescription className="text-xs">Cadastros sincronizados em todas as estações de atendimento</CardDescription>
           </div>
-          <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 border border-primary/20 text-xs font-semibold text-primary uppercase tracking-wider">
-            <Sparkles className="h-3 w-3 animate-pulse" />
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 border border-primary/15 text-xs font-semibold text-primary uppercase tracking-wide">
+            <CheckCircle2 className="h-3 w-3" />
             Cadastros Ativos
           </span>
         </CardHeader>
@@ -128,7 +128,7 @@ export function Clients() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-muted/40 text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground border-b border-border/80">
+              <thead className="bg-muted/35 text-[11px] font-bold uppercase tracking-wide text-muted-foreground border-b border-border/80">
                 <tr>
                   <th className="px-6 py-3.5 font-bold">Cliente / Tutor</th>
                   <th className="px-6 py-3.5 font-bold">Endereço de E-mail</th>
@@ -142,10 +142,10 @@ export function Clients() {
                   <tr key={client.id} className="group hover:bg-muted/40 transition-colors font-medium">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary text-xs shadow-sm group-hover:scale-105 transition-transform">
+                        <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center font-semibold text-primary text-xs shadow-sm">
                           {client.name.charAt(0).toUpperCase()}
                         </div>
-                        <span className="font-bold text-foreground group-hover:text-primary transition-colors">
+                        <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
                           {client.name}
                         </span>
                       </div>
@@ -153,7 +153,7 @@ export function Clients() {
                     <td className="px-6 py-4">
                       {client.email ? (
                         <div className="flex items-center gap-2 text-muted-foreground font-medium group-hover:text-slate-300 transition-colors">
-                          <Mail className="h-3.5 w-3.5 text-primary/70 shrink-0" />
+                          <Mail className="h-3.5 w-3.5 text-primary/65 shrink-0" />
                           <span>{client.email}</span>
                         </div>
                       ) : (
@@ -163,7 +163,7 @@ export function Clients() {
                     <td className="px-6 py-4">
                       {client.phone ? (
                         <div className="flex items-center gap-2 text-muted-foreground font-medium group-hover:text-slate-300 transition-colors">
-                          <Phone className="h-3.5 w-3.5 text-primary/70 shrink-0" />
+                          <Phone className="h-3.5 w-3.5 text-primary/65 shrink-0" />
                           <span>{client.phone}</span>
                         </div>
                       ) : (
@@ -179,7 +179,7 @@ export function Clients() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10 gap-1 rounded-lg text-xs font-semibold">
+                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10 gap-1 rounded-lg text-xs font-medium">
                         <span>Detalhes</span>
                         <ChevronRight className="h-3.5 w-3.5" />
                       </Button>
@@ -271,7 +271,7 @@ function ClientModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
           </Button>
           <Button
             type="submit"
-            className="bg-primary text-primary-foreground font-bold hover:opacity-90 shadow-sm"
+            className="bg-primary text-primary-foreground font-semibold hover:opacity-90 shadow-sm"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Cadastrando...' : 'Confirmar Cadastro'}

@@ -18,13 +18,13 @@ export function EmptyState({
   onAction,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center p-8 text-center bg-card rounded-lg border border-dashed border-border animate-in fade-in-0 duration-500">
-      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary text-muted-foreground mb-4">
+    <div className="flex flex-col items-center justify-center p-8 text-center bg-card rounded-xl border border-dashed border-border animate-in fade-in-0 duration-500">
+      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary/70 text-muted-foreground mb-4">
         {React.isValidElement(Icon) ? (
           Icon
         ) : (
           // @ts-expect-error - Assuming it's a component like LucideIcon
-          <Icon className="h-10 w-10 text-primary" />
+          <Icon className="h-10 w-10 text-primary/85" />
         )}
       </div>
       <h3 className="mb-2 text-xl font-semibold text-foreground">{title}</h3>

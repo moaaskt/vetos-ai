@@ -34,17 +34,17 @@ export function Login() {
             <PawPrint className="h-7 w-7" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">VetOS AI</h1>
-            <p className="text-xs text-primary font-semibold tracking-wide uppercase">Gestão Veterinária Inteligente</p>
+            <h1 className="text-2xl font-bold tracking-tight">VetOS AI</h1>
+            <p className="text-xs text-primary font-medium tracking-wide uppercase">Gestão veterinária inteligente</p>
           </div>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl border border-border bg-card/80 backdrop-blur-xl p-8 shadow-md space-y-6"
+          className="rounded-2xl border border-border bg-card p-8 shadow-[0_22px_70px_-44px_rgba(0,0,0,0.75)] space-y-6"
         >
           <div className="space-y-1 text-center">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground">Acessar Sistema</h2>
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground">Acessar Sistema</h2>
             <p className="text-xs text-muted-foreground">
               Acesse o ambiente de gestão da sua clínica e prontuários de pacientes.
             </p>
@@ -52,9 +52,9 @@ export function Login() {
 
           <div className="space-y-4">
             <label className="block space-y-2">
-              <span className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">E-mail Profissional</span>
+              <span className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide">E-mail Profissional</span>
               <input
-                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium outline-none transition placeholder:text-muted-foreground/50 focus:border-primary text-foreground shadow-inner"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium outline-none transition placeholder:text-muted-foreground/60 focus:border-primary text-foreground shadow-sm"
                 type="email"
                 placeholder="medico@clinica.com.br"
                 value={email}
@@ -65,9 +65,9 @@ export function Login() {
             </label>
 
             <label className="block space-y-2">
-              <span className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">Senha de Acesso</span>
+              <span className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide">Senha de Acesso</span>
               <input
-                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium outline-none transition placeholder:text-muted-foreground/50 focus:border-primary text-foreground shadow-inner"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium outline-none transition placeholder:text-muted-foreground/60 focus:border-primary text-foreground shadow-sm"
                 type="password"
                 placeholder="••••••••"
                 value={password}
@@ -87,14 +87,14 @@ export function Login() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-primary px-4 py-3.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? 'Autenticando...' : 'Entrar na Conta'}
           </button>
 
           <p className="text-center text-xs text-muted-foreground pt-2 border-t border-border">
             Nova clínica parceira?{' '}
-            <Link className="font-bold text-primary hover:opacity-80 transition-colors" to="/register">
+            <Link className="font-semibold text-primary hover:opacity-80 transition-colors" to="/register">
               Cadastre sua unidade
             </Link>
           </p>

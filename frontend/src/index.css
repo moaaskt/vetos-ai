@@ -38,36 +38,36 @@
 
 @layer base {
   :root {
-    /* Premium Medical SaaS Dark Palette (Inspired by Linear, Stripe & Attio) */
-    --background: oklch(0.16 0.015 255); /* Clean, deep neutral dark slate #0a0c10 */
-    --foreground: oklch(0.98 0 0); /* Crisp white */
+    /* Calm healthcare SaaS palette */
+    --background: oklch(0.18 0.012 235);
+    --foreground: oklch(0.94 0.012 225);
     
-    --card: oklch(0.20 0.02 255); /* Elevated surface #12151c */
-    --card-foreground: oklch(0.98 0 0);
+    --card: oklch(0.22 0.012 230);
+    --card-foreground: oklch(0.94 0.012 225);
     
-    --popover: oklch(0.20 0.02 255);
-    --popover-foreground: oklch(0.98 0 0);
+    --popover: oklch(0.23 0.012 230);
+    --popover-foreground: oklch(0.94 0.012 225);
     
-    --primary: oklch(0.65 0.11 185); /* Trustworthy medical teal #0d9488 */
-    --primary-foreground: oklch(0.98 0 0); /* White text on primary buttons */
+    --primary: oklch(0.62 0.07 183);
+    --primary-foreground: oklch(0.98 0.004 185);
     
-    --secondary: oklch(0.26 0.025 255); /* Subtle interactive surface #1e222e */
-    --secondary-foreground: oklch(0.98 0 0);
+    --secondary: oklch(0.28 0.012 230);
+    --secondary-foreground: oklch(0.92 0.012 225);
     
-    --muted: oklch(0.26 0.025 255);
-    --muted-foreground: oklch(0.70 0.02 255); /* Clean slate-400 */
+    --muted: oklch(0.28 0.012 230);
+    --muted-foreground: oklch(0.72 0.014 225);
     
-    --accent: oklch(0.26 0.025 255);
-    --accent-foreground: oklch(0.98 0 0);
+    --accent: oklch(0.30 0.014 220);
+    --accent-foreground: oklch(0.94 0.012 225);
     
-    --destructive: oklch(0.62 0.18 25); /* Accessible soft red */
-    --destructive-foreground: oklch(0.98 0 0);
+    --destructive: oklch(0.64 0.14 25);
+    --destructive-foreground: oklch(0.98 0.004 25);
     
-    --border: oklch(0.26 0.025 255);
-    --input: oklch(0.26 0.025 255);
-    --ring: oklch(0.65 0.11 185); /* Medical teal ring */
+    --border: oklch(0.32 0.012 230);
+    --input: oklch(0.34 0.012 230);
+    --ring: oklch(0.62 0.07 183);
     
-    --radius: 0.6rem;
+    --radius: 0.7rem;
   }
 }
 
@@ -77,5 +77,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: geometricPrecision;
   }
 }

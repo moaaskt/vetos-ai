@@ -9,7 +9,6 @@ import {
   ChevronRight,
   Menu,
   Bell,
-  Sparkles,
   Building2,
   X,
   AlertTriangle,
@@ -63,7 +62,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       {/* Impersonation Premium Banner */}
       {user?.isImpersonating && (
         <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 text-center text-sm font-medium flex items-center justify-center gap-3 transition-all">
-          <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+          <span className="flex h-2 w-2 rounded-full bg-amber-300" />
           <AlertTriangle className="h-4 w-4 text-amber-400" />
           <span className="text-amber-200">
             Sessão de Suporte Ativa: Acessando Unidade ID <strong className="text-white">{user.clinicId}</strong>
@@ -80,7 +79,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1 flex-row min-h-0">
         {/* Desktop Collapsible Sidebar */}
         <aside 
-          className={`fixed inset-y-0 left-0 z-30 hidden lg:flex flex-col border-r border-border bg-card/80 backdrop-blur-md transition-all duration-300 ease-in-out ${
+          className={`fixed inset-y-0 left-0 z-30 hidden lg:flex flex-col border-r border-border bg-card/95 backdrop-blur-sm transition-all duration-300 ease-in-out ${
             isCollapsed ? 'w-20' : 'w-64'
           } ${user?.isImpersonating ? 'top-[41px]' : 'top-0'}`}
         >
@@ -94,7 +93,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <div className="flex flex-col overflow-hidden">
                   <span className="font-semibold tracking-wide text-foreground truncate text-sm">VetOS AI</span>
                   <span className="text-xs text-muted-foreground truncate flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary/70" />
                     {clinic?.name ?? (user?.role === 'SUPERADMIN' ? 'Administração Geral' : 'Clínica')}
                   </span>
                 </div>
@@ -120,7 +119,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   [
                     'flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-all group relative',
                     isActive
-                      ? 'bg-primary/15 text-primary font-semibold border border-primary/20 shadow-sm'
+                      ? 'bg-primary/10 text-primary font-semibold border border-primary/15 shadow-sm'
                       : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground border border-transparent',
                   ].join(' ')
                 }
@@ -141,9 +140,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </nav>
 
           {/* User Profile Footer */}
-          <div className="p-3 border-t border-border/60 bg-muted/20">
-            <div className={`flex items-center gap-3 rounded-xl p-2 bg-card/80 border border-border ${isCollapsed ? 'justify-center' : ''}`}>
-              <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-semibold shrink-0 text-xs">
+          <div className="p-3 border-t border-border/60 bg-muted/10">
+            <div className={`flex items-center gap-3 rounded-xl p-2 bg-card border border-border ${isCollapsed ? 'justify-center' : ''}`}>
+              <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/15 flex items-center justify-center text-primary font-semibold shrink-0 text-xs">
                 {user?.email?.charAt(0).toUpperCase() ?? 'U'}
               </div>
               {!isCollapsed && (
@@ -180,7 +179,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={() => setIsMobileMenuOpen(false)} />
+            <div className="fixed inset-0 bg-slate-950/65 backdrop-blur-sm transition-opacity" onClick={() => setIsMobileMenuOpen(false)} />
             <div className="fixed inset-y-0 left-0 w-72 bg-card border-r border-border p-6 shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-300">
               <div className="space-y-6">
                 <div className="flex items-center justify-between pb-4 border-b border-border">
@@ -207,7 +206,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         [
                           'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all',
                           isActive
-                            ? 'bg-primary/15 text-primary border border-primary/20'
+                            ? 'bg-primary/10 text-primary border border-primary/15'
                             : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                         ].join(' ')
                       }
@@ -244,7 +243,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* Main Content Area */}
         <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${isCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
           {/* Sticky Top Navbar */}
-          <header className="sticky top-0 z-20 h-16 border-b border-border bg-background/90 backdrop-blur-md px-4 md:px-8 flex items-center justify-between transition-all">
+          <header className="sticky top-0 z-20 h-16 border-b border-border bg-background/95 backdrop-blur-sm px-4 md:px-8 flex items-center justify-between transition-all">
             <div className="flex items-center gap-4">
               <Button 
                 variant="ghost" 
@@ -265,7 +264,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
             <div className="flex items-center gap-3">
               {/* Context Indicator Badge */}
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/60 border border-border text-xs font-medium text-muted-foreground shadow-sm">
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/55 border border-border text-xs font-medium text-muted-foreground shadow-sm">
                 {user?.role === 'SUPERADMIN' ? (
                   <>
                     <Building2 className="h-3.5 w-3.5 text-primary" />
@@ -273,16 +272,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   </>
                 ) : (
                   <>
-                    <Sparkles className="h-3.5 w-3.5 text-primary" />
+                    <PawPrint className="h-3.5 w-3.5 text-primary" />
                     <span className="text-foreground font-bold">{clinic?.name ?? 'Clínica Operacional'}</span>
                   </>
                 )}
               </div>
 
               {/* Notifications Trigger */}
-              <button title="Notificações do sistema" className="relative h-9 w-9 rounded-full border border-border bg-card/60 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-muted transition-all shadow-sm">
+              <button title="Notificações do sistema" className="relative h-9 w-9 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-muted transition-all shadow-sm">
                 <Bell className="h-4 w-4" />
-                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary" />
+                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary/80" />
               </button>
 
               {/* Profile Avatar Mobile Button */}
