@@ -43,3 +43,7 @@
 ## [x] Phase 9: Light/Dark Theme Support (2026-05-18)
 - Goal: Implement premium light and dark theme support across the VetOS AI frontend with persistence and a topbar toggle. Default to light mode.
 - Plans: Completed
+
+## [x] Phase 10: Premium Veterinary Appointment Calendar (2026-05-18)
+- Goal: Deliver a premium clinic appointment calendar with daily and weekly views, appointment creation flow, status management, date filters, and an operational schedule experience for clinic users.
+- Plans: Completed
