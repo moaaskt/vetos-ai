@@ -2,6 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { AppointmentsService } from './appointments.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('appointments')
@@ -9,7 +11,7 @@ export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @Post()
-  create(@CurrentUser() user: any, @Body() createAppointmentDto: any) {
+  create(@CurrentUser() user: any, @Body() createAppointmentDto: CreateAppointmentDto) {
     return this.appointmentsService.create(user.clinicId, createAppointmentDto);
   }
 
@@ -24,7 +26,7 @@ export class AppointmentsController {
   }
 
   @Patch(':id')
-  update(@CurrentUser() user: any, @Param('id') id: string, @Body() updateAppointmentDto: any) {
+  update(@CurrentUser() user: any, @Param('id') id: string, @Body() updateAppointmentDto: UpdateAppointmentDto) {
     return this.appointmentsService.update(user.clinicId, id, updateAppointmentDto);
   }
 
