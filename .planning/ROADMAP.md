@@ -47,3 +47,8 @@
 ## [x] Phase 10: Premium Veterinary Appointment Calendar (2026-05-18)
 - Goal: Deliver a premium clinic appointment calendar with daily and weekly views, appointment creation flow, status management, date filters, and an operational schedule experience for clinic users.
 - Plans: Completed
+
+## Phase 11: Veterinary medical records and patient clinical history module
+- Goal: Implement a comprehensive veterinary medical records and patient clinical history module including pet profiles, clinical timeline, weight tracking, allergies, vaccines, procedures, notes, appointment history integration, and a premium patient record UI.
+- Depends on: Phase 10
+- Plans: Pending

@@ -60,7 +60,7 @@ let AuthService = class AuthService {
     }
     async validateUser(email, pass) {
         const user = await this.usersService.findByEmail(email);
-        if (user && await bcrypt.compare(pass, user.password)) {
+        if (user && (await bcrypt.compare(pass, user.password))) {
             const { password, ...result } = user;
             return result;
         }
@@ -71,7 +71,12 @@ let AuthService = class AuthService {
         if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        const payload = { email: user.email, sub: user.id, role: user.role, clinicId: user.clinicId };
+        const payload = {
+            email: user.email,
+            sub: user.id,
+            role: user.role,
+            clinicId: user.clinicId,
+        };
         return {
             access_token: this.jwtService.sign(payload),
         };
@@ -112,11 +117,15 @@ let AuthService = class AuthService {
         };
     }
     async impersonateClinic(superAdminId, dto) {
-        const superAdmin = await this.prisma.user.findUnique({ where: { id: superAdminId } });
+        const superAdmin = await this.prisma.user.findUnique({
+            where: { id: superAdminId },
+        });
         if (!superAdmin || superAdmin.role !== client_1.Role.SUPERADMIN) {
             throw new common_1.UnauthorizedException('Only Super Admins can impersonate clinics');
         }
-        const clinic = await this.prisma.clinic.findUnique({ where: { id: dto.targetClinicId } });
+        const clinic = await this.prisma.clinic.findUnique({
+            where: { id: dto.targetClinicId },
+        });
         if (!clinic) {
             throw new common_1.BadRequestException('Target clinic not found');
         }

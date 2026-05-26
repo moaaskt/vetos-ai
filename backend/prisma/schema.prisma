@@ -20,6 +20,10 @@ model Clinic {
   appointments Appointment[]
   impersonationLogs ImpersonationLog[]
   subscription ClinicSubscription?
+  weightRecords WeightRecord[]
+  allergies     Allergy[]
+  vaccineRecords VaccineRecord[]
+  clinicalRecords ClinicalRecord[]
 }
 
 model User {
@@ -60,6 +64,10 @@ model Pet {
   client    Client   @relation(fields: [clientId], references: [id])
   clinic    Clinic   @relation(fields: [clinicId], references: [id])
   appointments Appointment[]
+  weightRecords WeightRecord[]
+  allergies     Allergy[]
+  vaccineRecords VaccineRecord[]
+  clinicalRecords ClinicalRecord[]
 }
 
 model Appointment {
@@ -123,4 +131,63 @@ enum AppointmentStatus {
   SCHEDULED
   COMPLETED
   CANCELLED
+}
+
+enum ClinicalRecordType {
+  NOTE
+  PROCEDURE
+}
+
+model WeightRecord {
+  id        String   @id @default(uuid())
+  weight    Float
+  date      DateTime
+  petId     String
+  clinicId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pet    Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+}
+
+model Allergy {
+  id        String   @id @default(uuid())
+  name      String
+  petId     String
+  clinicId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pet    Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+}
+
+model VaccineRecord {
+  id           String    @id @default(uuid())
+  name         String
+  date         DateTime
+  nextDoseDate DateTime?
+  petId        String
+  clinicId     String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  pet    Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+}
+
+model ClinicalRecord {
+  id        String             @id @default(uuid())
+  type      ClinicalRecordType @default(NOTE)
+  title     String?
+  content   String
+  date      DateTime
+  petId     String
+  clinicId  String
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  pet    Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 }

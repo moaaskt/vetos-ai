@@ -28,6 +28,39 @@ export type Client = {
   createdAt?: string
 }
 
+export type Allergy = {
+  id: string
+  name: string
+  petId: string
+  createdAt?: string
+}
+
+export type ClinicalRecordType = 'NOTE' | 'PROCEDURE'
+
+export type ClinicalRecord = {
+  id: string
+  type: ClinicalRecordType
+  title?: string | null
+  content: string
+  date: string
+  petId: string
+}
+
+export type WeightRecord = {
+  id: string
+  weight: number
+  date: string
+  petId: string
+}
+
+export type VaccineRecord = {
+  id: string
+  name: string
+  date: string
+  nextDoseDate?: string | null
+  petId: string
+}
+
 export type Pet = {
   id: string
   name: string
@@ -36,6 +69,11 @@ export type Pet = {
   age?: number | null
   clientId: string
   client?: Client
+  appointments?: Appointment[]
+  allergies?: Allergy[]
+  clinicalRecords?: ClinicalRecord[]
+  weightRecords?: WeightRecord[]
+  vaccineRecords?: VaccineRecord[]
 }
 
 export type AppointmentStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'

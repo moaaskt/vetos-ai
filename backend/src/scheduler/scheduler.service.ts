@@ -7,11 +7,10 @@ import { NotificationsService } from '../notifications/notifications.service';
 export class SchedulerService {
   private readonly logger = new Logger(SchedulerService.name);
 
-
   constructor(
     private prisma: PrismaService,
     private notificationsService: NotificationsService,
-  ) { }
+  ) {}
 
   // Every hour: Check for appointments in the next 24 hours
   @Cron(CronExpression.EVERY_MINUTE)
@@ -28,7 +27,7 @@ export class SchedulerService {
           gte: now,
         },
         status: 'SCHEDULED',
-        notifiedAt: null
+        notifiedAt: null,
       },
       include: {
         pet: {
@@ -44,13 +43,15 @@ export class SchedulerService {
       const client = appointment.pet.client;
       if (client.phone) {
         const message = `Hello ${client.name}, this is a reminder for ${appointment.pet.name}'s appointment at ${appointment.clinic.name} on ${appointment.date.toLocaleString()}.`;
-        await this.notificationsService.enqueueNotification(client.phone, message);
+        await this.notificationsService.enqueueNotification(
+          client.phone,
+          message,
+        );
 
         await this.prisma.appointment.update({
-  where: { id: appointment.id },
-  data: { notifiedAt: new Date() },
-});
-
+          where: { id: appointment.id },
+          data: { notifiedAt: new Date() },
+        });
       }
     }
   }
@@ -80,7 +81,10 @@ export class SchedulerService {
     for (const client of inactiveClients) {
       if (client.phone) {
         const message = `Hello ${client.name}, we haven't seen ${client.name} at the clinic for a while. Would you like to schedule a check-up?`;
-        await this.notificationsService.enqueueNotification(client.phone, message);
+        await this.notificationsService.enqueueNotification(
+          client.phone,
+          message,
+        );
       }
     }
   }
@@ -91,14 +95,26 @@ export class SchedulerService {
     try {
       const totalClinics = await this.prisma.clinic.count();
       const totalAppointments = await this.prisma.appointment.count();
-      // For MRR, we'd normally join subscriptions and plans. 
+      // For MRR, we'd normally join subscriptions and plans.
       // For now, we simulate MRR aggregation.
       const mrr = totalClinics * 100; // Mock MRR calculation
-      
-      const metrics = { totalClinics, totalAppointments, mrr, lastUpdated: new Date() };
-      
+
+      const metrics = {
+        totalClinics,
+        totalAppointments,
+        mrr,
+        lastUpdated: new Date(),
+      };
+
       const Redis = require('ioredis');
-      const redis = new Redis(process.env.REDIS_HOST ? { host: process.env.REDIS_HOST, port: parseInt(process.env.REDIS_PORT || '6379') } : 'redis://localhost:6379');
+      const redis = new Redis(
+        process.env.REDIS_HOST
+          ? {
+              host: process.env.REDIS_HOST,
+              port: parseInt(process.env.REDIS_PORT || '6379'),
+            }
+          : 'redis://localhost:6379',
+      );
       await redis.set('global_metrics:cache', JSON.stringify(metrics));
       redis.disconnect();
     } catch (e) {
