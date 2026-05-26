@@ -6,28 +6,36 @@ import { NotificationsService } from '../notifications/notifications.service';
 @Injectable()
 export class SchedulerService {
   private readonly logger = new Logger(SchedulerService.name);
+  private readonly vaccineWindowDays = 7;
+  private readonly retentionCooldownDays = 90;
 
   constructor(
     private prisma: PrismaService,
     private notificationsService: NotificationsService,
   ) {}
 
-  // Every hour: Check for appointments in the next 24 hours
-  @Cron(CronExpression.EVERY_MINUTE)
-  async handleAppointmentReminders() {
-    this.logger.log('Running appointment reminders cron job...');
-    const now = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(now.getDate() + 1);
+  @Cron(CronExpression.EVERY_DAY_AT_2AM)
+  async handleDailyVeterinaryAutomations() {
+    this.logger.log('Running daily veterinary automation cron job...');
+    await this.enqueueVaccineReminders();
+    await this.enqueueRetentionReminders();
+  }
 
-    const upcomingAppointments = await this.prisma.appointment.findMany({
+  async enqueueVaccineReminders(): Promise<void> {
+    const now = new Date();
+    const windowEnd = new Date(now.getTime());
+    windowEnd.setDate(windowEnd.getDate() + this.vaccineWindowDays);
+    const recentWindowStart = new Date(now.getTime());
+    recentWindowStart.setDate(
+      recentWindowStart.getDate() - this.vaccineWindowDays,
+    );
+
+    const expiringVaccines = await this.prisma.vaccineRecord.findMany({
       where: {
-        date: {
-          lte: tomorrow,
+        nextDoseDate: {
           gte: now,
+          lte: windowEnd,
         },
-        status: 'SCHEDULED',
-        notifiedAt: null,
       },
       include: {
         pet: {
@@ -35,57 +43,123 @@ export class SchedulerService {
             client: true,
           },
         },
-        clinic: true,
       },
     });
 
-    for (const appointment of upcomingAppointments) {
-      const client = appointment.pet.client;
-      if (client.phone) {
-        const message = `Hello ${client.name}, this is a reminder for ${appointment.pet.name}'s appointment at ${appointment.clinic.name} on ${appointment.date.toLocaleString()}.`;
-        await this.notificationsService.enqueueNotification(
-          client.phone,
-          message,
-        );
-
-        await this.prisma.appointment.update({
-          where: { id: appointment.id },
-          data: { notifiedAt: new Date() },
-        });
+    for (const vaccine of expiringVaccines) {
+      if (!vaccine.nextDoseDate) {
+        continue;
       }
+
+      const existingLog = await this.prisma.notificationLog.findFirst({
+        where: {
+          clinicId: vaccine.clinicId,
+          event: 'VACCINE_EXPIRATION',
+          petId: vaccine.petId,
+          scheduledFor: vaccine.nextDoseDate,
+          status: 'SENT',
+          createdAt: {
+            gte: recentWindowStart,
+          },
+        },
+      });
+
+      if (existingLog) {
+        continue;
+      }
+
+      const contact = this.resolveContact(vaccine.pet.client);
+
+      if (!contact) {
+        continue;
+      }
+
+      await this.notificationsService.enqueueNotification({
+        clinicId: vaccine.clinicId,
+        channel: contact.channel,
+        to: contact.to,
+        subject:
+          contact.channel === 'EMAIL'
+            ? `Vacina de ${vaccine.pet.name} esta proxima`
+            : undefined,
+        body: `A vacina ${vaccine.name} de ${vaccine.pet.name} vence em ${vaccine.nextDoseDate.toLocaleDateString('pt-BR')}.`,
+        event: 'VACCINE_EXPIRATION',
+        scheduledFor: vaccine.nextDoseDate,
+        clientId: vaccine.pet.clientId,
+        petId: vaccine.petId,
+        jobId: `vaccine:${vaccine.id}:${vaccine.nextDoseDate.toISOString()}`,
+      });
     }
   }
 
-  // Daily: Check for inactive clients (> 90 days since last appointment)
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async handleInactiveClients() {
-    this.logger.log('Running inactive clients detection cron job...');
+  async enqueueRetentionReminders(): Promise<void> {
+    const now = new Date();
+    const cooldownStart = new Date(now.getTime());
+    cooldownStart.setDate(cooldownStart.getDate() - this.retentionCooldownDays);
 
-    const ninetyDaysAgo = new Date();
-    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-
-    // This is a simplified logic: find clients whose last appointment date is < ninetyDaysAgo
-    // In a real app, we would query for clients where NOT EXISTS (appointment > ninetyDaysAgo)
     const inactiveClients = await this.prisma.client.findMany({
       where: {
         appointments: {
           none: {
             date: {
-              gte: ninetyDaysAgo,
+              gte: cooldownStart,
             },
           },
+        },
+        OR: [{ email: { not: null } }, { phone: { not: null } }],
+      },
+      include: {
+        appointments: {
+          orderBy: {
+            date: 'desc',
+          },
+          take: 1,
         },
       },
     });
 
     for (const client of inactiveClients) {
-      if (client.phone) {
-        const message = `Hello ${client.name}, we haven't seen ${client.name} at the clinic for a while. Would you like to schedule a check-up?`;
-        await this.notificationsService.enqueueNotification(
-          client.phone,
-          message,
-        );
+      const existingLog = await this.prisma.notificationLog.findFirst({
+        where: {
+          clinicId: client.clinicId,
+          event: 'RETENTION',
+          clientId: client.id,
+          status: 'SENT',
+          createdAt: {
+            gte: cooldownStart,
+          },
+        },
+      });
+
+      if (existingLog) {
+        continue;
       }
+
+      const contact = this.resolveContact(client);
+
+      if (!contact) {
+        continue;
+      }
+
+      const lastAppointment = client.appointments[0]?.date;
+      const lastAppointmentText = lastAppointment
+        ? ` desde ${lastAppointment.toLocaleDateString('pt-BR')}`
+        : '';
+
+      await this.notificationsService.enqueueNotification({
+        clinicId: client.clinicId,
+        channel: contact.channel,
+        to: contact.to,
+        subject:
+          contact.channel === 'EMAIL'
+            ? 'Sentimos sua falta na clinica'
+            : undefined,
+        body: `Ola ${client.name}, nao vemos voce na clinica${lastAppointmentText}. Que tal agendar um check-up?`,
+        event: 'RETENTION',
+        scheduledFor: now,
+        clientId: client.id,
+        jobId: `retention:${client.clinicId}:${client.id}:${now.toISOString().slice(0, 10)}`,
+      });
     }
   }
 
@@ -120,5 +194,23 @@ export class SchedulerService {
     } catch (e) {
       this.logger.error('Failed to aggregate global metrics', e);
     }
+  }
+
+  private resolveContact(client: {
+    email: string | null;
+    phone: string | null;
+  }):
+    | { channel: 'EMAIL'; to: string }
+    | { channel: 'WHATSAPP'; to: string }
+    | null {
+    if (client.email) {
+      return { channel: 'EMAIL', to: client.email };
+    }
+
+    if (client.phone) {
+      return { channel: 'WHATSAPP', to: client.phone };
+    }
+
+    return null;
   }
 }

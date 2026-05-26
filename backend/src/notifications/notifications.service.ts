@@ -21,6 +21,7 @@ export interface EnqueueNotificationInput {
   subject?: string;
   event: NotificationEvent;
   scheduledFor?: Date;
+  appointmentDate?: Date | string;
   appointmentId?: string;
   clientId?: string;
   petId?: string;
@@ -54,5 +55,10 @@ export class NotificationsService {
       delay: payload.delayMs,
       jobId: payload.jobId,
     });
+  }
+
+  async cancelNotificationJob(jobId: string): Promise<void> {
+    const job = await this.notificationsQueue.getJob(jobId);
+    await job?.remove();
   }
 }

@@ -3,13 +3,20 @@ import { AppointmentStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import {
+  AppointmentAutomationService,
+  appointmentAutomationInclude,
+} from './appointment-automation.service';
 
 @Injectable()
 export class AppointmentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private appointmentAutomationService: AppointmentAutomationService,
+  ) {}
 
-  create(clinicId: string, data: CreateAppointmentDto) {
-    return this.prisma.appointment.create({
+  async create(clinicId: string, data: CreateAppointmentDto) {
+    const appointment = await this.prisma.appointment.create({
       data: {
         date: new Date(data.scheduledAt),
         reason: data.reason,
@@ -20,6 +27,10 @@ export class AppointmentsService {
       },
       include: appointmentInclude,
     });
+
+    await this.appointmentAutomationService.onAppointmentCreated(appointment);
+
+    return appointment;
   }
 
   findAll(clinicId: string) {
@@ -38,6 +49,7 @@ export class AppointmentsService {
   }
 
   async update(clinicId: string, id: string, data: UpdateAppointmentDto) {
+    const previous = await this.findOne(clinicId, id);
     const updateData: Prisma.AppointmentUncheckedUpdateManyInput = {};
 
     if (data.scheduledAt) {
@@ -65,21 +77,29 @@ export class AppointmentsService {
       data: updateData,
     });
 
-    return this.findOne(clinicId, id);
+    const appointment = await this.findOne(clinicId, id);
+
+    if (previous && appointment) {
+      await this.appointmentAutomationService.onAppointmentUpdated(
+        previous,
+        appointment,
+      );
+    }
+
+    return appointment;
   }
 
-  remove(clinicId: string, id: string) {
-    return this.prisma.appointment.deleteMany({
+  async remove(clinicId: string, id: string) {
+    const result = await this.prisma.appointment.deleteMany({
       where: { id, clinicId },
     });
+
+    if (result.count > 0) {
+      await this.appointmentAutomationService.onAppointmentCancelled(id);
+    }
+
+    return result;
   }
 }
 
-const appointmentInclude = {
-  pet: {
-    include: {
-      client: true,
-    },
-  },
-  client: true,
-} satisfies Prisma.AppointmentInclude;
+const appointmentInclude = appointmentAutomationInclude;

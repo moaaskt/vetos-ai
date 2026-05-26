@@ -6,10 +6,12 @@ describe('NotificationsService', () => {
   let service: NotificationsService;
   const queue = {
     add: jest.fn(),
+    getJob: jest.fn(),
   };
 
   beforeEach(async () => {
     queue.add.mockReset();
+    queue.getJob.mockReset();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -52,5 +54,17 @@ describe('NotificationsService', () => {
         jobId: 'job-1',
       },
     );
+  });
+
+  it('cancels a queued notification job when it exists', async () => {
+    const job = {
+      remove: jest.fn(),
+    };
+    queue.getJob.mockResolvedValue(job);
+
+    await service.cancelNotificationJob('appt-24h:appointment-1');
+
+    expect(queue.getJob).toHaveBeenCalledWith('appt-24h:appointment-1');
+    expect(job.remove).toHaveBeenCalled();
   });
 });

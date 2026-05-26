@@ -3,23 +3,24 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-05-26T21:05:11.000Z"
+last_updated: "2026-05-26T18:27:49-03:00"
 
 progress:
   total_phases: 12
   completed_phases: 7
   total_plans: 12
-  completed_plans: 9
-  percent: 75
+  completed_plans: 10
+  percent: 83
 ---
 # Project State
 
 ## Current Phase: Phase 4 (Automation and Notifications Core)
 
-**Status:** Phase 4 Wave 1B completed
+**Status:** Phase 4 Wave 2 completed
 
 ## Recent Updates
 
+- Completed Phase 4 Wave 2 veterinary automations: added dedicated appointment automation scheduling, predictable delayed BullMQ jobs with cancellation/rescheduling, processor-side appointment validation/deduplication, graceful failed logs for missing SMTP config, and daily 02:00 vaccine/retention cron jobs with `NotificationLog` anti-spam checks.
 - Completed Phase 4 Wave 1B SMTP integration: installed Nodemailer, added per-clinic encrypted SMTP configuration loading, connection/test email support, EMAIL routing through SmtpProvider, and NotificationLog success/failure persistence.
 - Completed Phase 4 Wave 1A safe foundation: Prisma notification models/config/templates/logs, AES-256-GCM encryption service, template compilation, BullMQ mock EMAIL/WHATSAPP routing, and NotificationLog persistence.
 - Refined Phase 4 planning by splitting Wave 1: generated `01-PLAN.md` (Wave 1A - Safe Foundation), `02-PLAN.md` (Wave 1B - SMTP Integration), `03-PLAN.md` (Wave 2 - Automations), and `04-PLAN.md` (Wave 3 - Evolution API & UI).
@@ -45,4 +46,4 @@ progress:
 
 ## Next Steps
 
-- Execute Phase 4 Wave 2 only when ready (`/gsd-execute-phase 4 --wave 2`) to implement veterinary automations and the hybrid scheduler.
+- Execute Phase 4 Wave 3 when ready to implement Evolution API integration and the frontend notification observability/configuration dashboard.
