@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationsProcessor } from './notifications.processor';
-import { EmailMockProvider } from './providers/email-mock.provider';
+import { SmtpProvider } from './providers/smtp.provider';
 import { WhatsAppMockProvider } from './providers/whatsapp-mock.provider';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -12,7 +12,7 @@ describe('NotificationsProcessor', () => {
       create: jest.fn(),
     },
   };
-  const emailProvider = {
+  const smtpProvider = {
     send: jest.fn(),
   };
   const whatsappProvider = {
@@ -21,14 +21,14 @@ describe('NotificationsProcessor', () => {
 
   beforeEach(async () => {
     prisma.notificationLog.create.mockReset();
-    emailProvider.send.mockReset();
+    smtpProvider.send.mockReset();
     whatsappProvider.send.mockReset();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotificationsProcessor,
         { provide: PrismaService, useValue: prisma },
-        { provide: EmailMockProvider, useValue: emailProvider },
+        { provide: SmtpProvider, useValue: smtpProvider },
         { provide: WhatsAppMockProvider, useValue: whatsappProvider },
       ],
     }).compile();
@@ -37,7 +37,7 @@ describe('NotificationsProcessor', () => {
   });
 
   it('routes EMAIL jobs and records a sent log', async () => {
-    emailProvider.send.mockResolvedValue({
+    smtpProvider.send.mockResolvedValue({
       success: true,
       providerMessageId: 'email-1',
     });
@@ -55,7 +55,8 @@ describe('NotificationsProcessor', () => {
       },
     } as any);
 
-    expect(emailProvider.send).toHaveBeenCalledWith({
+    expect(smtpProvider.send).toHaveBeenCalledWith({
+      clinicId: 'clinic-1',
       to: 'client@example.com',
       subject: 'Consulta',
       body: 'Mensagem',

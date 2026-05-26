@@ -2,7 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { EmailMockProvider } from './providers/email-mock.provider';
+import { SmtpProvider } from './providers/smtp.provider';
 import { WhatsAppMockProvider } from './providers/whatsapp-mock.provider';
 import { EnqueueNotificationInput } from './notifications.service';
 
@@ -12,7 +12,7 @@ export class NotificationsProcessor extends WorkerHost {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly emailProvider: EmailMockProvider,
+    private readonly smtpProvider: SmtpProvider,
     private readonly whatsappProvider: WhatsAppMockProvider,
   ) {
     super();
@@ -43,7 +43,12 @@ export class NotificationsProcessor extends WorkerHost {
 
   private async send(payload: EnqueueNotificationInput) {
     if (payload.channel === 'EMAIL') {
-      return this.emailProvider.send({
+      if (!payload.clinicId) {
+        throw new Error('clinicId is required for SMTP email notifications');
+      }
+
+      return this.smtpProvider.send({
+        clinicId: payload.clinicId,
         to: payload.to,
         subject: payload.subject,
         body: payload.body,
