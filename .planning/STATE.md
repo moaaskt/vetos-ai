@@ -3,23 +3,26 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-05-18T19:40:00.000Z"
+last_updated: "2026-05-26T20:51:28.000Z"
 
 progress:
   total_phases: 12
   completed_phases: 7
   total_plans: 12
-  completed_plans: 7
-  percent: 58
+  completed_plans: 8
+  percent: 67
 ---
 # Project State
 
-## Current Phase: Phase 12 (Clinic Activity Feed and Audit Timeline)
+## Current Phase: Phase 4 (Automation and Notifications Core)
 
-**Status:** Phase 12 completed
+**Status:** Phase 4 Wave 1A completed
 
 ## Recent Updates
 
+- Completed Phase 4 Wave 1A safe foundation: Prisma notification models/config/templates/logs, AES-256-GCM encryption service, template compilation, BullMQ mock EMAIL/WHATSAPP routing, and NotificationLog persistence.
+- Refined Phase 4 planning by splitting Wave 1: generated `01-PLAN.md` (Wave 1A - Safe Foundation), `02-PLAN.md` (Wave 1B - SMTP Integration), `03-PLAN.md` (Wave 2 - Automations), and `04-PLAN.md` (Wave 3 - Evolution API & UI).
+- Completed Phase 4 discussion: structured the detailed architecture, database schema, hybrid scheduler strategy (BullMQ + Cron) and multi-wave delivery roadmap (Wave 1: Foundation/SMTP, Wave 2: Veterinary Automations, Wave 3: Evolution API/Frontend Dashboard) in `.planning/phases/04-automation-and-notifications-core/04-CONTEXT.md`.
 - Completed Phase 12 execution: delivered a real dynamic dashboard activity feed consolidated from 7 entities in the database (clients, pets, appointments, clinical records, allergies, vaccines and weight records) scoped by clinicId and localized in PT-BR.
 - Completed Phase 10 execution: delivered a calendar-first appointment experience with day/week views, creation flow, status updates, and typed backend appointment payloads.
 - Added Phase 10 planning artifacts for a premium veterinary appointment calendar experience.
@@ -41,4 +44,4 @@ progress:
 
 ## Next Steps
 
-- Initiate Phase 11 planning (`/gsd-plan-phase 11`) to define requirements and implementation plan for the Veterinary Medical Records and Patient Clinical History module.
+- Execute Phase 4 Wave 1B (`/gsd-execute-phase 4 --wave 1`) to integrate real SMTP delivery with encrypted per-clinic credentials.
