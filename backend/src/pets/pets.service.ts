@@ -16,7 +16,27 @@ export class PetsService {
   }
 
   findOne(clinicId: string, id: string) {
-    return this.prisma.pet.findFirst({ where: { id, clinicId } });
+    return this.prisma.pet.findFirst({
+      where: { id, clinicId },
+      include: {
+        client: true,
+        appointments: {
+          orderBy: { date: 'desc' },
+        },
+        allergies: {
+          orderBy: { createdAt: 'desc' },
+        },
+        clinicalRecords: {
+          orderBy: { date: 'desc' },
+        },
+        vaccineRecords: {
+          orderBy: { date: 'desc' },
+        },
+        weightRecords: {
+          orderBy: { date: 'desc' },
+        },
+      },
+    });
   }
 
   update(clinicId: string, id: string, data: any) {

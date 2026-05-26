@@ -10,7 +10,11 @@ import { WhatsAppMockProvider } from './whatsapp-mock.provider';
       name: 'notifications',
     }),
   ],
-  providers: [NotificationsService, NotificationsProcessor, WhatsAppMockProvider],
+  providers: [
+    NotificationsService,
+    NotificationsProcessor,
+    WhatsAppMockProvider,
+  ],
   exports: [NotificationsService],
 })
 export class NotificationsModule {}

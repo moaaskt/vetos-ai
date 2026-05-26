@@ -2,7 +2,7 @@ import { CalendarDays, PawPrint, Users, TrendingUp, Plus, Clock, Activity, Arrow
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { api, type DashboardStats } from '../lib/api'
+import { api, type DashboardStats, type DashboardActivity } from '../lib/api'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card'
 import { Skeleton } from '../components/ui/skeleton'
 import { Button } from '../components/ui/button'
@@ -13,12 +13,57 @@ const fallbackStats: DashboardStats = {
   totalAppointments: 0,
 }
 
+function formatActivityTime(dateString: string): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+
+  if (diffMins < 1) return 'Agora mesmo'
+  if (diffMins < 60) return `Há ${diffMins} min`
+  if (diffHours < 24) return `Há ${diffHours} hora${diffHours > 1 ? 's' : ''}`
+  if (diffDays === 1) return 'Ontem'
+  if (diffDays < 7) return `Há ${diffDays} dias`
+  
+  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+}
+
+function getActivityColor(type: string, isFirst: boolean): string {
+  if (isFirst) {
+    switch (type) {
+      case 'client': return 'bg-sky-400/85 ring-4 ring-sky-400/20'
+      case 'pet': return 'bg-emerald-400/85 ring-4 ring-emerald-400/20'
+      case 'appointment': return 'bg-violet-400/85 ring-4 ring-violet-400/20'
+      case 'clinicalRecord': return 'bg-primary/85 ring-4 ring-primary/20'
+      case 'allergy': return 'bg-rose-400/85 ring-4 ring-rose-400/20'
+      case 'vaccine': return 'bg-amber-400/85 ring-4 ring-amber-400/20'
+      case 'weightRecord': return 'bg-teal-400/85 ring-4 ring-teal-400/20'
+      default: return 'bg-primary/85 ring-4 ring-primary/20'
+    }
+  }
+
+  switch (type) {
+    case 'client': return 'bg-sky-500/60 border-sky-500/30'
+    case 'pet': return 'bg-emerald-500/60 border-emerald-500/30'
+    case 'appointment': return 'bg-violet-500/60 border-violet-500/30'
+    case 'clinicalRecord': return 'bg-primary/60 border-primary/30'
+    case 'allergy': return 'bg-rose-500/60 border-rose-500/30'
+    case 'vaccine': return 'bg-amber-500/60 border-amber-500/30'
+    case 'weightRecord': return 'bg-teal-500/60 border-teal-500/30'
+    default: return 'bg-secondary border-border'
+  }
+}
+
 export function Dashboard() {
   const { clinic } = useAuth()
   const navigate = useNavigate()
   const [stats, setStats] = useState<DashboardStats>(fallbackStats)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [activities, setActivities] = useState<DashboardActivity[]>([])
+  const [isActivitiesLoading, setIsActivitiesLoading] = useState(true)
 
   useEffect(() => {
     let isMounted = true
@@ -42,7 +87,23 @@ export function Dashboard() {
       }
     }
 
+    async function loadActivities() {
+      try {
+        const response = await api.get<DashboardActivity[]>('/dashboard/activity')
+        if (isMounted) {
+          setActivities(response.data)
+        }
+      } catch {
+        // Silently ignore or fallback
+      } finally {
+        if (isMounted) {
+          setIsActivitiesLoading(false)
+        }
+      }
+    }
+
     loadStats()
+    loadActivities()
 
     return () => {
       isMounted = false
@@ -74,13 +135,6 @@ export function Dashboard() {
       color: 'text-violet-300',
       badge: 'Em tempo real'
     },
-  ]
-
-  const recentActivities = [
-    { id: 1, text: 'Dra. Sarah concluiu atendimento de rotina para Bella (Golden Retriever)', time: 'Há 12 min', type: 'checkup' },
-    { id: 2, text: 'Novo cliente cadastrado: Michael Chen & paciente Max', time: 'Há 1 hora', type: 'client' },
-    { id: 3, text: 'Lembrete de vacina anual agendado para Luna (Siamês)', time: 'Há 3 horas', type: 'reminder' },
-    { id: 4, text: 'Consulta marcada: Limpeza de tártaro e exames para Rocky', time: 'Há 5 horas', type: 'booking' },
   ]
 
   return (
@@ -237,20 +291,46 @@ export function Dashboard() {
               </span>
             </div>
           </CardHeader>
-          <CardContent className="p-6 flex-1">
-            <div className="relative pl-6 border-l-2 border-border/80 space-y-6">
-              {recentActivities.map((act, idx) => (
-                <div key={act.id} className="relative group">
-                  <div className={`absolute -left-[31px] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-background ${
-                    idx === 0 ? 'bg-primary/85 ring-4 ring-primary/10 shadow-sm' : 'bg-secondary border-border'
-                  }`} />
-                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-                    <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{act.text}</p>
-                    <span className="text-xs font-medium text-muted-foreground shrink-0">{act.time}</span>
+          <CardContent className="p-6 flex-1 flex flex-col justify-between">
+            {isActivitiesLoading ? (
+              <div className="relative pl-6 border-l-2 border-border/80 space-y-6 w-full">
+                {[1, 2, 3, 4].map((n) => (
+                  <div key={n} className="relative flex justify-between items-center gap-4 animate-pulse">
+                    <div className="absolute -left-[31px] top-1.5 h-3.5 w-3.5 rounded-full bg-secondary border border-border" />
+                    <Skeleton className="h-5 w-3/4 rounded bg-muted/60" />
+                    <Skeleton className="h-4 w-12 rounded bg-muted/60" />
                   </div>
+                ))}
+              </div>
+            ) : activities.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 px-4 text-center h-full my-auto">
+                <div className="h-12 w-12 rounded-full bg-primary/10 border border-primary/15 flex items-center justify-center text-primary mb-3 shadow-sm">
+                  <Clock className="h-5 w-5" />
                 </div>
-              ))}
-            </div>
+                <h4 className="font-semibold text-foreground text-sm mb-1">Nenhuma atividade recente</h4>
+                <p className="text-xs text-muted-foreground max-w-[260px]">
+                  Cadastros de pets, tutores, consultas e prontuários aparecerão aqui em tempo real.
+                </p>
+              </div>
+            ) : (
+              <div className="relative pl-6 border-l-2 border-border/80 space-y-6">
+                {activities.map((act, idx) => (
+                  <div key={act.id} className="relative group">
+                    <div className={`absolute -left-[31px] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-background transition-all duration-300 ${
+                      getActivityColor(act.type, idx === 0)
+                    }`} />
+                    <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+                      <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors pr-2">
+                        {act.text}
+                      </p>
+                      <span className="text-xs font-medium text-muted-foreground shrink-0 select-none">
+                        {formatActivityTime(act.date)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 

@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
@@ -18,7 +22,7 @@ export class AuthService {
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (user && await bcrypt.compare(pass, user.password)) {
+    if (user && (await bcrypt.compare(pass, user.password))) {
       const { password, ...result } = user;
       return result;
     }
@@ -30,7 +34,12 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const payload = { email: user.email, sub: user.id, role: user.role, clinicId: user.clinicId };
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+      clinicId: user.clinicId,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };
@@ -79,12 +88,18 @@ export class AuthService {
   }
 
   async impersonateClinic(superAdminId: string, dto: ImpersonateDto) {
-    const superAdmin = await this.prisma.user.findUnique({ where: { id: superAdminId } });
+    const superAdmin = await this.prisma.user.findUnique({
+      where: { id: superAdminId },
+    });
     if (!superAdmin || superAdmin.role !== Role.SUPERADMIN) {
-      throw new UnauthorizedException('Only Super Admins can impersonate clinics');
+      throw new UnauthorizedException(
+        'Only Super Admins can impersonate clinics',
+      );
     }
 
-    const clinic = await this.prisma.clinic.findUnique({ where: { id: dto.targetClinicId } });
+    const clinic = await this.prisma.clinic.findUnique({
+      where: { id: dto.targetClinicId },
+    });
     if (!clinic) {
       throw new BadRequestException('Target clinic not found');
     }

@@ -21,6 +21,10 @@ const appointments_module_1 = require("./appointments/appointments.module");
 const dashboard_module_1 = require("./dashboard/dashboard.module");
 const notifications_module_1 = require("./notifications/notifications.module");
 const scheduler_module_1 = require("./scheduler/scheduler.module");
+const allergies_module_1 = require("./allergies/allergies.module");
+const clinical_records_module_1 = require("./clinical-records/clinical-records.module");
+const vaccines_module_1 = require("./vaccines/vaccines.module");
+const weight_records_module_1 = require("./weight-records/weight-records.module");
 const bullmq_1 = require("@nestjs/bullmq");
 const schedule_1 = require("@nestjs/schedule");
 let AppModule = class AppModule {
@@ -49,6 +53,10 @@ exports.AppModule = AppModule = __decorate([
             dashboard_module_1.DashboardModule,
             notifications_module_1.NotificationsModule,
             scheduler_module_1.SchedulerModule,
+            allergies_module_1.AllergiesModule,
+            clinical_records_module_1.ClinicalRecordsModule,
+            vaccines_module_1.VaccinesModule,
+            weight_records_module_1.WeightRecordsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

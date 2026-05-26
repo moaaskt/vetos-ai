@@ -26,7 +26,27 @@ let PetsService = class PetsService {
         return this.prisma.pet.findMany({ where: { clinicId } });
     }
     findOne(clinicId, id) {
-        return this.prisma.pet.findFirst({ where: { id, clinicId } });
+        return this.prisma.pet.findFirst({
+            where: { id, clinicId },
+            include: {
+                client: true,
+                appointments: {
+                    orderBy: { date: 'desc' },
+                },
+                allergies: {
+                    orderBy: { createdAt: 'desc' },
+                },
+                clinicalRecords: {
+                    orderBy: { date: 'desc' },
+                },
+                vaccineRecords: {
+                    orderBy: { date: 'desc' },
+                },
+                weightRecords: {
+                    orderBy: { date: 'desc' },
+                },
+            },
+        });
     }
     update(clinicId, id, data) {
         return this.prisma.pet.updateMany({
