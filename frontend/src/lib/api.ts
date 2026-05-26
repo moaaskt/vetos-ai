@@ -97,3 +97,10 @@ export type CreateAppointmentPayload = {
   reason?: string
   status?: AppointmentStatus
 }
+
+export type DashboardActivity = {
+  id: string
+  type: 'client' | 'pet' | 'appointment' | 'clinicalRecord' | 'allergy' | 'vaccine' | 'weightRecord'
+  text: string
+  date: string
+}
