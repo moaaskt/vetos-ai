@@ -26,7 +26,7 @@ export class AppointmentAutomationService {
       event: 'APPOINTMENT_CREATED',
       subject: 'Consulta agendada',
       body: this.buildAppointmentCreatedBody(appointment),
-      jobId: `appt-created:${appointment.id}`,
+      jobId: this.getNotificationJobIds(appointment.id).created,
     });
     await this.scheduleAppointmentReminders(appointment);
   }
@@ -59,7 +59,7 @@ export class AppointmentAutomationService {
       subject: 'Lembrete de consulta',
       body: this.buildAppointmentReminderBody(appointment, '24 horas'),
       sendAt: new Date(appointment.date.getTime() - DAY_MS),
-      jobId: `appt-24h:${appointment.id}`,
+      jobId: this.getNotificationJobIds(appointment.id).reminder24h,
     });
 
     await this.enqueueDelayedAppointmentNotification(appointment, {
@@ -67,7 +67,7 @@ export class AppointmentAutomationService {
       subject: 'Consulta em breve',
       body: this.buildAppointmentReminderBody(appointment, '2 horas'),
       sendAt: new Date(appointment.date.getTime() - 2 * HOUR_MS),
-      jobId: `appt-2h:${appointment.id}`,
+      jobId: this.getNotificationJobIds(appointment.id).reminder2h,
     });
   }
 
@@ -79,7 +79,7 @@ export class AppointmentAutomationService {
       subject: 'Como foi a consulta?',
       body: this.buildFollowUpBody(appointment),
       sendAt: new Date(appointment.date.getTime() + DAY_MS),
-      jobId: `appt-follow-up:${appointment.id}`,
+      jobId: this.getNotificationJobIds(appointment.id).followUp,
     });
   }
 
@@ -157,19 +157,12 @@ export class AppointmentAutomationService {
   }
 
   private async cancelAppointmentJobs(appointmentId: string): Promise<void> {
+    const jobIds = this.getNotificationJobIds(appointmentId);
     await Promise.all([
-      this.notificationsService.cancelNotificationJob(
-        `appt-created:${appointmentId}`,
-      ),
-      this.notificationsService.cancelNotificationJob(
-        `appt-24h:${appointmentId}`,
-      ),
-      this.notificationsService.cancelNotificationJob(
-        `appt-2h:${appointmentId}`,
-      ),
-      this.notificationsService.cancelNotificationJob(
-        `appt-follow-up:${appointmentId}`,
-      ),
+      this.notificationsService.cancelNotificationJob(jobIds.created),
+      this.notificationsService.cancelNotificationJob(jobIds.reminder24h),
+      this.notificationsService.cancelNotificationJob(jobIds.reminder2h),
+      this.notificationsService.cancelNotificationJob(jobIds.followUp),
     ]);
   }
 
@@ -207,6 +200,15 @@ export class AppointmentAutomationService {
 
   private buildFollowUpBody(appointment: AppointmentWithRelations): string {
     return `Esperamos que a consulta de ${appointment.pet.name} tenha ido bem. Conte com a equipe VetOS AI para o acompanhamento.`;
+  }
+
+  private getNotificationJobIds(appointmentId: string) {
+    return {
+      created: `appt-created-${appointmentId}`,
+      reminder24h: `appt-24h-${appointmentId}`,
+      reminder2h: `appt-2h-${appointmentId}`,
+      followUp: `appt-follow-up-${appointmentId}`,
+    };
   }
 }
 

@@ -25,20 +25,20 @@ describe('AppointmentAutomationService', () => {
     expect(notificationsService.enqueueNotification).toHaveBeenCalledWith(
       expect.objectContaining({
         event: 'APPOINTMENT_CREATED',
-        jobId: 'appt-created:appointment-1',
+        jobId: 'appt-created-appointment-1',
       }),
     );
     expect(notificationsService.enqueueNotification).toHaveBeenCalledWith(
       expect.objectContaining({
         event: 'APPOINTMENT_REMINDER_24H',
-        jobId: 'appt-24h:appointment-1',
+        jobId: 'appt-24h-appointment-1',
         delayMs: expect.any(Number),
       }),
     );
     expect(notificationsService.enqueueNotification).toHaveBeenCalledWith(
       expect.objectContaining({
         event: 'APPOINTMENT_REMINDER_2H',
-        jobId: 'appt-2h:appointment-1',
+        jobId: 'appt-2h-appointment-1',
         delayMs: expect.any(Number),
       }),
     );
@@ -70,16 +70,16 @@ describe('AppointmentAutomationService', () => {
     await service.onAppointmentCancelled('appointment-1');
 
     expect(notificationsService.cancelNotificationJob).toHaveBeenCalledWith(
-      'appt-created:appointment-1',
+      'appt-created-appointment-1',
     );
     expect(notificationsService.cancelNotificationJob).toHaveBeenCalledWith(
-      'appt-24h:appointment-1',
+      'appt-24h-appointment-1',
     );
     expect(notificationsService.cancelNotificationJob).toHaveBeenCalledWith(
-      'appt-2h:appointment-1',
+      'appt-2h-appointment-1',
     );
     expect(notificationsService.cancelNotificationJob).toHaveBeenCalledWith(
-      'appt-follow-up:appointment-1',
+      'appt-follow-up-appointment-1',
     );
   });
 });
