@@ -139,6 +139,8 @@ export class AppointmentAutomationService {
       return;
     }
 
+    const client = appointment.client ?? appointment.pet.client;
+
     await this.notificationsService.enqueueNotification({
       clinicId: appointment.clinicId,
       channel: contact.channel,
@@ -153,6 +155,9 @@ export class AppointmentAutomationService {
       petId: appointment.petId,
       delayMs: input.delayMs,
       jobId: input.jobId,
+      clientName: client?.name,
+      petName: appointment.pet?.name,
+      clinicName: appointment.clinic?.name,
     });
   }
 
@@ -219,4 +224,5 @@ export const appointmentAutomationInclude = {
     },
   },
   client: true,
+  clinic: true,
 } satisfies Prisma.AppointmentInclude;

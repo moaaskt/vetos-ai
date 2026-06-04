@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { SmtpProvider } from './providers/smtp.provider';
 import { WhatsAppMockProvider } from './providers/whatsapp-mock.provider';
 import { EnqueueNotificationInput } from './notifications.service';
+import { TemplateService } from './template.service';
 
 @Processor('notifications')
 export class NotificationsProcessor extends WorkerHost {
@@ -15,12 +16,16 @@ export class NotificationsProcessor extends WorkerHost {
     private readonly prisma: PrismaService,
     private readonly smtpProvider: SmtpProvider,
     private readonly whatsappProvider: WhatsAppMockProvider,
+    private readonly templateService: TemplateService,
   ) {
     super();
   }
 
   async process(job: Job<EnqueueNotificationInput, any, string>): Promise<any> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+
+    let compiledSubject = job.data.subject;
+    let compiledBody = job.data.body;
 
     try {
       const validation = await this.validateBeforeSend(job.data);
@@ -32,9 +37,15 @@ export class NotificationsProcessor extends WorkerHost {
         return validation;
       }
 
-      const result = await this.send(job.data);
+      const resolved = await this.resolveSubjectAndBody(job.data);
+      compiledSubject = resolved.subject;
+      compiledBody = resolved.body;
+
+      const result = await this.send(job.data, compiledSubject, compiledBody);
       await this.createNotificationLog(
         job.data,
+        compiledSubject,
+        compiledBody,
         'SENT',
         result.providerMessageId,
       );
@@ -43,6 +54,8 @@ export class NotificationsProcessor extends WorkerHost {
       this.logger.error(`Failed to send notification for job ${job.id}`, error);
       await this.createNotificationLog(
         job.data,
+        compiledSubject,
+        compiledBody,
         'FAILED',
         undefined,
         error instanceof Error ? error.message : 'Unknown notification error',
@@ -152,7 +165,49 @@ export class NotificationsProcessor extends WorkerHost {
     return { shouldSend: true };
   }
 
-  private async send(payload: EnqueueNotificationInput) {
+  private async resolveSubjectAndBody(
+    jobData: EnqueueNotificationInput,
+  ): Promise<{ subject?: string; body: string }> {
+    if (!jobData.clinicId) {
+      return { subject: jobData.subject, body: jobData.body };
+    }
+
+    const template = await this.prisma.notificationTemplate.findUnique({
+      where: {
+        clinicId_event_channel: {
+          clinicId: jobData.clinicId,
+          event: jobData.event,
+          channel: jobData.channel,
+        },
+      },
+    });
+
+    if (template && template.active) {
+      const compilePayload: Record<string, any> = {
+        clientName: jobData.clientName || '',
+        petName: jobData.petName || '',
+        appointmentDate: jobData.appointmentDate
+          ? new Date(jobData.appointmentDate).toLocaleString('pt-BR')
+          : '',
+        clinicName: jobData.clinicName || '',
+      };
+
+      const body = this.templateService.compile(template.body, compilePayload);
+      const subject = template.subject
+        ? this.templateService.compile(template.subject, compilePayload)
+        : undefined;
+
+      return { subject, body };
+    }
+
+    return { subject: jobData.subject, body: jobData.body };
+  }
+
+  private async send(
+    payload: EnqueueNotificationInput,
+    subject: string | undefined,
+    body: string,
+  ) {
     if (payload.channel === 'EMAIL') {
       if (!payload.clinicId) {
         throw new Error('clinicId is required for SMTP email notifications');
@@ -161,19 +216,21 @@ export class NotificationsProcessor extends WorkerHost {
       return this.smtpProvider.send({
         clinicId: payload.clinicId,
         to: payload.to,
-        subject: payload.subject,
-        body: payload.body,
+        subject: subject,
+        body: body,
       });
     }
 
     return this.whatsappProvider.send({
       to: payload.to,
-      body: payload.body,
+      body: body,
     });
   }
 
   private async createNotificationLog(
     payload: EnqueueNotificationInput,
+    subject: string | undefined,
+    body: string,
     status: 'SENT' | 'FAILED',
     providerMessageId?: string,
     errorMessage?: string,
@@ -190,8 +247,8 @@ export class NotificationsProcessor extends WorkerHost {
         clinicId: payload.clinicId,
         channel: payload.channel,
         to: payload.to,
-        subject: payload.subject,
-        body: payload.body,
+        subject,
+        body,
         status,
         errorMessage,
         providerMessageId,

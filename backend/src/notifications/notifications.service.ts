@@ -27,6 +27,9 @@ export interface EnqueueNotificationInput {
   petId?: string;
   delayMs?: number;
   jobId?: string;
+  clientName?: string;
+  petName?: string;
+  clinicName?: string;
 }
 
 @Injectable()
