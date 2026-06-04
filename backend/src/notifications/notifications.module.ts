@@ -7,6 +7,7 @@ import { SmtpProvider } from './providers/smtp.provider';
 import { WhatsAppMockProvider } from './providers/whatsapp-mock.provider';
 import { TemplateService } from './template.service';
 import { EncryptionModule } from '../encryption/encryption.module';
+import { NotificationsController } from './notifications.controller';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { EncryptionModule } from '../encryption/encryption.module';
       name: 'notifications',
     }),
   ],
+  controllers: [NotificationsController],
   providers: [
     NotificationsService,
     NotificationsProcessor,
