@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   Sun,
   Moon,
+  Settings,
   type LucideIcon,
 } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
@@ -32,7 +33,7 @@ const navItems: NavItem[] = [
   { to: '/clients', label: 'Clientes', icon: Users },
   { to: '/pets', label: 'Pacientes', icon: PawPrint },
   { to: '/appointments', label: 'Consultas', icon: CalendarDays },
-  { to: '/settings/messaging', label: 'Mensageria', icon: Bell },
+  { to: '/settings', label: 'Configurações', icon: Settings },
 ]
 
 const superAdminNavItems: NavItem[] = [
@@ -59,7 +60,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
     if (path.includes('clients')) return 'Diretório de Tutores'
     if (path.includes('pets')) return 'Fichas de Pacientes'
     if (path.includes('appointments')) return 'Agenda de Consultas'
-    if (path.includes('settings/messaging')) return 'Configurações de Mensageria'
+    if (path.includes('settings/messaging')) return 'Configurações / Mensageria'
+    if (path.includes('settings')) return 'Configurações'
     return 'Ambiente de Trabalho'
   }
 

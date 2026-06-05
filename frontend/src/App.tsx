@@ -11,6 +11,7 @@ import { Register } from './pages/Register'
 import { SuperAdminDashboard } from './pages/super-admin/SuperAdminDashboard'
 import { SuperAdminClinics } from './pages/super-admin/SuperAdminClinics'
 import { MessagingPage } from './pages/messaging/MessagingPage'
+import { SettingsPage } from './pages/settings/SettingsPage'
 
 function defaultAuthenticatedRoute(role?: string) {
   return role === 'SUPERADMIN' ? '/super-admin/dashboard' : '/dashboard'
@@ -80,6 +81,7 @@ const router = createBrowserRouter([
       { path: '/pets', element: <Pets /> },
       { path: '/pets/:id', element: <PetDetails /> },
       { path: '/appointments', element: <Appointments /> },
+      { path: '/settings', element: <SettingsPage /> },
       { path: '/settings/messaging', element: <MessagingPage /> },
     ],
   },
