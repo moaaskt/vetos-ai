@@ -56,6 +56,25 @@
 - Plans: Pending
 
 ## [x] Phase 12: Clinic activity feed and audit timeline for recent operational events including appointments, clients, pets, clinical records, allergies, vaccines and weight records (2026-05-26)
-- Goal: Implement a comprehensive clinic activity feed and audit timeline to track and display recent operational events such as appointments, client/pet updates, clinical records, allergies, vaccines, and weight records, providing a premium real-time feed and audit trail for clinic staff.
-- Depends on: Phase 11
 - Plans: Completed
+
+## Phase 13: Clinic Insights & Operational Analytics
+- Goal: Build a clinic analytics dashboard using real VetOS AI data to help clinic admins understand operations, appointments, patients, vaccines, retention and notification performance.
+- Scope:
+  - Backend endpoints for analytics scoped by clinicId.
+  - Frontend page under /analytics or /reports.
+  - Metrics:
+    - appointments by status
+    - appointments by period
+    - upcoming vaccines
+    - inactive clients
+    - total patients/clients
+    - notification success/failure by channel
+    - recent operational trends
+  - Use existing data only.
+  - No AI yet.
+  - No billing.
+  - No new messaging providers.
+  - No redesign of existing pages.
+- Plans: Pending
+

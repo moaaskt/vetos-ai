@@ -27,6 +27,7 @@ const vaccines_module_1 = require("./vaccines/vaccines.module");
 const weight_records_module_1 = require("./weight-records/weight-records.module");
 const bullmq_1 = require("@nestjs/bullmq");
 const schedule_1 = require("@nestjs/schedule");
+const analytics_module_1 = require("./analytics/analytics.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -57,6 +58,7 @@ exports.AppModule = AppModule = __decorate([
             clinical_records_module_1.ClinicalRecordsModule,
             vaccines_module_1.VaccinesModule,
             weight_records_module_1.WeightRecordsModule,
+            analytics_module_1.AnalyticsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

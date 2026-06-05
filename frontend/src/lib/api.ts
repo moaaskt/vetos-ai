@@ -104,3 +104,26 @@ export type DashboardActivity = {
   text: string
   date: string
 }
+
+export type AnalyticsOverview = {
+  appointmentsToday: number
+  appointmentsThisWeek: number
+  appointmentsByStatus: {
+    SCHEDULED: number
+    COMPLETED: number
+    CANCELLED: number
+  }
+  totalClients: number
+  totalPets: number
+  upcomingVaccinesNext7Days: number
+  inactiveClients90Days: number
+  notificationsLast7Days: {
+    sent: number
+    failed: number
+    byChannel: {
+      EMAIL: number
+      WHATSAPP: number
+    }
+  }
+}
+
