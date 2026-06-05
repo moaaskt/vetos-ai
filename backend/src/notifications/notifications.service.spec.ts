@@ -12,6 +12,7 @@ describe('NotificationsService', () => {
   const prisma = {
     notificationTemplate: {
       findMany: jest.fn(),
+      upsert: jest.fn(),
     },
   };
 
@@ -19,6 +20,7 @@ describe('NotificationsService', () => {
     queue.add.mockReset();
     queue.getJob.mockReset();
     prisma.notificationTemplate.findMany.mockReset();
+    prisma.notificationTemplate.upsert.mockReset();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -107,5 +109,25 @@ describe('NotificationsService', () => {
     await expect(
       service.getActiveChannelsForEvent('clinic-1', 'APPOINTMENT_CREATED'),
     ).resolves.toEqual([]);
+  });
+
+  it('ensures default templates are created or updated idempotently', async () => {
+    prisma.notificationTemplate.upsert.mockResolvedValue({ id: 'temp-1' });
+
+    await service.ensureDefaultTemplates('clinic-1');
+
+    // Deve ter chamado o upsert para todos os 18 templates padrão (9 eventos * 2 canais)
+    expect(prisma.notificationTemplate.upsert).toHaveBeenCalledTimes(18);
+    expect(prisma.notificationTemplate.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          clinicId_event_channel: {
+            clinicId: 'clinic-1',
+            event: 'VACCINE_REMINDER_7D',
+            channel: 'EMAIL',
+          },
+        },
+      }),
+    );
   });
 });

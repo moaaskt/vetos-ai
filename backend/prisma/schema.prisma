@@ -190,8 +190,9 @@ model VaccineRecord {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  pet    Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
-  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  pet              Pet               @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinic           Clinic            @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  notificationLogs NotificationLog[]
 }
 
 model ClinicalRecord {
@@ -262,13 +263,15 @@ model NotificationLog {
   appointmentId     String?
   clientId          String?
   petId             String?
+  vaccineRecordId   String?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
 
-  clinic      Clinic       @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  appointment Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
-  client      Client?      @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  pet         Pet?         @relation(fields: [petId], references: [id], onDelete: SetNull)
+  clinic        Clinic         @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointment   Appointment?   @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  client        Client?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  pet           Pet?           @relation(fields: [petId], references: [id], onDelete: SetNull)
+  vaccineRecord VaccineRecord? @relation(fields: [vaccineRecordId], references: [id], onDelete: SetNull)
 
   @@index([clinicId, status])
   @@index([clinicId, channel])
@@ -276,4 +279,6 @@ model NotificationLog {
   @@index([appointmentId])
   @@index([clientId])
   @@index([petId])
+  @@index([vaccineRecordId])
+  @@index([clinicId, vaccineRecordId, event, channel])
 }

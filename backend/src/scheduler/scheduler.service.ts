@@ -23,18 +23,30 @@ export class SchedulerService {
 
   async enqueueVaccineReminders(): Promise<void> {
     const now = new Date();
-    const windowEnd = new Date(now.getTime());
-    windowEnd.setDate(windowEnd.getDate() + this.vaccineWindowDays);
-    const recentWindowStart = new Date(now.getTime());
-    recentWindowStart.setDate(
-      recentWindowStart.getDate() - this.vaccineWindowDays,
-    );
 
+    // D0 target (Hoje UTC)
+    const d0Start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
+    const d0End = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
+
+    // D-1 target (Amanhã UTC)
+    const d1Start = new Date(d0Start);
+    d1Start.setUTCDate(d1Start.getUTCDate() + 1);
+    const d1End = new Date(d0End);
+    d1End.setUTCDate(d1End.getUTCDate() + 1);
+
+    // D-7 target (Daqui a 7 dias UTC)
+    const d7Start = new Date(d0Start);
+    d7Start.setUTCDate(d7Start.getUTCDate() + 7);
+    const d7End = new Date(d0End);
+    d7End.setUTCDate(d7End.getUTCDate() + 7);
+
+    // Buscar todas as vacinas expiráveis nas 3 janelas
     const expiringVaccines = await this.prisma.vaccineRecord.findMany({
       where: {
         nextDoseDate: {
-          gte: now,
-          lte: windowEnd,
+          not: null,
+          gte: d0Start,
+          lte: d7End,
         },
       },
       include: {
@@ -43,6 +55,7 @@ export class SchedulerService {
             client: true,
           },
         },
+        clinic: true,
       },
     });
 
@@ -51,46 +64,91 @@ export class SchedulerService {
         continue;
       }
 
-      const existingLog = await this.prisma.notificationLog.findFirst({
-        where: {
-          clinicId: vaccine.clinicId,
-          event: 'VACCINE_EXPIRATION',
-          petId: vaccine.petId,
-          scheduledFor: vaccine.nextDoseDate,
-          status: 'SENT',
-          createdAt: {
-            gte: recentWindowStart,
+      const nextDoseTime = vaccine.nextDoseDate.getTime();
+      let event = '';
+      let label = '';
+      let codePrefix = '';
+
+      if (nextDoseTime >= d0Start.getTime() && nextDoseTime <= d0End.getTime()) {
+        event = 'VACCINE_REMINDER_DAY';
+        label = 'hoje';
+        codePrefix = 'day';
+      } else if (nextDoseTime >= d1Start.getTime() && nextDoseTime <= d1End.getTime()) {
+        event = 'VACCINE_REMINDER_1D';
+        label = 'amanhã';
+        codePrefix = '1d';
+      } else if (nextDoseTime >= d7Start.getTime() && nextDoseTime <= d7End.getTime()) {
+        event = 'VACCINE_REMINDER_7D';
+        label = 'em 7 dias';
+        codePrefix = '7d';
+      }
+
+      if (!event) {
+        continue;
+      }
+
+      // Descobre quais canais de notificação estão ativos para este evento na clínica
+      const activeChannels = await this.notificationsService.getActiveChannelsForEvent(
+        vaccine.clinicId,
+        event,
+      );
+
+      for (const channel of activeChannels) {
+        const to = channel === 'EMAIL' ? vaccine.pet.client.email : vaccine.pet.client.phone;
+        if (!to) {
+          continue;
+        }
+
+        // Anti-duplicação: checar se já existe log com status = SENT para este ID, evento e canal
+        const existingLog = await this.prisma.notificationLog.findFirst({
+          where: {
+            clinicId: vaccine.clinicId,
+            event,
+            channel,
+            vaccineRecordId: vaccine.id,
+            status: 'SENT',
           },
-        },
-      });
+        });
 
-      if (existingLog) {
-        continue;
+        if (existingLog) {
+          continue;
+        }
+
+        const clientName = vaccine.pet.client.name;
+        const petName = vaccine.pet.name;
+        const vaccineName = vaccine.name;
+        const clinicName = vaccine.clinic?.name || 'Clínica Veterinária';
+        const formattedDoseDate = vaccine.nextDoseDate.toLocaleDateString('pt-BR');
+
+        const defaultBody = `Olá ${clientName}, lembramos que a vacina ${vaccineName} de ${petName} vence ${label} (${formattedDoseDate}). Atenciosamente, ${clinicName}`;
+
+        const jobId = `vaccine-${codePrefix}-${channel.toLowerCase()}-${vaccine.id}`;
+
+        await this.notificationsService.enqueueNotification({
+          clinicId: vaccine.clinicId,
+          channel,
+          to,
+          subject:
+            channel === 'EMAIL'
+              ? `Lembrete de Vacinação: ${vaccineName} de ${petName}`
+              : undefined,
+          body: defaultBody,
+          event,
+          scheduledFor: vaccine.nextDoseDate,
+          clientId: vaccine.pet.clientId,
+          petId: vaccine.petId,
+          vaccineRecordId: vaccine.id,
+          jobId,
+          clientName,
+          petName,
+          clinicName,
+          vaccineName,
+          nextDoseDate: vaccine.nextDoseDate,
+        });
       }
-
-      const contact = this.resolveContact(vaccine.pet.client);
-
-      if (!contact) {
-        continue;
-      }
-
-      await this.notificationsService.enqueueNotification({
-        clinicId: vaccine.clinicId,
-        channel: contact.channel,
-        to: contact.to,
-        subject:
-          contact.channel === 'EMAIL'
-            ? `Vacina de ${vaccine.pet.name} esta proxima`
-            : undefined,
-        body: `A vacina ${vaccine.name} de ${vaccine.pet.name} vence em ${vaccine.nextDoseDate.toLocaleDateString('pt-BR')}.`,
-        event: 'VACCINE_EXPIRATION',
-        scheduledFor: vaccine.nextDoseDate,
-        clientId: vaccine.pet.clientId,
-        petId: vaccine.petId,
-        jobId: `vaccine:${vaccine.id}:${vaccine.nextDoseDate.toISOString()}`,
-      });
     }
   }
+
 
   async enqueueRetentionReminders(): Promise<void> {
     const now = new Date();

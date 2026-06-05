@@ -319,106 +319,12 @@ export class NotificationsController {
       throw new BadRequestException('Clinic ID is required');
     }
 
-    const templates = await this.prisma.notificationTemplate.findMany({
+    // Garante que todos os templates padrão existam de forma idempotente
+    await this.notificationsService.ensureDefaultTemplates(user.clinicId);
+
+    return this.prisma.notificationTemplate.findMany({
       where: { clinicId: user.clinicId },
     });
-
-    if (templates.length === 0) {
-      const defaultTemplates = [
-        {
-          event: 'APPOINTMENT_CREATED',
-          channel: 'EMAIL',
-          subject: 'Consulta Agendada - {{petName}}',
-          body: 'Olá {{clientName}},\n\nA consulta para o seu pet {{petName}} foi agendada com sucesso para {{appointmentDate}}.\n\nAtenciosamente,\nEquipe Veterinária',
-          active: false,
-        },
-        {
-          event: 'APPOINTMENT_CREATED',
-          channel: 'WHATSAPP',
-          body: 'Olá {{clientName}}, a consulta para {{petName}} foi agendada com sucesso para {{appointmentDate}}.',
-          active: false,
-        },
-        {
-          event: 'APPOINTMENT_REMINDER_24H',
-          channel: 'EMAIL',
-          subject: 'Lembrete de Consulta - {{petName}}',
-          body: 'Olá {{clientName}},\n\nLembramos que {{petName}} tem uma consulta agendada para amanhã, {{appointmentDate}}.\n\nPor favor, confirme se poderá comparecer.\n\nAtenciosamente,\nEquipe Veterinária',
-          active: false,
-        },
-        {
-          event: 'APPOINTMENT_REMINDER_24H',
-          channel: 'WHATSAPP',
-          body: 'Olá {{clientName}}, lembramos que {{petName}} tem uma consulta agendada para amanhã, {{appointmentDate}}.',
-          active: false,
-        },
-        {
-          event: 'APPOINTMENT_REMINDER_2H',
-          channel: 'EMAIL',
-          subject: 'Lembrete: Consulta de {{petName}} em 2 horas',
-          body: 'Olá {{clientName}},\n\nEste é um lembrete rápido de que a consulta de {{petName}} é hoje às {{appointmentDate}}.\n\nAtenciosamente,\nEquipe Veterinária',
-          active: false,
-        },
-        {
-          event: 'APPOINTMENT_REMINDER_2H',
-          channel: 'WHATSAPP',
-          body: 'Olá {{clientName}}, lembramos que a consulta de {{petName}} é hoje às {{appointmentDate}}.',
-          active: false,
-        },
-        {
-          event: 'APPOINTMENT_FOLLOW_UP',
-          channel: 'EMAIL',
-          subject: 'Como está o {{petName}}?',
-          body: 'Olá {{clientName}},\n\nComo está se sentindo o {{petName}} após a consulta do dia {{appointmentDate}}?\n\nQualquer dúvida ou caso necessite de suporte adicional, por favor, entre em contato conosco.\n\nAtenciosamente,\nEquipe Veterinária',
-          active: false,
-        },
-        {
-          event: 'APPOINTMENT_FOLLOW_UP',
-          channel: 'WHATSAPP',
-          body: 'Olá {{clientName}}, como está {{petName}} após a consulta do dia {{appointmentDate}}? Se precisar de alguma coisa, estamos à disposição.',
-          active: false,
-        },
-        {
-          event: 'VACCINE_EXPIRATION',
-          channel: 'EMAIL',
-          subject: 'Alerta de Vacinação de {{petName}}',
-          body: 'Olá {{clientName}},\n\nA vacina {{vaccineName}} de {{petName}} vence em breve ({{vaccineDate}}).\n\nRecomendamos agendar uma nova visita para que possamos aplicar a dose de reforço e manter a proteção em dia.\n\nAtenciosamente,\nEquipe Veterinária',
-          active: false,
-        },
-        {
-          event: 'VACCINE_EXPIRATION',
-          channel: 'WHATSAPP',
-          body: 'Olá {{clientName}}, a vacina {{vaccineName}} de {{petName}} vence em breve ({{vaccineDate}}). Agende um horário para a dose de reforço.',
-          active: false,
-        },
-        {
-          event: 'RETENTION',
-          channel: 'EMAIL',
-          subject: 'Saudades de {{petName}}!',
-          body: 'Olá {{clientName}},\n\nFaz algum tempo que não vemos {{petName}} por aqui.\n\nQue tal agendarmos uma consulta de rotina para realizar um check-up geral?\n\nAtenciosamente,\nEquipe Veterinária',
-          active: false,
-        },
-        {
-          event: 'RETENTION',
-          channel: 'WHATSAPP',
-          body: 'Olá {{clientName}}, faz algum tempo que não vemos {{petName}} por aqui. Agende um check-up de rotina para mantermos a saúde dele em dia!',
-          active: false,
-        },
-      ];
-
-      await this.prisma.notificationTemplate.createMany({
-        data: defaultTemplates.map((t) => ({
-          ...t,
-          clinicId: user.clinicId,
-          channel: t.channel as any,
-        })),
-      });
-
-      return this.prisma.notificationTemplate.findMany({
-        where: { clinicId: user.clinicId },
-      });
-    }
-
-    return templates;
   }
 
   @Put('templates')
