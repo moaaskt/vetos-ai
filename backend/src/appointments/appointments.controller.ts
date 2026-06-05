@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -11,7 +20,10 @@ export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @Post()
-  create(@CurrentUser() user: any, @Body() createAppointmentDto: CreateAppointmentDto) {
+  create(
+    @CurrentUser() user: any,
+    @Body() createAppointmentDto: CreateAppointmentDto,
+  ) {
     return this.appointmentsService.create(user.clinicId, createAppointmentDto);
   }
 
@@ -26,8 +38,16 @@ export class AppointmentsController {
   }
 
   @Patch(':id')
-  update(@CurrentUser() user: any, @Param('id') id: string, @Body() updateAppointmentDto: UpdateAppointmentDto) {
-    return this.appointmentsService.update(user.clinicId, id, updateAppointmentDto);
+  update(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() updateAppointmentDto: UpdateAppointmentDto,
+  ) {
+    return this.appointmentsService.update(
+      user.clinicId,
+      id,
+      updateAppointmentDto,
+    );
   }
 
   @Delete(':id')

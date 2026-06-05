@@ -13,6 +13,11 @@ export class DashboardController {
     return this.dashboardService.getStats(user.clinicId);
   }
 
+  @Get('activity')
+  getActivity(@CurrentUser() user: any) {
+    return this.dashboardService.getActivity(user.clinicId);
+  }
+
   @Get('super-admin/metrics')
   getSuperAdminMetrics(@CurrentUser() user: any) {
     if (user.role !== 'SUPERADMIN') {

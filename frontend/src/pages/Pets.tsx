@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, type FormEvent } from 'react'
-import { PawPrint, Plus, RefreshCw, Search, User, Cake, Tag, AlertCircle, Heart } from 'lucide-react'
+import { PawPrint, Plus, RefreshCw, Search, User, Cake, Tag, AlertCircle, Heart, ChevronRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Modal } from '../components/Modal'
 import { PageHeader } from '../components/PageHeader'
 import { api, type Client, type Pet } from '../lib/api'
@@ -165,6 +166,13 @@ export function Pets() {
                   </dd>
                 </div>
               </dl>
+
+              <div className="border-t border-border/60 pt-4 flex items-center justify-between text-xs font-semibold text-primary">
+                <Link to={`/pets/${pet.id}`} className="flex items-center gap-1.5 hover:underline w-full justify-end group/btn">
+                  <span>Acessar Prontuário</span>
+                  <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-0.5" />
+                </Link>
+              </div>
             </CardContent>
           </Card>
         ))}

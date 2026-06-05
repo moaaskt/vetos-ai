@@ -12,6 +12,10 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
+import { AllergiesModule } from './allergies/allergies.module';
+import { ClinicalRecordsModule } from './clinical-records/clinical-records.module';
+import { VaccinesModule } from './vaccines/vaccines.module';
+import { WeightRecordsModule } from './weight-records/weight-records.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -38,6 +42,10 @@ import { ScheduleModule } from '@nestjs/schedule';
     DashboardModule,
     NotificationsModule,
     SchedulerModule,
+    AllergiesModule,
+    ClinicalRecordsModule,
+    VaccinesModule,
+    WeightRecordsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
