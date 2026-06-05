@@ -15,6 +15,7 @@ import {
   Sun,
   Moon,
   Settings,
+  BarChart3,
   type LucideIcon,
 } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
@@ -33,6 +34,7 @@ const navItems: NavItem[] = [
   { to: '/clients', label: 'Clientes', icon: Users },
   { to: '/pets', label: 'Pacientes', icon: PawPrint },
   { to: '/appointments', label: 'Consultas', icon: CalendarDays },
+  { to: '/analytics', label: 'Relatórios', icon: BarChart3 },
   { to: '/settings', label: 'Configurações', icon: Settings },
 ]
 
@@ -60,6 +62,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
     if (path.includes('clients')) return 'Diretório de Tutores'
     if (path.includes('pets')) return 'Fichas de Pacientes'
     if (path.includes('appointments')) return 'Agenda de Consultas'
+    if (path.includes('analytics')) return 'Relatórios Operacionais'
+    if (path.includes('settings/messaging/smtp')) return 'Configurações / Mensageria / SMTP'
+    if (path.includes('settings/messaging/whatsapp')) return 'Configurações / Mensageria / WhatsApp'
+    if (path.includes('settings/messaging/templates')) return 'Configurações / Mensageria / Modelos'
+    if (path.includes('settings/messaging/logs')) return 'Configurações / Mensageria / Histórico'
     if (path.includes('settings/messaging')) return 'Configurações / Mensageria'
     if (path.includes('settings')) return 'Configurações'
     return 'Ambiente de Trabalho'

@@ -5,6 +5,7 @@ import { AppointmentStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { SmtpProvider } from './providers/smtp.provider';
 import { WhatsAppMockProvider } from './providers/whatsapp-mock.provider';
+import { EvolutionApiProvider } from './providers/evolution-api.provider';
 import { EnqueueNotificationInput } from './notifications.service';
 import { TemplateService } from './template.service';
 
@@ -17,6 +18,7 @@ export class NotificationsProcessor extends WorkerHost {
     private readonly smtpProvider: SmtpProvider,
     private readonly whatsappProvider: WhatsAppMockProvider,
     private readonly templateService: TemplateService,
+    private readonly evolutionApiProvider: EvolutionApiProvider,
   ) {
     super();
   }
@@ -90,6 +92,7 @@ export class NotificationsProcessor extends WorkerHost {
         where: {
           clinicId: payload.clinicId,
           event: payload.event,
+          channel: payload.channel,
           appointmentId: payload.appointmentId,
           status: 'SENT',
         },
@@ -156,13 +159,16 @@ export class NotificationsProcessor extends WorkerHost {
         : Boolean(client.phone);
 
     if (!hasContact) {
-      return {
-        shouldSend: false,
-        reason: 'client has no contact info for notification channel',
-      };
+      throw new Error(this.getMissingContactMessage(payload.channel));
     }
 
     return { shouldSend: true };
+  }
+
+  private getMissingContactMessage(channel: 'EMAIL' | 'WHATSAPP'): string {
+    return channel === 'EMAIL'
+      ? 'Client has no email for email notification'
+      : 'Client has no phone for WhatsApp notification';
   }
 
   private async resolveSubjectAndBody(
@@ -219,6 +225,26 @@ export class NotificationsProcessor extends WorkerHost {
         subject: subject,
         body: body,
       });
+    }
+
+    if (payload.clinicId) {
+      const config = await this.prisma.notificationConfig.findUnique({
+        where: { clinicId: payload.clinicId },
+      });
+
+      if (
+        config &&
+        config.whatsappEnabled &&
+        config.whatsappInstanceUrl &&
+        config.whatsappInstanceName &&
+        config.whatsappApiKeyEncrypted
+      ) {
+        return this.evolutionApiProvider.send({
+          clinicId: payload.clinicId,
+          to: payload.to,
+          body,
+        });
+      }
     }
 
     return this.whatsappProvider.send({
@@ -288,6 +314,10 @@ export class NotificationsProcessor extends WorkerHost {
       'clinicId is required for SMTP email notifications',
       'SMTP configuration is not enabled for this clinic',
       'SMTP configuration is incomplete for this clinic',
+      'Client has no email for email notification',
+      'Client has no phone for WhatsApp notification',
+      'WhatsApp configuration is not enabled for this clinic',
+      'WhatsApp configuration is incomplete for this clinic',
     ].includes(error.message);
   }
 }

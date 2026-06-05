@@ -9,6 +9,9 @@ node_modules/
 logs
 *.log
 
+# TypeScript build info
+*.tsbuildinfo
+
 # OS
 .DS_Store
 

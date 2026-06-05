@@ -13,7 +13,10 @@ export interface NotificationConfig {
   smtpFromName: string | null;
   smtpFromEmail: string | null;
   whatsappEnabled: boolean;
+  whatsappInstanceUrl: string | null;
+  whatsappInstanceName: string | null;
   hasSmtpPassword: boolean;
+  hasWhatsappApiKey: boolean;
 }
 
 export interface UpdateNotificationConfigPayload {
@@ -25,6 +28,9 @@ export interface UpdateNotificationConfigPayload {
   smtpFromName?: string;
   smtpFromEmail?: string;
   whatsappEnabled?: boolean;
+  whatsappInstanceUrl?: string;
+  whatsappInstanceName?: string;
+  whatsappApiKey?: string;
 }
 
 export interface NotificationTemplate {
@@ -110,6 +116,36 @@ export const notificationsApi = {
 
   sendTestEmail: async (to: string): Promise<{ success: boolean; message?: string }> => {
     const response = await api.post<{ success: boolean; message?: string }>('/notifications/config/send-test-email', { to });
+    return response.data;
+  },
+
+  testWhatsappConnection: async (): Promise<{ success: boolean; message?: string }> => {
+    const response = await api.post<{ success: boolean; message?: string }>('/notifications/config/test-whatsapp');
+    return response.data;
+  },
+
+  sendTestWhatsapp: async (to: string): Promise<{ success: boolean; message?: string }> => {
+    const response = await api.post<{ success: boolean; message?: string }>('/notifications/config/send-test-whatsapp', { to });
+    return response.data;
+  },
+
+  createWhatsappInstance: async (): Promise<{ success: boolean; message?: string }> => {
+    const response = await api.post<{ success: boolean; message?: string }>('/notifications/config/whatsapp/create-instance');
+    return response.data;
+  },
+
+  getWhatsappQr: async (): Promise<{ code?: string; base64?: string; pairingCode?: string; success: boolean; message?: string }> => {
+    const response = await api.get<{ code?: string; base64?: string; pairingCode?: string; success: boolean; message?: string }>('/notifications/config/whatsapp/qr');
+    return response.data;
+  },
+
+  getWhatsappStatus: async (): Promise<{ state: string; success: boolean }> => {
+    const response = await api.get<{ state: string; success: boolean }>('/notifications/config/whatsapp/status');
+    return response.data;
+  },
+
+  deleteWhatsappConfig: async (): Promise<{ success: boolean; message?: string }> => {
+    const response = await api.delete<{ success: boolean; message?: string }>('/notifications/config/whatsapp');
     return response.data;
   },
 

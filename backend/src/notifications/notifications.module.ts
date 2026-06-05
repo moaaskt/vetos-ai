@@ -5,6 +5,7 @@ import { NotificationsProcessor } from './notifications.processor';
 import { EmailMockProvider } from './providers/email-mock.provider';
 import { SmtpProvider } from './providers/smtp.provider';
 import { WhatsAppMockProvider } from './providers/whatsapp-mock.provider';
+import { EvolutionApiProvider } from './providers/evolution-api.provider';
 import { TemplateService } from './template.service';
 import { EncryptionModule } from '../encryption/encryption.module';
 import { NotificationsController } from './notifications.controller';
@@ -24,7 +25,13 @@ import { NotificationsController } from './notifications.controller';
     EmailMockProvider,
     SmtpProvider,
     WhatsAppMockProvider,
+    EvolutionApiProvider,
   ],
-  exports: [NotificationsService, TemplateService, SmtpProvider],
+  exports: [
+    NotificationsService,
+    TemplateService,
+    SmtpProvider,
+    EvolutionApiProvider,
+  ],
 })
 export class NotificationsModule {}

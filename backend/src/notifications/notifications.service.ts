@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { PrismaService } from '../prisma/prisma.service';
 
 export type NotificationChannel = 'EMAIL' | 'WHATSAPP';
 export type NotificationEvent =
@@ -36,7 +37,28 @@ export interface EnqueueNotificationInput {
 export class NotificationsService {
   constructor(
     @InjectQueue('notifications') private notificationsQueue: Queue,
+    private readonly prisma: PrismaService,
   ) {}
+
+  async getActiveChannelsForEvent(
+    clinicId: string,
+    event: NotificationEvent,
+  ): Promise<NotificationChannel[]> {
+    const templates = await this.prisma.notificationTemplate.findMany({
+      where: {
+        clinicId,
+        event,
+        active: true,
+      },
+      select: {
+        channel: true,
+      },
+    });
+
+    const channels = [...new Set(templates.map((template) => template.channel))];
+
+    return channels;
+  }
 
   async enqueueNotification(to: string, message: string): Promise<void>;
   async enqueueNotification(input: EnqueueNotificationInput): Promise<void>;

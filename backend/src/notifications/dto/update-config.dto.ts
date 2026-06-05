@@ -7,4 +7,7 @@ export class UpdateNotificationConfigDto {
   smtpFromName?: string;
   smtpFromEmail?: string;
   whatsappEnabled?: boolean;
+  whatsappInstanceUrl?: string;
+  whatsappInstanceName?: string;
+  whatsappApiKey?: string;
 }

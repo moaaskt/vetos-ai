@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AppointmentStatus, Prisma } from '@prisma/client';
-import { NotificationsService } from '../notifications/notifications.service';
+import {
+  NotificationChannel,
+  NotificationsService,
+} from '../notifications/notifications.service';
 
 type AppointmentWithRelations = Prisma.AppointmentGetPayload<{
   include: typeof appointmentAutomationInclude;
@@ -26,7 +29,7 @@ export class AppointmentAutomationService {
       event: 'APPOINTMENT_CREATED',
       subject: 'Consulta agendada',
       body: this.buildAppointmentCreatedBody(appointment),
-      jobId: this.getNotificationJobIds(appointment.id).created,
+      jobIdPrefix: 'appt-created',
     });
     await this.scheduleAppointmentReminders(appointment);
   }
@@ -59,7 +62,7 @@ export class AppointmentAutomationService {
       subject: 'Lembrete de consulta',
       body: this.buildAppointmentReminderBody(appointment, '24 horas'),
       sendAt: new Date(appointment.date.getTime() - DAY_MS),
-      jobId: this.getNotificationJobIds(appointment.id).reminder24h,
+      jobIdPrefix: 'appt-24h',
     });
 
     await this.enqueueDelayedAppointmentNotification(appointment, {
@@ -67,7 +70,7 @@ export class AppointmentAutomationService {
       subject: 'Consulta em breve',
       body: this.buildAppointmentReminderBody(appointment, '2 horas'),
       sendAt: new Date(appointment.date.getTime() - 2 * HOUR_MS),
-      jobId: this.getNotificationJobIds(appointment.id).reminder2h,
+      jobIdPrefix: 'appt-2h',
     });
   }
 
@@ -79,7 +82,7 @@ export class AppointmentAutomationService {
       subject: 'Como foi a consulta?',
       body: this.buildFollowUpBody(appointment),
       sendAt: new Date(appointment.date.getTime() + DAY_MS),
-      jobId: this.getNotificationJobIds(appointment.id).followUp,
+      jobIdPrefix: 'appt-follow-up',
     });
   }
 
@@ -93,7 +96,7 @@ export class AppointmentAutomationService {
       subject: string;
       body: string;
       sendAt: Date;
-      jobId: string;
+      jobIdPrefix: string;
     },
   ): Promise<void> {
     const delayMs = input.sendAt.getTime() - Date.now();
@@ -111,7 +114,7 @@ export class AppointmentAutomationService {
       body: input.body,
       scheduledFor: input.sendAt,
       delayMs,
-      jobId: input.jobId,
+      jobIdPrefix: input.jobIdPrefix,
     });
   }
 
@@ -127,67 +130,88 @@ export class AppointmentAutomationService {
       body: string;
       scheduledFor?: Date;
       delayMs?: number;
-      jobId: string;
+      jobIdPrefix: string;
     },
   ): Promise<void> {
-    const contact = this.resolveContact(appointment);
-
-    if (!contact) {
-      this.logger.warn(
-        `Skipping ${input.event} for appointment ${appointment.id}: client has no contact info`,
-      );
-      return;
-    }
-
     const client = appointment.client ?? appointment.pet.client;
+    const activeChannels =
+      await this.notificationsService.getActiveChannelsForEvent(
+        appointment.clinicId,
+        input.event,
+      );
+    const isFallbackEmail = activeChannels.length === 0;
+    const channels: NotificationChannel[] = isFallbackEmail
+      ? ['EMAIL']
+      : activeChannels;
 
-    await this.notificationsService.enqueueNotification({
-      clinicId: appointment.clinicId,
-      channel: contact.channel,
-      to: contact.to,
-      subject: contact.channel === 'EMAIL' ? input.subject : undefined,
-      body: input.body,
-      event: input.event,
-      scheduledFor: input.scheduledFor,
-      appointmentId: appointment.id,
-      appointmentDate: appointment.date,
-      clientId: appointment.clientId,
-      petId: appointment.petId,
-      delayMs: input.delayMs,
-      jobId: input.jobId,
-      clientName: client?.name,
-      petName: appointment.pet?.name,
-      clinicName: appointment.clinic?.name,
-    });
+    await Promise.all(
+      channels.map((channel) => {
+        const to = this.resolveContactForChannel(appointment, channel);
+
+        if (!to && isFallbackEmail) {
+          this.logger.warn(
+            `Skipping ${input.event} for appointment ${appointment.id}: client has no email`,
+          );
+          return Promise.resolve();
+        }
+
+        return this.notificationsService.enqueueNotification({
+          clinicId: appointment.clinicId,
+          channel,
+          to: to ?? '',
+          subject: channel === 'EMAIL' ? input.subject : undefined,
+          body: input.body,
+          event: input.event,
+          scheduledFor: input.scheduledFor,
+          appointmentId: appointment.id,
+          appointmentDate: appointment.date,
+          clientId: appointment.clientId,
+          petId: appointment.petId,
+          delayMs: input.delayMs,
+          jobId: this.getNotificationJobId(
+            input.jobIdPrefix,
+            channel,
+            appointment.id,
+          ),
+          clientName: client?.name,
+          petName: appointment.pet?.name,
+          clinicName: appointment.clinic?.name,
+        });
+      }),
+    );
   }
 
   private async cancelAppointmentJobs(appointmentId: string): Promise<void> {
-    const jobIds = this.getNotificationJobIds(appointmentId);
-    await Promise.all([
-      this.notificationsService.cancelNotificationJob(jobIds.created),
-      this.notificationsService.cancelNotificationJob(jobIds.reminder24h),
-      this.notificationsService.cancelNotificationJob(jobIds.reminder2h),
-      this.notificationsService.cancelNotificationJob(jobIds.followUp),
-    ]);
+    const prefixes = [
+      'appt-created',
+      'appt-24h',
+      'appt-2h',
+      'appt-follow-up',
+    ];
+    const channels: NotificationChannel[] = ['EMAIL', 'WHATSAPP'];
+
+    await Promise.all(
+      prefixes.flatMap((prefix) =>
+        channels.map((channel) =>
+          this.notificationsService.cancelNotificationJob(
+            this.getNotificationJobId(prefix, channel, appointmentId),
+          ),
+        ),
+      ),
+    );
   }
 
-  private resolveContact(
+  private resolveContactForChannel(
     appointment: AppointmentWithRelations,
-  ):
-    | { channel: 'EMAIL'; to: string }
-    | { channel: 'WHATSAPP'; to: string }
-    | null {
+    channel: NotificationChannel,
+  ): string | null {
     const client = appointment.client ?? appointment.pet.client;
 
-    if (client.email) {
-      return { channel: 'EMAIL', to: client.email };
+    if (channel === 'EMAIL') {
+      return client.email;
     }
 
-    if (client.phone) {
-      return { channel: 'WHATSAPP', to: client.phone };
-    }
-
-    return null;
+    return client.phone;
   }
 
   private buildAppointmentCreatedBody(
@@ -207,13 +231,12 @@ export class AppointmentAutomationService {
     return `Esperamos que a consulta de ${appointment.pet.name} tenha ido bem. Conte com a equipe VetOS AI para o acompanhamento.`;
   }
 
-  private getNotificationJobIds(appointmentId: string) {
-    return {
-      created: `appt-created-${appointmentId}`,
-      reminder24h: `appt-24h-${appointmentId}`,
-      reminder2h: `appt-2h-${appointmentId}`,
-      followUp: `appt-follow-up-${appointmentId}`,
-    };
+  private getNotificationJobId(
+    prefix: string,
+    channel: NotificationChannel,
+    appointmentId: string,
+  ): string {
+    return `${prefix}-${channel.toLowerCase()}-${appointmentId}`;
   }
 }
 

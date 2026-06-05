@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationsProcessor } from './notifications.processor';
 import { SmtpProvider } from './providers/smtp.provider';
 import { WhatsAppMockProvider } from './providers/whatsapp-mock.provider';
+import { EvolutionApiProvider } from './providers/evolution-api.provider';
 import { PrismaService } from '../prisma/prisma.service';
 import { TemplateService } from './template.service';
 
@@ -19,6 +20,9 @@ describe('NotificationsProcessor', () => {
     notificationTemplate: {
       findUnique: jest.fn(),
     },
+    notificationConfig: {
+      findUnique: jest.fn(),
+    },
   };
   const smtpProvider = {
     send: jest.fn(),
@@ -26,16 +30,24 @@ describe('NotificationsProcessor', () => {
   const whatsappProvider = {
     send: jest.fn(),
   };
+  const evolutionApiProvider = {
+    send: jest.fn(),
+    testConnection: jest.fn(),
+  };
 
   beforeEach(async () => {
     prisma.notificationLog.create.mockReset();
     prisma.notificationLog.findFirst.mockReset();
     prisma.appointment.findFirst.mockReset();
     prisma.notificationTemplate.findUnique.mockReset();
+    prisma.notificationConfig.findUnique.mockReset();
     smtpProvider.send.mockReset();
     whatsappProvider.send.mockReset();
+    evolutionApiProvider.send.mockReset();
+    evolutionApiProvider.testConnection.mockReset();
 
     prisma.notificationTemplate.findUnique.mockResolvedValue(null);
+    prisma.notificationConfig.findUnique.mockResolvedValue(null);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -44,6 +56,7 @@ describe('NotificationsProcessor', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: SmtpProvider, useValue: smtpProvider },
         { provide: WhatsAppMockProvider, useValue: whatsappProvider },
+        { provide: EvolutionApiProvider, useValue: evolutionApiProvider },
       ],
     }).compile();
 
@@ -139,8 +152,63 @@ describe('NotificationsProcessor', () => {
       shouldSend: false,
       reason: 'notification already sent for APPOINTMENT_REMINDER_24H',
     });
+    expect(prisma.notificationLog.findFirst).toHaveBeenCalledWith({
+      where: expect.objectContaining({
+        channel: 'EMAIL',
+      }),
+    });
     expect(smtpProvider.send).not.toHaveBeenCalled();
     expect(prisma.notificationLog.create).not.toHaveBeenCalled();
+  });
+
+  it('records a FAILED log when WHATSAPP appointment notification has no client phone', async () => {
+    prisma.appointment.findFirst.mockResolvedValue({
+      id: 'appointment-1',
+      clinicId: 'clinic-1',
+      date: new Date('2026-06-05T09:00:00.000Z'),
+      status: 'SCHEDULED',
+      client: {
+        email: 'client@example.com',
+        phone: null,
+      },
+      pet: {
+        client: {
+          email: 'client@example.com',
+          phone: null,
+        },
+      },
+    });
+
+    const result = await processor.process({
+      id: 'job-missing-whatsapp-phone',
+      name: 'send-message',
+      data: {
+        clinicId: 'clinic-1',
+        channel: 'WHATSAPP',
+        to: '',
+        body: 'Mensagem',
+        event: 'APPOINTMENT_CREATED',
+        appointmentId: 'appointment-1',
+        appointmentDate: '2026-06-05T09:00:00.000Z',
+      },
+    } as any);
+
+    expect(result).toEqual({
+      success: false,
+      skipped: true,
+      reason: 'Client has no phone for WhatsApp notification',
+    });
+    expect(whatsappProvider.send).not.toHaveBeenCalled();
+    expect(evolutionApiProvider.send).not.toHaveBeenCalled();
+    expect(prisma.notificationLog.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        clinicId: 'clinic-1',
+        channel: 'WHATSAPP',
+        to: '',
+        status: 'FAILED',
+        errorMessage: 'Client has no phone for WhatsApp notification',
+      }),
+    });
   });
 
   it('records missing SMTP configuration as a failed log without throwing', async () => {
@@ -269,6 +337,81 @@ describe('NotificationsProcessor', () => {
       to: 'client@example.com',
       subject: 'Fallback Subject',
       body: 'Fallback Body',
+    });
+  });
+
+  it('routes WHATSAPP jobs to EvolutionApiProvider when valid config is present', async () => {
+    prisma.notificationConfig.findUnique.mockResolvedValue({
+      whatsappEnabled: true,
+      whatsappInstanceUrl: 'https://api.suaevolution.com.br',
+      whatsappInstanceName: 'instancia_teste',
+      whatsappApiKeyEncrypted: 'encrypted_key',
+    });
+
+    evolutionApiProvider.send.mockResolvedValue({
+      success: true,
+      providerMessageId: 'wa-real-1',
+    });
+
+    await processor.process({
+      id: 'job-whatsapp-real',
+      name: 'send-message',
+      data: {
+        clinicId: 'clinic-1',
+        channel: 'WHATSAPP',
+        to: '+5511999999999',
+        body: 'Mensagem Real',
+        event: 'APPOINTMENT_CREATED',
+      },
+    } as any);
+
+    expect(evolutionApiProvider.send).toHaveBeenCalledWith({
+      clinicId: 'clinic-1',
+      to: '+5511999999999',
+      body: 'Mensagem Real',
+    });
+
+    expect(prisma.notificationLog.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        clinicId: 'clinic-1',
+        channel: 'WHATSAPP',
+        status: 'SENT',
+        providerMessageId: 'wa-real-1',
+      }),
+    });
+  });
+
+  it('records a FAILED log when EvolutionApiProvider throws an error', async () => {
+    prisma.notificationConfig.findUnique.mockResolvedValue({
+      whatsappEnabled: true,
+      whatsappInstanceUrl: 'https://api.suaevolution.com.br',
+      whatsappInstanceName: 'instancia_teste',
+      whatsappApiKeyEncrypted: 'encrypted_key',
+    });
+
+    evolutionApiProvider.send.mockRejectedValue(new Error('Evolution API error'));
+
+    await expect(
+      processor.process({
+        id: 'job-whatsapp-error',
+        name: 'send-message',
+        data: {
+          clinicId: 'clinic-1',
+          channel: 'WHATSAPP',
+          to: '+5511999999999',
+          body: 'Mensagem Erro',
+          event: 'APPOINTMENT_CREATED',
+        },
+      } as any)
+    ).rejects.toThrow('Evolution API error');
+
+    expect(prisma.notificationLog.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        clinicId: 'clinic-1',
+        channel: 'WHATSAPP',
+        status: 'FAILED',
+        errorMessage: 'Evolution API error',
+      }),
     });
   });
 });
