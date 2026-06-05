@@ -10,7 +10,11 @@ import { PetDetails } from './pages/PetDetails'
 import { Register } from './pages/Register'
 import { SuperAdminDashboard } from './pages/super-admin/SuperAdminDashboard'
 import { SuperAdminClinics } from './pages/super-admin/SuperAdminClinics'
-import { MessagingPage } from './pages/messaging/MessagingPage'
+import { MessagingHubPage } from './pages/messaging/MessagingHubPage'
+import { SmtpSettingsPage } from './pages/messaging/SmtpSettingsPage'
+import { WhatsappSettingsPage } from './pages/messaging/WhatsappSettingsPage'
+import { NotificationTemplatesPage } from './pages/messaging/NotificationTemplatesPage'
+import { NotificationLogsPage } from './pages/messaging/NotificationLogsPage'
 import { SettingsPage } from './pages/settings/SettingsPage'
 
 function defaultAuthenticatedRoute(role?: string) {
@@ -82,7 +86,11 @@ const router = createBrowserRouter([
       { path: '/pets/:id', element: <PetDetails /> },
       { path: '/appointments', element: <Appointments /> },
       { path: '/settings', element: <SettingsPage /> },
-      { path: '/settings/messaging', element: <MessagingPage /> },
+      { path: '/settings/messaging', element: <MessagingHubPage /> },
+      { path: '/settings/messaging/smtp', element: <SmtpSettingsPage /> },
+      { path: '/settings/messaging/whatsapp', element: <WhatsappSettingsPage /> },
+      { path: '/settings/messaging/templates', element: <NotificationTemplatesPage /> },
+      { path: '/settings/messaging/logs', element: <NotificationLogsPage /> },
     ],
   },
   {
