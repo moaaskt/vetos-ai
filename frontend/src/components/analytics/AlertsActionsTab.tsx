@@ -97,13 +97,13 @@ export function AlertsActionsTab({ trends }: AlertsActionsTabProps) {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 self-end sm:self-center">
+                      <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto mt-2 sm:mt-0">
                         {renderVaccineBadge(days)}
                         <Button 
                           size="sm" 
                           variant="outline" 
                           disabled 
-                          className="h-8 text-[11px] font-semibold border-border bg-background hover:bg-background cursor-not-allowed opacity-60 text-muted-foreground"
+                          className="h-8 text-[11px] font-semibold border-border bg-background hover:bg-background cursor-not-allowed opacity-60 text-muted-foreground w-full sm:w-auto"
                           title="Lembretes automáticos em desenvolvimento (Fase 14)"
                         >
                           Lembrar
@@ -172,7 +172,7 @@ export function AlertsActionsTab({ trends }: AlertsActionsTabProps) {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 self-end sm:self-center">
+                      <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto mt-2 sm:mt-0">
                         <span className="inline-flex items-center rounded-full bg-rose-500/10 px-2.5 py-0.5 text-[10px] font-bold text-rose-400">
                           {days} dias sem atividade
                         </span>
@@ -180,7 +180,7 @@ export function AlertsActionsTab({ trends }: AlertsActionsTabProps) {
                           size="sm" 
                           variant="outline" 
                           disabled 
-                          className="h-8 text-[11px] font-semibold border-border bg-background hover:bg-background cursor-not-allowed opacity-60 text-muted-foreground"
+                          className="h-8 text-[11px] font-semibold border-border bg-background hover:bg-background cursor-not-allowed opacity-60 text-muted-foreground w-full sm:w-auto"
                           title="Lembretes automáticos em desenvolvimento (Fase 14)"
                         >
                           <MessageSquare className="h-3.5 w-3.5 mr-1" /> Reativar
