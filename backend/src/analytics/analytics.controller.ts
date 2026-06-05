@@ -12,4 +12,10 @@ export class AnalyticsController {
   getOverview(@CurrentUser() user: any) {
     return this.analyticsService.getOverview(user.clinicId);
   }
+
+  @Get('trends')
+  getTrends(@CurrentUser() user: any) {
+    return this.analyticsService.getTrends(user.clinicId);
+  }
 }
+

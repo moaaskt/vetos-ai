@@ -78,3 +78,12 @@
   - No redesign of existing pages.
 - Plans: Pending
 
+## Phase 14: Vaccine Reminder Automation
+- Goal: Automate notifications for vaccines nearing their expiration or next dose date to alert pet owners.
+- Scope:
+  - Backend task scheduler to check for upcoming vaccine nextDoseDate.
+  - Integration with notifications module to trigger WhatsApp/Email alerts.
+  - Clinic configurations to enable/disable vaccine reminders.
+- Plans: Pending
+
+

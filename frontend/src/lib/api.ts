@@ -127,3 +127,26 @@ export type AnalyticsOverview = {
   }
 }
 
+export type AnalyticsTrends = {
+  appointmentsTrend: { date: string; count: number }[]
+  notificationsTrend: { date: string; sent: number; failed: number }[]
+  notificationsByChannel: {
+    EMAIL: number
+    WHATSAPP: number
+  }
+  upcomingVaccinesList: (VaccineRecord & {
+    pet: Pet & {
+      client: Client
+    }
+  })[]
+  inactiveClientsList: {
+    id: string
+    name: string
+    email?: string | null
+    phone?: string | null
+    lastActiveDate: string
+    hasAppointments: boolean
+  }[]
+}
+
+
