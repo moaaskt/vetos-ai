@@ -59,6 +59,7 @@ export function PetDetails() {
   const [vaccineName, setVaccineName] = useState('')
   const [vaccineDate, setVaccineDate] = useState(new Date().toISOString().split('T')[0])
   const [vaccineNextDoseDate, setVaccineNextDoseDate] = useState('')
+  const [isExporting, setIsExporting] = useState(false)
 
   const [weightValue, setWeightValue] = useState('')
   const [weightDate, setWeightDate] = useState(new Date().toISOString().split('T')[0])
@@ -173,6 +174,24 @@ export function PetDetails() {
       await loadPetData()
     } catch {
       setError('Falha ao remover vacinação.')
+    }
+  }
+
+  async function handleExportCertificate() {
+    if (!id) return
+    setIsExporting(true)
+    try {
+      const response = await api.get(`/vaccines/pet/${id}/certificate`, {
+        responseType: 'blob',
+      })
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+      setTimeout(() => window.URL.revokeObjectURL(url), 100)
+    } catch {
+      setError('Falha ao exportar certificado de vacinação.')
+    } finally {
+      setIsExporting(false)
     }
   }
 
@@ -541,15 +560,27 @@ export function PetDetails() {
                   <Syringe className="h-5 w-5 text-indigo-500" />
                   Vacinas Aplicadas
                 </h2>
-                <Button
-                  onClick={() => setIsVaccineModalOpen(true)}
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-primary hover:bg-primary/10 rounded-lg"
-                  title="Adicionar Vacina"
-                >
-                  <Plus className="h-4.5 w-4.5" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button
+                    onClick={handleExportCertificate}
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-primary hover:bg-primary/10 rounded-lg"
+                    title="Exportar Certificado"
+                    disabled={isExporting}
+                  >
+                    <FileText className="h-4.5 w-4.5" />
+                  </Button>
+                  <Button
+                    onClick={() => setIsVaccineModalOpen(true)}
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-primary hover:bg-primary/10 rounded-lg"
+                    title="Adicionar Vacina"
+                  >
+                    <Plus className="h-4.5 w-4.5" />
+                  </Button>
+                </div>
               </div>
 
               {!pet.vaccineRecords || pet.vaccineRecords.length === 0 ? (
