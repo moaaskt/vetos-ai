@@ -58,6 +58,11 @@ export type VaccineRecord = {
   name: string
   date: string
   nextDoseDate?: string | null
+  status?: 'APPLIED' | 'SCHEDULED'
+  lotNumber?: string | null
+  manufacturer?: string | null
+  appliedById?: string | null
+  notes?: string | null
   petId: string
 }
 

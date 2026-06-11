@@ -71,7 +71,14 @@ export declare class PetsController {
             clinicId: string;
             date: Date;
             petId: string;
+            status: import(".prisma/client").$Enums.VaccineStatus;
             nextDoseDate: Date | null;
+            protocolId: string | null;
+            protocolDoseId: string | null;
+            lotNumber: string | null;
+            manufacturer: string | null;
+            appliedById: string | null;
+            notes: string | null;
         }[];
         clinicalRecords: {
             id: string;

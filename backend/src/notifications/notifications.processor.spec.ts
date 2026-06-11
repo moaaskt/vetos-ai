@@ -303,6 +303,62 @@ describe('NotificationsProcessor', () => {
     });
   });
 
+  it('uses active template and replaces placeholders correctly for VACCINE_REMINDER_DAY WHATSAPP', async () => {
+    whatsappProvider.send.mockResolvedValue({
+      success: true,
+      providerMessageId: 'wa-custom-vac-1',
+    });
+
+    prisma.notificationTemplate.findUnique.mockResolvedValue({
+      id: 'template-vac-1',
+      clinicId: 'clinic-1',
+      event: 'VACCINE_REMINDER_DAY',
+      channel: 'WHATSAPP',
+      body: 'Olá {{clientName}}, lembramos que a vacina {{vaccineName}} de {{petName}} vence hoje ({{nextDoseDate}}). Equipe {{clinicName}}.',
+      active: true,
+    });
+
+    const nextDoseDateStr = '2026-06-05T00:00:00.000Z';
+    const expectedDateStr = new Date(nextDoseDateStr).toLocaleDateString('pt-BR');
+
+    await processor.process({
+      id: 'job-custom-whatsapp-vac',
+      name: 'send-message',
+      data: {
+        clinicId: 'clinic-1',
+        channel: 'WHATSAPP',
+        to: '+5511999999999',
+        body: 'Fallback Body',
+        event: 'VACCINE_REMINDER_DAY',
+        clientName: 'Roberto',
+        petName: 'Bidu',
+        clinicName: 'VetCare',
+        vaccineName: 'V10',
+        nextDoseDate: nextDoseDateStr,
+        vaccineRecordId: 'vac-rec-id-123',
+      },
+    } as any);
+
+    const expectedBody = `Olá Roberto, lembramos que a vacina V10 de Bidu vence hoje (${expectedDateStr}). Equipe VetCare.`;
+
+    expect(whatsappProvider.send).toHaveBeenCalledWith({
+      to: '+5511999999999',
+      body: expectedBody,
+    });
+
+    expect(prisma.notificationLog.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        clinicId: 'clinic-1',
+        channel: 'WHATSAPP',
+        to: '+5511999999999',
+        body: expectedBody,
+        status: 'SENT',
+        providerMessageId: 'wa-custom-vac-1',
+        vaccineRecordId: 'vac-rec-id-123',
+      }),
+    });
+  });
+
   it('uses fallback subject/body when template is inactive', async () => {
     smtpProvider.send.mockResolvedValue({
       success: true,

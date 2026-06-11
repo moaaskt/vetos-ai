@@ -6,6 +6,7 @@ import {
   Sliders,
   ArrowRight,
   Settings,
+  Syringe,
 } from 'lucide-react'
 
 export function SettingsPage() {
@@ -18,6 +19,15 @@ export function SettingsPage() {
       active: true,
       badge: 'Ativo',
       badgeClass: 'bg-primary/10 text-primary border-primary/20',
+    },
+    {
+      to: '/settings/vaccines',
+      title: 'Protocolos Vacinais',
+      description: 'Configure protocolos de vacinação padrão por espécie (Ex: cães e gatos) com intervalos de doses automáticos e sequenciais.',
+      icon: Syringe,
+      active: true,
+      badge: 'Novo',
+      badgeClass: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
     },
     {
       to: '#',

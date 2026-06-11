@@ -196,6 +196,10 @@ export class NotificationsProcessor extends WorkerHost {
           ? new Date(jobData.appointmentDate).toLocaleString('pt-BR')
           : '',
         clinicName: jobData.clinicName || '',
+        vaccineName: jobData.vaccineName || '',
+        nextDoseDate: jobData.nextDoseDate
+          ? new Date(jobData.nextDoseDate).toLocaleDateString('pt-BR')
+          : '',
       };
 
       const body = this.templateService.compile(template.body, compilePayload);
@@ -284,6 +288,7 @@ export class NotificationsProcessor extends WorkerHost {
         appointmentId: payload.appointmentId,
         clientId: payload.clientId,
         petId: payload.petId,
+        vaccineRecordId: payload.vaccineRecordId,
       },
     });
   }
