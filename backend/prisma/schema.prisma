@@ -8,79 +8,87 @@ datasource db {
 }
 
 model Clinic {
-  id        String   @id @default(uuid())
-  name      String
-  address   String?
-  phone     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  clients   Client[]
-  pets      Pet[]
-  users     User[]
-  appointments Appointment[]
-  impersonationLogs ImpersonationLog[]
-  subscription ClinicSubscription?
-  weightRecords WeightRecord[]
-  allergies     Allergy[]
-  vaccineRecords VaccineRecord[]
-  clinicalRecords ClinicalRecord[]
+  id                    String                 @id @default(uuid())
+  name                  String
+  address               String?
+  phone                 String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  clients               Client[]
+  pets                  Pet[]
+  users                 User[]
+  appointments          Appointment[]
+  impersonationLogs     ImpersonationLog[]
+  subscription          ClinicSubscription?
+  weightRecords         WeightRecord[]
+  allergies             Allergy[]
+  vaccineRecords        VaccineRecord[]
+  clinicalRecords       ClinicalRecord[]
+  notificationConfig    NotificationConfig?
+  notificationTemplates NotificationTemplate[]
+  notificationLogs      NotificationLog[]
+  vaccineProtocols      VaccineProtocol[]
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      Role     @default(STAFF)
-  clinicId  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  clinic    Clinic?  @relation(fields: [clinicId], references: [id])
+  id                String             @id @default(uuid())
+  email             String             @unique
+  password          String
+  role              Role               @default(STAFF)
+  clinicId          String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  clinic            Clinic?            @relation(fields: [clinicId], references: [id])
   impersonationLogs ImpersonationLog[]
+  vaccineRecords    VaccineRecord[]
 }
 
 model Client {
-  id        String   @id @default(uuid())
-  name      String
-  email     String?
-  phone     String?
-  clinicId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  clinic    Clinic   @relation(fields: [clinicId], references: [id])
-  pets      Pet[]
-  appointments Appointment[]
+  id               String            @id @default(uuid())
+  name             String
+  email            String?
+  phone            String?
+  clinicId         String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  clinic           Clinic            @relation(fields: [clinicId], references: [id])
+  pets             Pet[]
+  appointments     Appointment[]
+  notificationLogs NotificationLog[]
 }
 
 model Pet {
-  id        String   @id @default(uuid())
-  name      String
-  species   String
-  breed     String?
-  age       Int?
-  clientId  String
-  clinicId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  client    Client   @relation(fields: [clientId], references: [id])
-  clinic    Clinic   @relation(fields: [clinicId], references: [id])
-  appointments Appointment[]
-  weightRecords WeightRecord[]
-  allergies     Allergy[]
-  vaccineRecords VaccineRecord[]
-  clinicalRecords ClinicalRecord[]
+  id               String            @id @default(uuid())
+  name             String
+  species          String
+  breed            String?
+  age              Int?
+  clientId         String
+  clinicId         String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  client           Client            @relation(fields: [clientId], references: [id])
+  clinic           Clinic            @relation(fields: [clinicId], references: [id])
+  appointments     Appointment[]
+  weightRecords    WeightRecord[]
+  allergies        Allergy[]
+  vaccineRecords   VaccineRecord[]
+  clinicalRecords  ClinicalRecord[]
+  notificationLogs NotificationLog[]
 }
 
 model Appointment {
-  id        String            @id @default(uuid())
-  date      DateTime
-  reason    String?
-  status    AppointmentStatus @default(SCHEDULED)
-  petId     String
-  clientId  String
-  clinicId  String
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  notifiedAt DateTime?
+  id               String            @id @default(uuid())
+  date             DateTime
+  reason           String?
+  status           AppointmentStatus @default(SCHEDULED)
+  petId            String
+  clientId         String
+  clinicId         String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  notifiedAt       DateTime?
+  notificationLogs NotificationLog[]
 
   pet    Pet    @relation(fields: [petId], references: [id])
   client Client @relation(fields: [clientId], references: [id])
@@ -94,13 +102,13 @@ model ImpersonationLog {
   reason         String
   startedAt      DateTime @default(now())
 
-  superAdmin     User     @relation(fields: [superAdminId], references: [id])
-  targetClinic   Clinic   @relation(fields: [targetClinicId], references: [id])
+  superAdmin   User   @relation(fields: [superAdminId], references: [id])
+  targetClinic Clinic @relation(fields: [targetClinicId], references: [id])
 }
 
 model Plan {
-  id               String   @id @default(uuid())
-  name             String   @unique
+  id               String               @id @default(uuid())
+  name             String               @unique
   maxStaffSeats    Int
   maxNotifications Int
   maxStorage       Int
@@ -109,8 +117,8 @@ model Plan {
 }
 
 model ClinicSubscription {
-  id                     String  @id @default(uuid())
-  clinicId               String  @unique
+  id                     String @id @default(uuid())
+  clinicId               String @unique
   planId                 String
   customMaxStaffSeats    Int?
   customMaxNotifications Int?
@@ -136,6 +144,17 @@ enum AppointmentStatus {
 enum ClinicalRecordType {
   NOTE
   PROCEDURE
+}
+
+enum NotificationChannel {
+  EMAIL
+  WHATSAPP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
 }
 
 model WeightRecord {
@@ -164,17 +183,74 @@ model Allergy {
 }
 
 model VaccineRecord {
-  id           String    @id @default(uuid())
+  id           String        @id @default(uuid())
   name         String
   date         DateTime
   nextDoseDate DateTime?
-  petId        String
-  clinicId     String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  status       VaccineStatus @default(APPLIED)
 
-  pet    Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
-  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  // Relacionamentos opcionais de protocolo
+  protocolId     String?
+  protocolDoseId String?
+
+  // Rastreabilidade clínica
+  lotNumber    String?
+  manufacturer String?
+  appliedById  String?
+  notes        String?
+
+  petId     String
+  clinicId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pet              Pet                  @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinic           Clinic               @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  protocol         VaccineProtocol?     @relation(fields: [protocolId], references: [id], onDelete: SetNull)
+  protocolDose     VaccineProtocolDose? @relation(fields: [protocolDoseId], references: [id], onDelete: SetNull)
+  appliedBy        User?                @relation(fields: [appliedById], references: [id], onDelete: SetNull)
+  notificationLogs NotificationLog[]
+
+  @@index([petId])
+  @@index([clinicId])
+  @@index([protocolId])
+  @@index([protocolDoseId])
+  @@index([appliedById])
+}
+
+enum VaccineStatus {
+  APPLIED
+  SCHEDULED
+}
+
+model VaccineProtocol {
+  id        String   @id @default(uuid())
+  name      String
+  species   String
+  clinicId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clinic         Clinic                @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  doses          VaccineProtocolDose[]
+  vaccineRecords VaccineRecord[]
+
+  @@index([clinicId])
+}
+
+model VaccineProtocolDose {
+  id           String   @id @default(uuid())
+  protocolId   String
+  vaccineName  String
+  doseOrder    Int
+  intervalDays Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  protocol       VaccineProtocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+  vaccineRecords VaccineRecord[]
+
+  @@index([protocolId])
 }
 
 model ClinicalRecord {
@@ -190,4 +266,77 @@ model ClinicalRecord {
 
   pet    Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
   clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+}
+
+model NotificationConfig {
+  id                      String   @id @default(uuid())
+  clinicId                String   @unique
+  emailEnabled            Boolean  @default(false)
+  smtpHost                String?
+  smtpPort                Int?
+  smtpUser                String?
+  smtpPasswordEncrypted   String?
+  smtpFromName            String?
+  smtpFromEmail           String?
+  whatsappEnabled         Boolean  @default(false)
+  whatsappInstanceUrl     String?
+  whatsappInstanceName    String?
+  whatsappApiKeyEncrypted String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+}
+
+model NotificationTemplate {
+  id        String              @id @default(uuid())
+  clinicId  String
+  event     String
+  channel   NotificationChannel
+  subject   String?
+  body      String
+  active    Boolean             @default(true)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  @@unique([clinicId, event, channel])
+  @@index([clinicId, event])
+}
+
+model NotificationLog {
+  id                String              @id @default(uuid())
+  clinicId          String
+  channel           NotificationChannel
+  to                String
+  subject           String?
+  body              String
+  status            NotificationStatus  @default(PENDING)
+  errorMessage      String?
+  providerMessageId String?
+  event             String
+  scheduledFor      DateTime?
+  sentAt            DateTime?
+  appointmentId     String?
+  clientId          String?
+  petId             String?
+  vaccineRecordId   String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  clinic        Clinic         @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointment   Appointment?   @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  client        Client?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  pet           Pet?           @relation(fields: [petId], references: [id], onDelete: SetNull)
+  vaccineRecord VaccineRecord? @relation(fields: [vaccineRecordId], references: [id], onDelete: SetNull)
+
+  @@index([clinicId, status])
+  @@index([clinicId, channel])
+  @@index([clinicId, event])
+  @@index([appointmentId])
+  @@index([clientId])
+  @@index([petId])
+  @@index([vaccineRecordId])
+  @@index([clinicId, vaccineRecordId, event, channel])
 }

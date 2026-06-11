@@ -58,6 +58,11 @@ export type VaccineRecord = {
   name: string
   date: string
   nextDoseDate?: string | null
+  status?: 'APPLIED' | 'SCHEDULED'
+  lotNumber?: string | null
+  manufacturer?: string | null
+  appliedById?: string | null
+  notes?: string | null
   petId: string
 }
 
@@ -104,3 +109,49 @@ export type DashboardActivity = {
   text: string
   date: string
 }
+
+export type AnalyticsOverview = {
+  appointmentsToday: number
+  appointmentsThisWeek: number
+  appointmentsByStatus: {
+    SCHEDULED: number
+    COMPLETED: number
+    CANCELLED: number
+  }
+  totalClients: number
+  totalPets: number
+  upcomingVaccinesNext7Days: number
+  inactiveClients90Days: number
+  notificationsLast7Days: {
+    sent: number
+    failed: number
+    byChannel: {
+      EMAIL: number
+      WHATSAPP: number
+    }
+  }
+}
+
+export type AnalyticsTrends = {
+  appointmentsTrend: { date: string; count: number }[]
+  notificationsTrend: { date: string; sent: number; failed: number }[]
+  notificationsByChannel: {
+    EMAIL: number
+    WHATSAPP: number
+  }
+  upcomingVaccinesList: (VaccineRecord & {
+    pet: Pet & {
+      client: Client
+    }
+  })[]
+  inactiveClientsList: {
+    id: string
+    name: string
+    email?: string | null
+    phone?: string | null
+    lastActiveDate: string
+    hasAppointments: boolean
+  }[]
+}
+
+
