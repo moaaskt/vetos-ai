@@ -41,13 +41,26 @@ export class SchedulerService {
     d7End.setUTCDate(d7End.getUTCDate() + 7);
 
     // Buscar todas as vacinas expiráveis nas 3 janelas
+    // Buscar todas as vacinas expiráveis nas 3 janelas (retrocompatível com nextDoseDate ou novas vacinas SCHEDULED)
     const expiringVaccines = await this.prisma.vaccineRecord.findMany({
       where: {
-        nextDoseDate: {
-          not: null,
-          gte: d0Start,
-          lte: d7End,
-        },
+        OR: [
+          {
+            status: 'APPLIED',
+            nextDoseDate: {
+              not: null,
+              gte: d0Start,
+              lte: d7End,
+            },
+          },
+          {
+            status: 'SCHEDULED',
+            date: {
+              gte: d0Start,
+              lte: d7End,
+            },
+          },
+        ],
       },
       include: {
         pet: {
@@ -60,11 +73,13 @@ export class SchedulerService {
     });
 
     for (const vaccine of expiringVaccines) {
-      if (!vaccine.nextDoseDate) {
+      // Para vacinas SCHEDULED usamos a data agendada (date), para legado usamos nextDoseDate
+      const targetDate = vaccine.status === 'SCHEDULED' ? vaccine.date : vaccine.nextDoseDate;
+      if (!targetDate) {
         continue;
       }
 
-      const nextDoseTime = vaccine.nextDoseDate.getTime();
+      const nextDoseTime = targetDate.getTime();
       let event = '';
       let label = '';
       let codePrefix = '';
@@ -118,7 +133,7 @@ export class SchedulerService {
         const petName = vaccine.pet.name;
         const vaccineName = vaccine.name;
         const clinicName = vaccine.clinic?.name || 'Clínica Veterinária';
-        const formattedDoseDate = vaccine.nextDoseDate.toLocaleDateString('pt-BR');
+        const formattedDoseDate = targetDate.toLocaleDateString('pt-BR');
 
         const defaultBody = `Olá ${clientName}, lembramos que a vacina ${vaccineName} de ${petName} vence ${label} (${formattedDoseDate}). Atenciosamente, ${clinicName}`;
 
@@ -134,7 +149,7 @@ export class SchedulerService {
               : undefined,
           body: defaultBody,
           event,
-          scheduledFor: vaccine.nextDoseDate,
+          scheduledFor: targetDate,
           clientId: vaccine.pet.clientId,
           petId: vaccine.petId,
           vaccineRecordId: vaccine.id,
@@ -143,7 +158,7 @@ export class SchedulerService {
           petName,
           clinicName,
           vaccineName,
-          nextDoseDate: vaccine.nextDoseDate,
+          nextDoseDate: targetDate,
         });
       }
     }

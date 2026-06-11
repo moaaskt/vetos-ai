@@ -64,6 +64,123 @@ export function PetDetails() {
   const [weightValue, setWeightValue] = useState('')
   const [weightDate, setWeightDate] = useState(new Date().toISOString().split('T')[0])
 
+  // --- Estados de Protocolos (Fase 14B.2) ---
+  const [isApplyProtocolModalOpen, setIsApplyProtocolModalOpen] = useState(false)
+  const [protocols, setProtocols] = useState<any[]>([])
+  const [selectedProtocolId, setSelectedProtocolId] = useState('')
+  const [protocolStartDate, setProtocolStartDate] = useState(new Date().toISOString().split('T')[0])
+  const [protocolPreview, setProtocolPreview] = useState<any[]>([])
+
+  // --- Estados para Aplicação de Dose Agendada (Fase 14B.2) ---
+  const [isConfirmApplyModalOpen, setIsConfirmApplyModalOpen] = useState(false)
+  const [confirmingVaccineId, setConfirmingVaccineId] = useState('')
+  const [confirmingVaccineName, setConfirmingVaccineName] = useState('')
+  const [applyDate, setApplyDate] = useState(new Date().toISOString().split('T')[0])
+  const [lotNumber, setLotNumber] = useState('')
+  const [manufacturer, setManufacturer] = useState('')
+  const [notes, setNotes] = useState('')
+  const [recalculateSubsequent, setRecalculateSubsequent] = useState(true)
+
+  async function loadProtocolsForApply() {
+    try {
+      const response = await api.get('/vaccines/protocols')
+      const petSpeciesUpper = pet?.species?.toUpperCase() || ''
+      const filtered = response.data.filter((p: any) => p.species.toUpperCase() === petSpeciesUpper || p.species === 'OTHER')
+      setProtocols(filtered)
+      if (filtered.length > 0) {
+        setSelectedProtocolId(filtered[0].id)
+      }
+    } catch {
+      setError('Falha ao carregar protocolos disponíveis.')
+    }
+  }
+
+  useEffect(() => {
+    if (!selectedProtocolId || !protocolStartDate) {
+      setProtocolPreview([])
+      return
+    }
+
+    const selected = protocols.find(p => p.id === selectedProtocolId)
+    if (!selected || !selected.doses) {
+      setProtocolPreview([])
+      return
+    }
+
+    const preview = []
+    let current = new Date(protocolStartDate)
+    for (const dose of selected.doses) {
+      if (dose.doseOrder > 1) {
+        const next = new Date(current.getTime())
+        next.setDate(next.getDate() + dose.intervalDays)
+        current = next
+      } else {
+        if (dose.intervalDays > 0) {
+          const next = new Date(current.getTime())
+          next.setDate(next.getDate() + dose.intervalDays)
+          current = next
+        }
+      }
+      preview.push({
+        name: dose.vaccineName,
+        date: current.toLocaleDateString('pt-BR'),
+        intervalDays: dose.intervalDays,
+        doseOrder: dose.doseOrder
+      })
+    }
+    setProtocolPreview(preview)
+  }, [selectedProtocolId, protocolStartDate, protocols])
+
+  async function handleApplyProtocol(e: React.FormEvent) {
+    e.preventDefault()
+    if (!id || !selectedProtocolId || !protocolStartDate) return
+    setIsSubmitting(true)
+    try {
+      await api.post('/vaccines/apply-protocol', {
+        petId: id,
+        protocolId: selectedProtocolId,
+        startDate: protocolStartDate
+      })
+      setIsApplyProtocolModalOpen(false)
+      await loadPetData()
+    } catch {
+      setError('Falha ao aplicar protocolo vacinal.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handleConfirmApplyDose(e: React.FormEvent) {
+    e.preventDefault()
+    if (!confirmingVaccineId || !applyDate) return
+    setIsSubmitting(true)
+    try {
+      await api.post(`/vaccines/${confirmingVaccineId}/apply`, {
+        date: applyDate,
+        lotNumber: lotNumber.trim() || undefined,
+        manufacturer: manufacturer.trim() || undefined,
+        notes: notes.trim() || undefined,
+        recalculateSubsequent
+      })
+      setIsConfirmApplyModalOpen(false)
+      setLotNumber('')
+      setManufacturer('')
+      setNotes('')
+      await loadPetData()
+    } catch {
+      setError('Falha ao registrar aplicação da vacina.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  function openApplyDoseModal(vaccineId: string, name: string) {
+    setConfirmingVaccineId(vaccineId)
+    setConfirmingVaccineName(name)
+    setApplyDate(new Date().toISOString().split('T')[0])
+    setIsConfirmApplyModalOpen(true)
+  }
+
   async function loadPetData() {
     if (!id) return
     setIsLoading(true)
@@ -552,13 +669,13 @@ export function PetDetails() {
             </CardContent>
           </Card>
 
-          {/* Card 2: Vacinas (Wave 2) */}
+          {/* Card 2: Vacinas (Wave 2 & Fase 14B.2) */}
           <Card className="border-border bg-card">
             <CardContent className="p-6 space-y-6">
               <div className="flex items-center justify-between border-b border-border/60 pb-4">
                 <h2 className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
                   <Syringe className="h-5 w-5 text-indigo-500" />
-                  Vacinas Aplicadas
+                  Vacinas
                 </h2>
                 <div className="flex items-center gap-1">
                   <Button
@@ -572,6 +689,18 @@ export function PetDetails() {
                     <FileText className="h-4.5 w-4.5" />
                   </Button>
                   <Button
+                    onClick={() => {
+                      loadProtocolsForApply()
+                      setIsApplyProtocolModalOpen(true)
+                    }}
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-primary hover:bg-primary/10 rounded-lg animate-pulse"
+                    title="Aplicar Protocolo"
+                  >
+                    <ClipboardList className="h-4.5 w-4.5" />
+                  </Button>
+                  <Button
                     onClick={() => setIsVaccineModalOpen(true)}
                     variant="ghost"
                     size="icon"
@@ -583,41 +712,104 @@ export function PetDetails() {
                 </div>
               </div>
 
-              {!pet.vaccineRecords || pet.vaccineRecords.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-6 text-center space-y-2 bg-muted/20 border border-dashed border-border rounded-xl p-4">
-                  <Syringe className="h-8 w-8 text-muted-foreground/45" />
-                  <p className="text-xs font-semibold text-muted-foreground">Nenhum registro de vacinação cadastrado.</p>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  {pet.vaccineRecords.map((vac) => (
-                    <div
-                      key={vac.id}
-                      className="group/vaccine flex flex-col justify-between bg-muted/30 border border-border/80 rounded-xl px-4 py-3 space-y-2 transition-all hover:bg-card hover:border-primary/25"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-bold text-foreground truncate">{vac.name}</span>
-                        <button
-                          onClick={() => handleDeleteVaccine(vac.id)}
-                          className="opacity-0 group-hover/vaccine:opacity-100 h-6 w-6 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all"
-                          title="Remover Registro"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                      
-                      <div className="flex flex-col text-[10px] text-muted-foreground font-semibold space-y-0.5">
-                        <span>Aplicação: <strong className="text-foreground">{formatDisplayDate(vac.date, false)}</strong></span>
-                        {vac.nextDoseDate && (
-                          <span className="text-indigo-500 font-bold">
-                            Próxima Dose: {formatDisplayDate(vac.nextDoseDate, false)}
-                          </span>
-                        )}
-                      </div>
+              {(() => {
+                const vaccineRecords = pet.vaccineRecords || []
+                const applied = vaccineRecords.filter(vac => vac.status === 'APPLIED' || !vac.status)
+                const scheduled = vaccineRecords.filter(vac => vac.status === 'SCHEDULED')
+
+                if (vaccineRecords.length === 0) {
+                  return (
+                    <div className="flex flex-col items-center justify-center py-6 text-center space-y-2 bg-muted/20 border border-dashed border-border rounded-xl p-4">
+                      <Syringe className="h-8 w-8 text-muted-foreground/45" />
+                      <p className="text-xs font-semibold text-muted-foreground">Nenhum registro de vacinação cadastrado.</p>
                     </div>
-                  ))}
-                </div>
-              )}
+                  )
+                }
+
+                return (
+                  <div className="space-y-6">
+                    {/* Vacinas Agendadas */}
+                    {scheduled.length > 0 && (
+                      <div className="space-y-3">
+                        <h4 className="text-[10px] text-amber-500 font-extrabold uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping" />
+                          Próximas Doses (Agendadas)
+                        </h4>
+                        <div className="flex flex-col gap-3">
+                          {scheduled.map((vac) => (
+                            <div
+                              key={vac.id}
+                              className="group/vaccine flex flex-col justify-between bg-amber-500/5 border border-amber-500/15 rounded-xl px-4 py-3 space-y-2 transition-all hover:bg-card hover:border-amber-500/25"
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-sm font-bold text-foreground truncate">{vac.name}</span>
+                                <div className="flex items-center gap-1 opacity-0 group-hover/vaccine:opacity-100 transition-all">
+                                  <button
+                                    onClick={() => openApplyDoseModal(vac.id, vac.name)}
+                                    className="h-6 w-6 rounded-md hover:bg-primary/10 text-primary flex items-center justify-center transition-all cursor-pointer"
+                                    title="Registrar Aplicação"
+                                  >
+                                    <Plus className="h-4 w-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteVaccine(vac.id)}
+                                    className="h-6 w-6 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all cursor-pointer"
+                                    title="Remover Agendamento"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                              
+                              <div className="flex flex-col text-[10px] text-muted-foreground font-semibold space-y-0.5">
+                                <span>Previsão: <strong className="text-amber-500 font-extrabold">{formatDisplayDate(vac.date, false)}</strong></span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Vacinas Aplicadas */}
+                    {applied.length > 0 && (
+                      <div className="space-y-3">
+                        <h4 className="text-[10px] text-emerald-500 font-extrabold uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                          Histórico de Aplicações
+                        </h4>
+                        <div className="flex flex-col gap-3">
+                          {applied.map((vac) => (
+                            <div
+                              key={vac.id}
+                              className="group/vaccine flex flex-col justify-between bg-muted/30 border border-border/80 rounded-xl px-4 py-3 space-y-2 transition-all hover:bg-card hover:border-primary/25"
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-sm font-bold text-foreground truncate">{vac.name}</span>
+                                <button
+                                  onClick={() => handleDeleteVaccine(vac.id)}
+                                  className="opacity-0 group-hover/vaccine:opacity-100 h-6 w-6 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all cursor-pointer"
+                                  title="Remover Registro"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                              
+                              <div className="flex flex-col text-[10px] text-muted-foreground font-semibold space-y-0.5">
+                                <span>Aplicação: <strong className="text-foreground">{formatDisplayDate(vac.date, false)}</strong></span>
+                                {vac.nextDoseDate && (
+                                  <span className="text-indigo-500 font-bold">
+                                    Próxima Dose: {formatDisplayDate(vac.nextDoseDate, false)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
             </CardContent>
           </Card>
 
@@ -857,6 +1049,156 @@ export function PetDetails() {
                 className="bg-primary text-primary-foreground font-semibold hover:opacity-90 shadow-sm"
               >
                 {isSubmitting ? 'Salvando...' : 'Registrar Peso'}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Modal - Aplicar Protocolo Vacinal */}
+      {isApplyProtocolModalOpen && (
+        <Modal title="Aplicar Protocolo Vacinal" onClose={() => setIsApplyProtocolModalOpen(false)}>
+          <form onSubmit={handleApplyProtocol} className="space-y-5 pt-2 max-h-[75vh] overflow-y-auto pr-1">
+            <label className="block space-y-2">
+              <span className="block text-sm font-semibold text-foreground">Escolher Protocolo</span>
+              {protocols.length === 0 ? (
+                <div className="text-xs text-amber-500 font-semibold p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                  Nenhum protocolo compatível com a espécie "{pet.species}" encontrado. Configure novos protocolos nas Configurações da Clínica.
+                </div>
+              ) : (
+                <select
+                  className="flex h-10 w-full rounded-lg border border-input bg-card px-3 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-foreground font-bold"
+                  value={selectedProtocolId}
+                  onChange={(e) => setSelectedProtocolId(e.target.value)}
+                  required
+                >
+                  {protocols.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              )}
+            </label>
+
+            <label className="block space-y-2">
+              <span className="block text-sm font-semibold text-foreground">Data de Início do Protocolo</span>
+              <Input
+                type="date"
+                value={protocolStartDate}
+                onChange={(e) => setProtocolStartDate(e.target.value)}
+                required
+                className="bg-background border-border font-medium h-10 text-foreground"
+              />
+            </label>
+
+            {/* Preview of doses */}
+            {protocolPreview.length > 0 && (
+              <div className="space-y-2.5 border-t border-border/60 pt-4">
+                <span className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">Pré-visualização das Doses Geradas</span>
+                <div className="space-y-2 bg-muted/20 border border-border/60 rounded-xl p-3.5 max-h-[200px] overflow-y-auto">
+                  {protocolPreview.map((d, index) => (
+                    <div key={index} className="flex justify-between items-center text-xs font-semibold">
+                      <span className="text-foreground">
+                        <strong className="text-primary font-extrabold mr-1.5">#{d.doseOrder}</strong>
+                        {d.name}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {d.date}
+                        {d.doseOrder > 1 && ` (+${d.intervalDays}d)`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="pt-4 border-t border-border/60 flex items-center justify-end gap-3">
+              <Button type="button" variant="ghost" onClick={() => setIsApplyProtocolModalOpen(false)} className="font-semibold">
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || protocols.length === 0}
+                className="bg-primary text-primary-foreground font-semibold hover:opacity-90 shadow-sm"
+              >
+                {isSubmitting ? 'Aplicando...' : 'Aplicar Protocolo'}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Modal - Confirmar Aplicação de Dose Agendada */}
+      {isConfirmApplyModalOpen && (
+        <Modal title={`Aplicar Vacina: ${confirmingVaccineName}`} onClose={() => setIsConfirmApplyModalOpen(false)}>
+          <form onSubmit={handleConfirmApplyDose} className="space-y-5 pt-2">
+            <label className="block space-y-2">
+              <span className="block text-sm font-semibold text-foreground">Data de Aplicação</span>
+              <Input
+                type="date"
+                value={applyDate}
+                onChange={(e) => setApplyDate(e.target.value)}
+                required
+                className="bg-background border-border font-medium h-10 text-foreground"
+              />
+            </label>
+
+            <div className="grid grid-cols-2 gap-4">
+              <label className="block space-y-2">
+                <span className="block text-sm font-semibold text-foreground">Lote (Opcional)</span>
+                <Input
+                  type="text"
+                  placeholder="Ex: ABC1234"
+                  value={lotNumber}
+                  onChange={(e) => setLotNumber(e.target.value)}
+                  className="bg-background border-border font-medium h-10 text-foreground"
+                />
+              </label>
+
+              <label className="block space-y-2">
+                <span className="block text-sm font-semibold text-foreground">Fabricante (Opcional)</span>
+                <Input
+                  type="text"
+                  placeholder="Ex: Zoetis, Boehringer"
+                  value={manufacturer}
+                  onChange={(e) => setManufacturer(e.target.value)}
+                  className="bg-background border-border font-medium h-10 text-foreground"
+                />
+              </label>
+            </div>
+
+            <label className="block space-y-2">
+              <span className="block text-sm font-semibold text-foreground">Observações Clínicas (Opcional)</span>
+              <textarea
+                className="flex min-h-[90px] w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-foreground font-medium"
+                placeholder="Insira detalhes adicionais sobre a aplicação (membro aplicado, reações rápidas, etc)..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+            </label>
+
+            <div className="flex items-center space-x-2 bg-indigo-500/5 border border-indigo-500/10 rounded-xl px-4 py-3">
+              <input
+                type="checkbox"
+                id="recalculate"
+                checked={recalculateSubsequent}
+                onChange={(e) => setRecalculateSubsequent(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 bg-background"
+              />
+              <label htmlFor="recalculate" className="text-xs font-semibold text-foreground cursor-pointer select-none">
+                Recalcular automaticamente as datas das próximas doses deste protocolo
+              </label>
+            </div>
+
+            <div className="pt-4 border-t border-border/60 flex items-center justify-end gap-3">
+              <Button type="button" variant="ghost" onClick={() => setIsConfirmApplyModalOpen(false)} className="font-semibold">
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-primary text-primary-foreground font-semibold hover:opacity-90 shadow-sm"
+              >
+                {isSubmitting ? 'Registrando...' : 'Confirmar Aplicação'}
               </Button>
             </div>
           </form>

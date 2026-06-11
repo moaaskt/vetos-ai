@@ -17,6 +17,8 @@ import { WhatsappSettingsPage } from './pages/messaging/WhatsappSettingsPage'
 import { NotificationTemplatesPage } from './pages/messaging/NotificationTemplatesPage'
 import { NotificationLogsPage } from './pages/messaging/NotificationLogsPage'
 import { SettingsPage } from './pages/settings/SettingsPage'
+import { VaccineProtocolsPage } from './pages/settings/VaccineProtocolsPage'
+
 
 function defaultAuthenticatedRoute(role?: string) {
   return role === 'SUPERADMIN' ? '/super-admin/dashboard' : '/dashboard'
@@ -88,6 +90,7 @@ const router = createBrowserRouter([
       { path: '/appointments', element: <Appointments /> },
       { path: '/analytics', element: <Analytics /> },
       { path: '/settings', element: <SettingsPage /> },
+      { path: '/settings/vaccines', element: <VaccineProtocolsPage /> },
       { path: '/settings/messaging', element: <MessagingHubPage /> },
       { path: '/settings/messaging/smtp', element: <SmtpSettingsPage /> },
       { path: '/settings/messaging/whatsapp', element: <WhatsappSettingsPage /> },

@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVaccineDto } from './dto/create-vaccine.dto';
+import { CreateVaccineProtocolDto, CreateVaccineProtocolDoseDto } from './dto/create-vaccine-protocol.dto';
+import { ApplyVaccineProtocolDto } from './dto/apply-vaccine-protocol.dto';
+import { ApplyScheduledDoseDto } from './dto/apply-scheduled-dose.dto';
 import PDFDocument from 'pdfkit';
 import { PassThrough } from 'stream';
 
@@ -205,4 +208,272 @@ export class VaccinesService {
 
     return { stream, petName: pet.name };
   }
+
+  // --- MÉTODOS DE PROTOCOLOS VACINAIS (Fase 14B.2) ---
+
+  async createProtocol(clinicId: string, data: CreateVaccineProtocolDto) {
+    return this.prisma.vaccineProtocol.create({
+      data: {
+        name: data.name,
+        species: data.species,
+        clinicId,
+        doses: {
+          create: data.doses.map((dose: CreateVaccineProtocolDoseDto) => ({
+            vaccineName: dose.vaccineName,
+            doseOrder: dose.doseOrder,
+            intervalDays: dose.intervalDays,
+          })),
+        },
+      },
+      include: {
+        doses: {
+          orderBy: {
+            doseOrder: 'asc',
+          },
+        },
+      },
+    });
+  }
+
+  async findAllProtocols(clinicId: string) {
+    return this.prisma.vaccineProtocol.findMany({
+      where: {
+        clinicId,
+      },
+      include: {
+        doses: {
+          orderBy: {
+            doseOrder: 'asc',
+          },
+        },
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+  }
+
+  async findOneProtocol(clinicId: string, id: string) {
+    const protocol = await this.prisma.vaccineProtocol.findFirst({
+      where: {
+        id,
+        clinicId,
+      },
+      include: {
+        doses: {
+          orderBy: {
+            doseOrder: 'asc',
+          },
+        },
+      },
+    });
+
+    if (!protocol) {
+      throw new NotFoundException('Protocolo vacinal não encontrado.');
+    }
+
+    return protocol;
+  }
+
+  async updateProtocol(clinicId: string, id: string, data: CreateVaccineProtocolDto) {
+    // Valida existência
+    await this.findOneProtocol(clinicId, id);
+
+    // Deleta as doses antigas para recriá-las (abordagem segura e limpa para evitar conflitos)
+    await this.prisma.vaccineProtocolDose.deleteMany({
+      where: {
+        protocolId: id,
+      },
+    });
+
+    return this.prisma.vaccineProtocol.update({
+      where: {
+        id,
+      },
+      data: {
+        name: data.name,
+        species: data.species,
+        doses: {
+          create: data.doses.map((dose: CreateVaccineProtocolDoseDto) => ({
+            vaccineName: dose.vaccineName,
+            doseOrder: dose.doseOrder,
+            intervalDays: dose.intervalDays,
+          })),
+        },
+      },
+      include: {
+        doses: {
+          orderBy: {
+            doseOrder: 'asc',
+          },
+        },
+      },
+    });
+  }
+
+  async removeProtocol(clinicId: string, id: string) {
+    const protocol = await this.findOneProtocol(clinicId, id);
+
+    await this.prisma.vaccineProtocol.delete({
+      where: {
+        id: protocol.id,
+      },
+    });
+
+    return { success: true };
+  }
+
+  async applyProtocol(clinicId: string, data: ApplyVaccineProtocolDto) {
+    // Valida pet
+    const pet = await this.prisma.pet.findFirst({
+      where: {
+        id: data.petId,
+        clinicId,
+      },
+    });
+
+    if (!pet) {
+      throw new NotFoundException('Paciente não encontrado nesta clínica.');
+    }
+
+    // Valida protocolo
+    const protocol = await this.prisma.vaccineProtocol.findFirst({
+      where: {
+        id: data.protocolId,
+        clinicId,
+      },
+      include: {
+        doses: {
+          orderBy: {
+            doseOrder: 'asc',
+          },
+        },
+      },
+    });
+
+    if (!protocol) {
+      throw new NotFoundException('Protocolo vacinal não encontrado.');
+    }
+
+    if (protocol.doses.length === 0) {
+      throw new NotFoundException('Este protocolo não possui doses configuradas.');
+    }
+
+    const createdRecords = [];
+    let currentBaseDate = new Date(data.startDate);
+
+    for (const dose of protocol.doses) {
+      // Calcula a data esperada para esta dose.
+      // Se for a primeira dose, ela é aplicada a partir da startDate
+      // Doses seguintes são calculadas somando o intervalo à data da dose anterior.
+      if (dose.doseOrder > 1) {
+        const nextDate = new Date(currentBaseDate.getTime());
+        nextDate.setDate(nextDate.getDate() + dose.intervalDays);
+        currentBaseDate = nextDate;
+      } else {
+        // Primeira dose: se tiver intervalDays, soma à startDate, senão usa a startDate direta
+        if (dose.intervalDays > 0) {
+          const nextDate = new Date(currentBaseDate.getTime());
+          nextDate.setDate(nextDate.getDate() + dose.intervalDays);
+          currentBaseDate = nextDate;
+        }
+      }
+
+      const record = await this.prisma.vaccineRecord.create({
+        data: {
+          name: dose.vaccineName,
+          date: currentBaseDate,
+          status: 'SCHEDULED',
+          protocolId: protocol.id,
+          protocolDoseId: dose.id,
+          petId: pet.id,
+          clinicId,
+        },
+      });
+
+      createdRecords.push(record);
+    }
+
+    return createdRecords;
+  }
+
+  async applyScheduledDose(clinicId: string, vaccineRecordId: string, data: ApplyScheduledDoseDto) {
+    const record = await this.prisma.vaccineRecord.findFirst({
+      where: {
+        id: vaccineRecordId,
+        clinicId,
+      },
+    });
+
+    if (!record) {
+      throw new NotFoundException('Registro de vacina não encontrado.');
+    }
+
+    const appliedDate = new Date(data.date);
+
+    // Atualiza a dose atual para APPLIED
+    const updatedRecord = await this.prisma.vaccineRecord.update({
+      where: {
+        id: vaccineRecordId,
+      },
+      data: {
+        status: 'APPLIED',
+        date: appliedDate,
+        lotNumber: data.lotNumber || null,
+        manufacturer: data.manufacturer || null,
+        appliedById: data.appliedById || null,
+        notes: data.notes || null,
+      },
+    });
+
+    // Se solicitado o recálculo subsequente e a dose faz parte de um protocolo
+    if (data.recalculateSubsequent && record.protocolId && record.protocolDoseId) {
+      const currentDose = await this.prisma.vaccineProtocolDose.findUnique({
+        where: {
+          id: record.protocolDoseId,
+        },
+      });
+
+      if (currentDose) {
+        // Busca todas as vacinas futuras associadas a esse protocolo no pet
+        const subsequentRecords = await this.prisma.vaccineRecord.findMany({
+          where: {
+            petId: record.petId,
+            protocolId: record.protocolId,
+            status: 'SCHEDULED',
+          },
+          include: {
+            protocolDose: true,
+          },
+        });
+
+        // Ordena as vacinas baseando-se no doseOrder da dose do protocolo
+        const sortedSubsequent = subsequentRecords
+          .filter((rec) => rec.protocolDose && rec.protocolDose.doseOrder > currentDose.doseOrder)
+          .sort((a, b) => (a.protocolDose?.doseOrder || 0) - (b.protocolDose?.doseOrder || 0));
+
+        let lastDate = appliedDate;
+
+        for (const subRecord of sortedSubsequent) {
+          const interval = subRecord.protocolDose?.intervalDays || 0;
+          const nextDate = new Date(lastDate.getTime());
+          nextDate.setDate(nextDate.getDate() + interval);
+          
+          await this.prisma.vaccineRecord.update({
+            where: {
+              id: subRecord.id,
+            },
+            data: {
+              date: nextDate,
+            },
+          });
+
+          lastDate = nextDate;
+        }
+      }
+    }
+
+    return updatedRecord;
+  }
 }
+

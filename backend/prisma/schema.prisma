@@ -27,6 +27,7 @@ model Clinic {
   notificationConfig    NotificationConfig?
   notificationTemplates NotificationTemplate[]
   notificationLogs      NotificationLog[]
+  vaccineProtocols      VaccineProtocol[]
 }
 
 model User {
@@ -39,6 +40,7 @@ model User {
   updatedAt         DateTime           @updatedAt
   clinic            Clinic?            @relation(fields: [clinicId], references: [id])
   impersonationLogs ImpersonationLog[]
+  vaccineRecords    VaccineRecord[]
 }
 
 model Client {
@@ -181,18 +183,74 @@ model Allergy {
 }
 
 model VaccineRecord {
-  id           String    @id @default(uuid())
+  id           String        @id @default(uuid())
   name         String
   date         DateTime
   nextDoseDate DateTime?
-  petId        String
-  clinicId     String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  status       VaccineStatus @default(APPLIED)
 
-  pet              Pet               @relation(fields: [petId], references: [id], onDelete: Cascade)
-  clinic           Clinic            @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  // Relacionamentos opcionais de protocolo
+  protocolId     String?
+  protocolDoseId String?
+
+  // Rastreabilidade clínica
+  lotNumber    String?
+  manufacturer String?
+  appliedById  String?
+  notes        String?
+
+  petId     String
+  clinicId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pet              Pet                  @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinic           Clinic               @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  protocol         VaccineProtocol?     @relation(fields: [protocolId], references: [id], onDelete: SetNull)
+  protocolDose     VaccineProtocolDose? @relation(fields: [protocolDoseId], references: [id], onDelete: SetNull)
+  appliedBy        User?                @relation(fields: [appliedById], references: [id], onDelete: SetNull)
   notificationLogs NotificationLog[]
+
+  @@index([petId])
+  @@index([clinicId])
+  @@index([protocolId])
+  @@index([protocolDoseId])
+  @@index([appliedById])
+}
+
+enum VaccineStatus {
+  APPLIED
+  SCHEDULED
+}
+
+model VaccineProtocol {
+  id        String   @id @default(uuid())
+  name      String
+  species   String
+  clinicId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clinic         Clinic                @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  doses          VaccineProtocolDose[]
+  vaccineRecords VaccineRecord[]
+
+  @@index([clinicId])
+}
+
+model VaccineProtocolDose {
+  id           String   @id @default(uuid())
+  protocolId   String
+  vaccineName  String
+  doseOrder    Int
+  intervalDays Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  protocol       VaccineProtocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+  vaccineRecords VaccineRecord[]
+
+  @@index([protocolId])
 }
 
 model ClinicalRecord {
