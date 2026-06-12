@@ -7,6 +7,10 @@ depends_on: []
 files_modified:
   - backend/prisma/schema.prisma
   - backend/src/app.module.ts
+  - backend/src/storage/storage.module.ts
+  - backend/src/storage/storage.service.ts
+  - backend/src/storage/local-storage.service.ts
+  - backend/src/storage/local-storage.service.spec.ts
   - backend/src/clinical-attachments/clinical-attachments.module.ts
   - backend/src/clinical-attachments/clinical-attachments.controller.ts
   - backend/src/clinical-attachments/clinical-attachments.service.ts
@@ -25,34 +29,36 @@ must_haves:
   truths:
     - "D-01: Tabela ClinicalAttachment criada e relacionada a Pet, Clinic, ClinicalRecord e User"
     - "D-02: Colunas e campos de ClinicalAttachment mapeados"
-    - "D-03: StorageService abstrato configurado para persistência de arquivos"
+    - "D-03: StorageService abstrato configurado para persistência de arquivos sem acoplamento direto"
     - "D-04: Organização física hierárquica por clínica e pet"
     - "D-05: Upload de arquivo limitado a 10MB máximo"
-    - "D-06: Apenas formatos PDF, JPEG, PNG aceitos pelo backend"
+    - "D-06: Suporte a arquivos PDF, JPEG, PNG e WEBP no backend (Multer e pipes)"
     - "D-07: Fluxo de anexação no prontuário e nas evoluções clínicas"
-    - "D-08: Componentes de Dropzone, AttachmentCard e Lightbox integrados no frontend"
+    - "D-08: Componentes de Dropzone (com suporte a WEBP), AttachmentCard e Lightbox integrados no frontend"
 ---
 
-# Fase 16A: Uploads de Exames e Anexos Clínicos - Plano de Implementação
+# Fase 16A: Uploads de Exames e Anexos Clínicos - Plano de Implementação (Ajustado)
 
-Este plano define os passos necessários para implementar o upload, validação e armazenamento seguro de exames e laudos clínicos vinculados ao prontuário clínico dos pets, englobando a modelagem do banco de dados, APIs do backend (NestJS) com Multer, isolamento físico de tenant, e a interface frontend (React) com dropzone, listagem e preview lightbox.
+Este plano define os passos necessários para implementar o upload, validação e armazenamento seguro de exames e laudos clínicos vinculados ao prontuário clínico dos pets. A arquitetura de persistência física foi desacoplada no `StorageModule`, e foi incluído suporte completo ao formato **WEBP** para imagens no backend e frontend.
 
 ## Critérios de Aceitação (UAT)
 
 1. **Modelagem de Dados & Schema Push** (D-01, D-02):
-   - Criar o modelo `ClinicalAttachment` no schema do Prisma e executar `npx prisma db push` para aplicar a alteração da base de dados e atualização do Prisma Client.
-2. **Backend: Upload, Validação e Armazenamento** (D-03, D-04, D-05, D-06):
-   - Endpoint `POST /pets/:petId/attachments` aceita arquivo `multipart/form-data` com limite de 10 MB, rejeitando formatos proibidos e tamanho excessivo.
+   - Criar o modelo `ClinicalAttachment` no schema do Prisma e executar `npx prisma db push` com sucesso.
+2. **Backend: Armazenamento Abstrato e Validação** (D-03, D-04, D-05, D-06):
+   - Criar o `StorageModule` com a classe abstrata `StorageService` e sua implementação local `LocalStorageService`.
+   - Lançar `PayloadTooLargeException` se arquivos excederem 10 MB.
+   - Restringir mimetypes no Multer apenas para: `application/pdf`, `image/jpeg`, `image/png` e `image/webp`.
    - Organizar armazenamento em `/uploads/clinics/:clinicId/pets/:petId/:storedFileName`.
    - Endpoint `GET /pets/:petId/attachments` lista metadados de todos os anexos do pet logado.
    - Endpoint `GET /attachments/:id/download` serve o stream do arquivo físico para download.
-   - Endpoint `DELETE /attachments/:id` remove os metadados do banco de dados e exclui fisicamente o arquivo do disco.
+   - Endpoint `DELETE /attachments/:id` remove os metadados do banco de dados e exclui fisicamente o arquivo do disco através do `StorageService`.
 3. **Isolamento de Tenant (Multi-tenant)**:
-   - Toda operação de upload, listagem, download e exclusão deve validar se o pet e os registros pertencem estritamente à clínica do usuário logado (`clinicId`).
+   - Validação estrita de `clinicId` em todas as ações de upload, download e exclusão.
 4. **Interface Frontend (UI/UX)** (D-07, D-08):
    - Integrar abas superiores ("Histórico Clínico" e "Exames e Anexos") em `PetDetails.tsx`.
-   - Área de Dropzone interativa com barra de progresso linear de upload.
-   - Listagem responsiva com cards contendo metadados, ícones distintos do `lucide-react` para PDFs e Imagens, e ações de download e exclusão.
+   - Dropzone aceitando e validando formatos incluindo `.webp`.
+   - Cards responsivos com previews funcionais para imagens (JPEG, PNG, WEBP), botão de download e exclusão.
    - Visualização Lightbox para imagens usando `@radix-ui/react-dialog`.
 
 ---
@@ -60,9 +66,9 @@ Este plano define os passos necessários para implementar o upload, validação 
 ## Modelo de Ameaças (Threat Model)
 
 - **T-16A-01: Upload de Arquivos Maliciosos (RCE)**
-  - *Mitigação*: Validação estrita do MIME-type do arquivo no backend usando Multer e assinatura do cabeçalho. Arquivos são salvos com nomes randômicos UUID sem executar extensões do lado do servidor.
+  - *Mitigação*: Validação estrita de MIME-type no backend usando Multer. Arquivos são salvos com nomes randômicos UUID sem executar extensões do lado do servidor.
 - **T-16A-02: Vazamento de Dados Multi-tenant (Acesso Não Autorizado)**
-  - *Mitigação*: Uso de UUIDs aleatórios para os arquivos e metadados. Validação obrigatória da propriedade da clínica (`clinicId` extraído do JWT) em todos os endpoints de acesso a anexos.
+  - *Mitigação*: Validação obrigatória do `clinicId` extraído do JWT em todas as rotas e persistência física isolada por clínica.
 - **T-16A-03: Excesso de Armazenamento (DoS)**
   - *Mitigação*: Limite máximo rígido de 10 MB por arquivo imposto pelo Multer.
 
@@ -70,7 +76,7 @@ Este plano define os passos necessários para implementar o upload, validação 
 
 ## Tarefas por Componente
 
-### Wave 1: Banco de Dados e Backend
+### Wave 1: Banco de Dados, Módulo de Storage e Backend
 
 #### [MODIFY] [schema.prisma](file:///home/moadev/projetos/vetOSAI/backend/prisma/schema.prisma)
 <task id="16A-01-01">
@@ -89,77 +95,64 @@ Este plano define os passos necessários para implementar o upload, validação 
   </done>
 </task>
 
-#### [NEW] [clinical-attachments.module.ts](file:///home/moadev/projetos/vetOSAI/backend/src/clinical-attachments/clinical-attachments.module.ts)
+#### [NEW] Módulo de Storage Abstrato
 <task id="16A-01-02">
-  <name>Criar Módulo de Anexos Clínicos no NestJS</name>
+  <name>Criar Módulo de Armazenamento Desacoplado (StorageModule)</name>
+  <files>
+    - backend/src/storage/storage.module.ts
+    - backend/src/storage/storage.service.ts
+    - backend/src/storage/local-storage.service.ts
+    - backend/src/storage/local-storage.service.spec.ts
+  </files>
+  <action>
+    Implementar o encapsulamento de armazenamento físico (D-03, D-04):
+    - `storage.service.ts`: classe abstrata contendo assinaturas `save`, `delete`, `getFileStream` e `exists`.
+    - `local-storage.service.ts`: implementação concreta para gravação física em disco local (`fs.promises` e `createReadStream`), organizando arquivos em `uploads/clinics/:clinicId/pets/:petId/`.
+    - `storage.module.ts`: prover o provider de injeção ligando `StorageService` ao `LocalStorageService`.
+    - `local-storage.service.spec.ts`: suite de testes Jest validando operações básicas de disco.
+  </action>
+  <verify>
+    Executar os testes de unidade de storage: `npm --prefix backend test storage` e verificar sucesso.
+  </verify>
+  <done>
+    StorageModule criado, implementando interface abstrata com cobertura de testes Jest.
+  </done>
+</task>
+
+#### [NEW] Módulo de Anexos Clínicos (NestJS)
+<task id="16A-01-03">
+  <name>Criar Módulo, Controladora e Serviço de Anexos Clínicos</name>
   <files>
     - backend/src/app.module.ts
     - backend/src/clinical-attachments/clinical-attachments.module.ts
-  </files>
-  <action>
-    Criar o arquivo do módulo para encapsular a injeção do controller, service e do PrismaService. Importar este módulo no `app.module.ts`.
-  </action>
-  <verify>
-    Executar build do backend para validar a importação correta do módulo.
-  </verify>
-  <done>
-    Módulo compilando com sucesso no NestJS e importado no módulo raiz.
-  </done>
-</task>
-
-#### [NEW] [clinical-attachments.service.ts](file:///home/moadev/projetos/vetOSAI/backend/src/clinical-attachments/clinical-attachments.service.ts)
-<task id="16A-01-03">
-  <name>Criar Serviço do Backend para Persistência e Gravação Física</name>
-  <files>
+    - backend/src/clinical-attachments/clinical-attachments.controller.ts
     - backend/src/clinical-attachments/clinical-attachments.service.ts
   </files>
   <action>
-    Implementar a lógica de negócios de D-03, D-04, D-05 e D-06:
-    - Criar dinamicamente pastas locais `uploads/clinics/:clinicId/pets/:petId/` usando `fs.mkdirSync`.
-    - Salvar o arquivo recebido com nome UUID gerado aleatoriamente e mantendo a extensão.
-    - Gravar registros de metadados de `ClinicalAttachment` no Prisma.
-    - Excluir o arquivo correspondente do sistema de arquivos físico ao remover o registro.
+    Implementar o fluxo de negócio do domínio de anexos:
+    - `clinical-attachments.module.ts`: importar `StorageModule` para injetar `StorageService` de forma transparente. Registrar no `app.module.ts`.
+    - `clinical-attachments.controller.ts`: rotas `POST`, `GET`, `DELETE` e download. Adicionar FileInterceptor do Multer limitando a 10MB (D-05) e tipos MIME PDF, JPEG, PNG, e WEBP (D-06).
+    - `clinical-attachments.service.ts`: injetar `StorageService` e manipula metadados no Prisma, validando multi-tenant por `clinicId` em todas as operações de gravação e consulta.
   </action>
   <verify>
-    Verificar que o arquivo service existe e expõe os métodos de salvar e deletar anexos clínicos.
+    Executar o build do backend para validar a compilação do NestJS.
   </verify>
   <done>
-    Serviço de gravação física e banco de dados concluído com segurança multi-tenant.
+    Módulo de anexos integrado, consumindo o StorageService de forma abstrata.
   </done>
 </task>
 
-#### [NEW] [clinical-attachments.controller.ts](file:///home/moadev/projetos/vetOSAI/backend/src/clinical-attachments/clinical-attachments.controller.ts)
+#### [NEW] Testes do Módulo de Anexos Clínicos
 <task id="16A-01-04">
-  <name>Criar Controller do Backend com Filtros do Multer</name>
-  <files>
-    - backend/src/clinical-attachments/clinical-attachments.controller.ts
-  </files>
-  <action>
-    Implementar rotas NestJS controlando o fluxo de requisição:
-    - `POST /pets/:petId/attachments`: intercepta o upload usando Multer, aplicando limites de tamanho de 10MB (D-05) e tipos MIME de PDF, JPEG e PNG (D-06).
-    - `GET /pets/:petId/attachments`: lista anexos do pet.
-    - `GET /attachments/:id/download`: serve o arquivo físico como stream de forma segura.
-    - `DELETE /attachments/:id`: remove anexo.
-  </action>
-  <verify>
-    Verificar que o controller está compilando e escutando as rotas especificadas.
-  </verify>
-  <done>
-    Rotas de controller implementadas com autenticação JWT e validação do Multer.
-  </done>
-</task>
-
-#### [NEW] [clinical-attachments.service.spec.ts](file:///home/moadev/projetos/vetOSAI/backend/src/clinical-attachments/clinical-attachments.service.spec.ts)
-<task id="16A-01-05">
-  <name>Criar Testes de Unidade e Integração do Backend</name>
+  <name>Criar Testes de Unidade e Integração para Endpoints e Filtros</name>
   <files>
     - backend/src/clinical-attachments/clinical-attachments.service.spec.ts
   </files>
   <action>
-    Implementar suite de testes unitários Jest cobrindo validações de tamanho, mimetypes e testes de vazamento de tenant (download de anexo de outra clínica).
+    Implementar suite de testes unitários Jest cobrindo validações de tamanho, mimetypes (incluindo aceitação de WEBP e rejeição de formatos inválidos) e testes de vazamento de tenant (download de anexo de outra clínica).
   </action>
   <verify>
-    Executar a suite de testes no backend via: `npm --prefix backend test`
+    Executar a suite de testes completa do backend via: `npm --prefix backend test`
   </verify>
   <done>
     Testes de unidade passando e com cobertura de validações críticas.
@@ -172,7 +165,7 @@ Este plano define os passos necessários para implementar o upload, validação 
 
 #### [MODIFY] [api.ts](file:///home/moadev/projetos/vetOSAI/frontend/src/lib/api.ts)
 <task id="16A-02-01">
-  <name>Integrar Endpoints da API de Anexos no Frontend</name>
+  <name>Integrar Endpoints da API no Cliente HTTP do Frontend</name>
   <files>
     - frontend/src/lib/api.ts
   </files>
@@ -189,22 +182,22 @@ Este plano define os passos necessários para implementar o upload, validação 
 
 #### [MODIFY] [PetDetails.tsx](file:///home/moadev/projetos/vetOSAI/frontend/src/pages/PetDetails.tsx)
 <task id="16A-02-02">
-  <name>Refatorar Página PetDetails para incluir Abas, Dropzone e Cards</name>
+  <name>Refatorar Página PetDetails para Abas, Dropzone e Cards</name>
   <files>
     - frontend/src/pages/PetDetails.tsx
   </files>
   <action>
     Refatorar a página do prontuário para adicionar navegação de abas no topo da timeline (D-07). Criar a aba "Exames e Anexos" contendo:
-    - Componente Dropzone reativo a eventos de arrastar/soltar com barra de progresso (D-08).
-    - Grid responsivo de cards elegantes exibindo metadados e botões de download e exclusão com modal de confirmação.
-    - Modal de visualização rápida Lightbox para imagens.
+    - Componente Dropzone reativo a eventos de arrastar/soltar com barra de progresso, aceitando formatos PDF, JPEG, PNG e WEBP (D-08).
+    - Grid responsivo de cards elegantes exibindo metadados, botão de download e exclusão com modal de confirmação.
+    - Imagens em formato WEBP/PNG/JPEG terão previews visuais na lista e abrirão no lightbox.
     - Integração de anexo simplificado no formulário de notas clínicas/evolução.
   </action>
   <verify>
     Executar build do frontend: `npm --prefix frontend run build` e verificar que passa com sucesso.
   </verify>
   <done>
-    Interface do Prontuário refatorada com abas, Dropzone, listagem e preview de imagens.
+    Interface do Prontuário refatorada com abas, Dropzone (suporte a WEBP), listagem e preview de imagens.
   </done>
 </task>
 
@@ -217,6 +210,8 @@ Este plano define os passos necessários para implementar o upload, validação 
   `npm --prefix backend test`
 
 ### Testes Manuais
+- Fazer upload de arquivo WEBP, PNG, JPEG e PDF para garantir que sejam aceitos.
+- Tentar fazer upload de arquivos `.txt` ou scripts `.js` e verificar erro HTTP 400.
 - Fazer upload de arquivo acima de 10MB e verificar rejeição HTTP 413.
 - Tentar baixar anexo de outra clínica e verificar barreira HTTP 404/403.
-- Testar o comportamento visual da Dropzone, cards responsivos e preview Lightbox.
+- Testar o comportamento visual da Dropzone, cards responsivos e preview Lightbox de imagens (incluindo WEBP).
