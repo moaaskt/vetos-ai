@@ -28,6 +28,7 @@ model Clinic {
   notificationTemplates NotificationTemplate[]
   notificationLogs      NotificationLog[]
   vaccineProtocols      VaccineProtocol[]
+  clinicalAttachments   ClinicalAttachment[]
 }
 
 model User {
@@ -40,7 +41,8 @@ model User {
   updatedAt         DateTime           @updatedAt
   clinic            Clinic?            @relation(fields: [clinicId], references: [id])
   impersonationLogs ImpersonationLog[]
-  vaccineRecords    VaccineRecord[]
+  vaccineRecords      VaccineRecord[]
+  uploadedAttachments ClinicalAttachment[]
 }
 
 model Client {
@@ -73,8 +75,9 @@ model Pet {
   weightRecords    WeightRecord[]
   allergies        Allergy[]
   vaccineRecords   VaccineRecord[]
-  clinicalRecords  ClinicalRecord[]
-  notificationLogs NotificationLog[]
+  clinicalRecords     ClinicalRecord[]
+  notificationLogs    NotificationLog[]
+  clinicalAttachments ClinicalAttachment[]
 }
 
 model Appointment {
@@ -264,8 +267,9 @@ model ClinicalRecord {
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
 
-  pet    Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
-  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  pet         Pet                  @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinic      Clinic               @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  attachments ClinicalAttachment[]
 }
 
 model NotificationConfig {
@@ -339,4 +343,30 @@ model NotificationLog {
   @@index([petId])
   @@index([vaccineRecordId])
   @@index([clinicId, vaccineRecordId, event, channel])
+}
+
+model ClinicalAttachment {
+  id               String          @id @default(uuid())
+  clinicId         String
+  petId            String
+  clinicalRecordId String?
+  originalFileName String
+  storedFileName   String
+  mimeType         String
+  fileSize         BigInt          // Suporta arquivos grandes com precisão em bytes
+  storagePath      String
+  uploadedById     String?
+  notes            String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  clinic         Clinic          @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  pet            Pet             @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinicalRecord ClinicalRecord? @relation(fields: [clinicalRecordId], references: [id], onDelete: SetNull)
+  uploadedBy     User?           @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@index([clinicId])
+  @@index([petId])
+  @@index([clinicalRecordId])
+  @@index([uploadedById])
 }
