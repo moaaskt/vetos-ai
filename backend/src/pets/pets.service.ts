@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -6,6 +6,12 @@ export class PetsService {
   constructor(private prisma: PrismaService) {}
 
   create(clinicId: string, data: any) {
+    const allowedSpecies = ['DOG', 'CAT', 'OTHER'];
+    if (!allowedSpecies.includes(data.species)) {
+      throw new BadRequestException(
+        'Espécie inválida. As espécies permitidas são DOG, CAT ou OTHER.',
+      );
+    }
     return this.prisma.pet.create({
       data: { ...data, clinicId },
     });
@@ -30,6 +36,9 @@ export class PetsService {
           orderBy: { date: 'desc' },
         },
         vaccineRecords: {
+          include: {
+            protocolDose: true,
+          },
           orderBy: { date: 'desc' },
         },
         weightRecords: {
@@ -40,6 +49,14 @@ export class PetsService {
   }
 
   update(clinicId: string, id: string, data: any) {
+    if (data.species) {
+      const allowedSpecies = ['DOG', 'CAT', 'OTHER'];
+      if (!allowedSpecies.includes(data.species)) {
+        throw new BadRequestException(
+          'Espécie inválida. As espécies permitidas são DOG, CAT ou OTHER.',
+        );
+      }
+    }
     return this.prisma.pet.updateMany({
       where: { id, clinicId },
       data,

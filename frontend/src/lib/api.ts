@@ -53,6 +53,14 @@ export type WeightRecord = {
   petId: string
 }
 
+export type VaccineProtocolDose = {
+  id: string
+  protocolId: string
+  vaccineName: string
+  doseOrder: number
+  intervalDays: number
+}
+
 export type VaccineRecord = {
   id: string
   name: string
@@ -64,6 +72,9 @@ export type VaccineRecord = {
   appliedById?: string | null
   notes?: string | null
   petId: string
+  protocolId?: string | null
+  protocolDoseId?: string | null
+  protocolDose?: VaccineProtocolDose | null
 }
 
 export type Pet = {
