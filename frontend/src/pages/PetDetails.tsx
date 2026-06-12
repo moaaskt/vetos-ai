@@ -19,12 +19,13 @@ import {
   Scale,
   Syringe,
 } from 'lucide-react'
-import { api, type Pet } from '../lib/api'
+import { api, type Pet, type VaccineRecord } from '../lib/api'
 import { Button } from '../components/ui/button'
 import { Card, CardContent } from '../components/ui/card'
 import { Skeleton } from '../components/ui/skeleton'
 import { Modal } from '../components/Modal'
 import { Input } from '../components/ui/input'
+import { getSpeciesLabel } from './Pets'
 
 type TimelineItem = {
   id: string
@@ -143,8 +144,9 @@ export function PetDetails() {
       })
       setIsApplyProtocolModalOpen(false)
       await loadPetData()
-    } catch {
-      setError('Falha ao aplicar protocolo vacinal.')
+    } catch (err: any) {
+      const serverMessage = err.response?.data?.message
+      setError(serverMessage || 'Falha ao aplicar protocolo vacinal.')
     } finally {
       setIsSubmitting(false)
     }
@@ -167,8 +169,9 @@ export function PetDetails() {
       setManufacturer('')
       setNotes('')
       await loadPetData()
-    } catch {
-      setError('Falha ao registrar aplicação da vacina.')
+    } catch (err: any) {
+      const serverMessage = err.response?.data?.message
+      setError(serverMessage || 'Falha ao registrar aplicação da vacina.')
     } finally {
       setIsSubmitting(false)
     }
@@ -179,6 +182,25 @@ export function PetDetails() {
     setConfirmingVaccineName(name)
     setApplyDate(new Date().toISOString().split('T')[0])
     setIsConfirmApplyModalOpen(true)
+  }
+
+  function isDoseAvailable(vac: VaccineRecord, vaccineRecords: VaccineRecord[]): boolean {
+    if (!vac.protocolId || !vac.protocolDoseId || !vac.protocolDose) {
+      return true
+    }
+
+    const currentOrder = vac.protocolDose.doseOrder
+
+    const siblings = vaccineRecords.filter(
+      (r) => r.protocolId === vac.protocolId && r.id !== vac.id
+    )
+
+    const hasPendingPrevious = siblings.some((sibling) => {
+      if (!sibling.protocolDose) return false
+      return sibling.protocolDose.doseOrder < currentOrder && sibling.status === 'SCHEDULED'
+    })
+
+    return !hasPendingPrevious
   }
 
   async function loadPetData() {
@@ -464,7 +486,7 @@ export function PetDetails() {
               <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex flex-col md:flex-row md:items-center justify-center md:justify-start gap-2 md:gap-3">
                 {pet.name}
                 <span className="inline-flex items-center justify-center rounded-full bg-primary/10 border border-primary/20 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-primary self-center">
-                  {pet.species}
+                  {getSpeciesLabel(pet.species)}
                 </span>
               </h1>
               
@@ -736,36 +758,58 @@ export function PetDetails() {
                           Próximas Doses (Agendadas)
                         </h4>
                         <div className="flex flex-col gap-3">
-                          {scheduled.map((vac) => (
-                            <div
-                              key={vac.id}
-                              className="group/vaccine flex flex-col justify-between bg-amber-500/5 border border-amber-500/15 rounded-xl px-4 py-3 space-y-2 transition-all hover:bg-card hover:border-amber-500/25"
-                            >
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="text-sm font-bold text-foreground truncate">{vac.name}</span>
-                                <div className="flex items-center gap-1 opacity-0 group-hover/vaccine:opacity-100 transition-all">
-                                  <button
-                                    onClick={() => openApplyDoseModal(vac.id, vac.name)}
-                                    className="h-6 w-6 rounded-md hover:bg-primary/10 text-primary flex items-center justify-center transition-all cursor-pointer"
-                                    title="Registrar Aplicação"
-                                  >
-                                    <Plus className="h-4 w-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteVaccine(vac.id)}
-                                    className="h-6 w-6 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all cursor-pointer"
-                                    title="Remover Agendamento"
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </button>
+                          {scheduled.map((vac) => {
+                            const isAvailable = isDoseAvailable(vac, vaccineRecords)
+
+                            return (
+                              <div
+                                key={vac.id}
+                                className={`group/vaccine flex flex-col justify-between rounded-xl px-4 py-3 space-y-2 transition-all ${
+                                  isAvailable
+                                    ? 'bg-amber-500/5 border border-amber-500/15 hover:bg-card hover:border-amber-500/25'
+                                    : 'bg-muted/30 border border-border/50 opacity-80'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-sm font-bold text-foreground truncate">{vac.name}</span>
+                                  <div className="flex items-center gap-1 opacity-0 group-hover/vaccine:opacity-100 transition-all">
+                                    <button
+                                      disabled={!isAvailable}
+                                      onClick={() => isAvailable && openApplyDoseModal(vac.id, vac.name)}
+                                      className={`h-6 w-6 rounded-md flex items-center justify-center transition-all ${
+                                        isAvailable
+                                          ? 'hover:bg-primary/10 text-primary cursor-pointer'
+                                          : 'text-muted-foreground/30 cursor-not-allowed'
+                                      }`}
+                                      title={isAvailable ? "Registrar Aplicação" : "Esta dose não pode ser aplicada ainda. Existem etapas anteriores pendentes."}
+                                    >
+                                      <Plus className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteVaccine(vac.id)}
+                                      className="h-6 w-6 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all cursor-pointer"
+                                      title="Remover Agendamento"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex flex-col text-[10px] text-muted-foreground font-semibold space-y-1">
+                                  <span>Previsão: <strong className="text-amber-500 font-extrabold">{formatDisplayDate(vac.date, false)}</strong></span>
+                                  {isAvailable ? (
+                                    <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-extrabold">
+                                      🟢 Disponível para aplicação
+                                    </span>
+                                  ) : (
+                                    <span className="flex items-center gap-1 text-amber-600 dark:text-amber-500/80 font-extrabold">
+                                      🔒 Aguardando etapas anteriores
+                                    </span>
+                                  )}
                                 </div>
                               </div>
-                              
-                              <div className="flex flex-col text-[10px] text-muted-foreground font-semibold space-y-0.5">
-                                <span>Previsão: <strong className="text-amber-500 font-extrabold">{formatDisplayDate(vac.date, false)}</strong></span>
-                              </div>
-                            </div>
-                          ))}
+                            )
+                          })}
                         </div>
                       </div>
                     )}

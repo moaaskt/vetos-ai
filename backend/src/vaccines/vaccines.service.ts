@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVaccineDto } from './dto/create-vaccine.dto';
 import { CreateVaccineProtocolDto, CreateVaccineProtocolDoseDto } from './dto/create-vaccine-protocol.dto';
@@ -407,6 +407,40 @@ export class VaccinesService {
 
     if (!record) {
       throw new NotFoundException('Registro de vacina não encontrado.');
+    }
+
+    // Validação de sequência do protocolo vacinal (Phase 14B.2E)
+    if (record.protocolId && record.protocolDoseId) {
+      const currentDose = await this.prisma.vaccineProtocolDose.findUnique({
+        where: {
+          id: record.protocolDoseId,
+        },
+      });
+
+      if (currentDose) {
+        const siblingRecords = await this.prisma.vaccineRecord.findMany({
+          where: {
+            petId: record.petId,
+            protocolId: record.protocolId,
+          },
+          include: {
+            protocolDose: true,
+          },
+        });
+
+        const hasPendingPreviousDose = siblingRecords.some(
+          (r) =>
+            r.status === 'SCHEDULED' &&
+            r.protocolDose &&
+            r.protocolDose.doseOrder < currentDose.doseOrder,
+        );
+
+        if (hasPendingPreviousDose) {
+          throw new BadRequestException(
+            'Esta dose não pode ser aplicada ainda. Existem etapas anteriores pendentes.',
+          );
+        }
+      }
     }
 
     const appliedDate = new Date(data.date);

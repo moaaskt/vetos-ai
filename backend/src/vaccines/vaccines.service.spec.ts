@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { VaccinesService } from './vaccines.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 describe('VaccinesService', () => {
   let service: VaccinesService;
@@ -266,6 +266,121 @@ describe('VaccinesService', () => {
         where: { id: 'rec-2' },
         data: { date: new Date('2026-07-06T00:00:00.000Z') },
       });
+    });
+
+    it('throws BadRequestException if attempting to apply a dose when previous protocol doses are still SCHEDULED', async () => {
+      const mockRecord = {
+        id: 'rec-2',
+        name: 'V10 (D2)',
+        status: 'SCHEDULED',
+        date: new Date('2026-07-01T00:00:00.000Z'),
+        petId: 'pet-1',
+        protocolId: 'proto-1',
+        protocolDoseId: 'dose-2',
+        clinicId: 'clinic-1',
+      };
+
+      prisma.vaccineRecord.findFirst.mockResolvedValue(mockRecord);
+      prisma.vaccineProtocolDose.findUnique.mockResolvedValue({ id: 'dose-2', doseOrder: 2, intervalDays: 21 });
+
+      const siblingRecords = [
+        {
+          id: 'rec-1',
+          name: 'V10 (D1)',
+          status: 'SCHEDULED',
+          date: new Date('2026-06-10T00:00:00.000Z'),
+          petId: 'pet-1',
+          protocolId: 'proto-1',
+          protocolDoseId: 'dose-1',
+          clinicId: 'clinic-1',
+          protocolDose: {
+            id: 'dose-1',
+            doseOrder: 1,
+            intervalDays: 0,
+          },
+        },
+        {
+          id: 'rec-2',
+          name: 'V10 (D2)',
+          status: 'SCHEDULED',
+          date: new Date('2026-07-01T00:00:00.000Z'),
+          petId: 'pet-1',
+          protocolId: 'proto-1',
+          protocolDoseId: 'dose-2',
+          clinicId: 'clinic-1',
+          protocolDose: {
+            id: 'dose-2',
+            doseOrder: 2,
+            intervalDays: 21,
+          },
+        },
+      ];
+
+      prisma.vaccineRecord.findMany.mockResolvedValue(siblingRecords);
+
+      await expect(
+        service.applyScheduledDose('clinic-1', 'rec-2', {
+          date: '2026-07-01T00:00:00.000Z',
+        }),
+      ).rejects.toThrow(new BadRequestException('Esta dose não pode ser aplicada ainda. Existem etapas anteriores pendentes.'));
+    });
+
+    it('allows applying a dose if all previous doses of the protocol are APPLIED', async () => {
+      const mockRecord = {
+        id: 'rec-2',
+        name: 'V10 (D2)',
+        status: 'SCHEDULED',
+        date: new Date('2026-07-01T00:00:00.000Z'),
+        petId: 'pet-1',
+        protocolId: 'proto-1',
+        protocolDoseId: 'dose-2',
+        clinicId: 'clinic-1',
+      };
+
+      prisma.vaccineRecord.findFirst.mockResolvedValue(mockRecord);
+      prisma.vaccineRecord.update.mockImplementation(({ where, data }) => Promise.resolve({ id: where.id, ...data }));
+      prisma.vaccineProtocolDose.findUnique.mockResolvedValue({ id: 'dose-2', doseOrder: 2, intervalDays: 21 });
+
+      const siblingRecords = [
+        {
+          id: 'rec-1',
+          name: 'V10 (D1)',
+          status: 'APPLIED',
+          date: new Date('2026-06-10T00:00:00.000Z'),
+          petId: 'pet-1',
+          protocolId: 'proto-1',
+          protocolDoseId: 'dose-1',
+          clinicId: 'clinic-1',
+          protocolDose: {
+            id: 'dose-1',
+            doseOrder: 1,
+            intervalDays: 0,
+          },
+        },
+        {
+          id: 'rec-2',
+          name: 'V10 (D2)',
+          status: 'SCHEDULED',
+          date: new Date('2026-07-01T00:00:00.000Z'),
+          petId: 'pet-1',
+          protocolId: 'proto-1',
+          protocolDoseId: 'dose-2',
+          clinicId: 'clinic-1',
+          protocolDose: {
+            id: 'dose-2',
+            doseOrder: 2,
+            intervalDays: 21,
+          },
+        },
+      ];
+
+      prisma.vaccineRecord.findMany.mockResolvedValue(siblingRecords);
+
+      const result = await service.applyScheduledDose('clinic-1', 'rec-2', {
+        date: '2026-07-01T00:00:00.000Z',
+      });
+
+      expect(result.status).toBe('APPLIED');
     });
   });
 });

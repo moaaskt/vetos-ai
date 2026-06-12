@@ -42,8 +42,8 @@ export declare class PetsService {
             reason: string | null;
             clientId: string;
             date: Date;
-            petId: string;
             status: import(".prisma/client").$Enums.AppointmentStatus;
+            petId: string;
             notifiedAt: Date | null;
         }[];
         weightRecords: {
@@ -63,15 +63,25 @@ export declare class PetsService {
             clinicId: string;
             petId: string;
         }[];
-        vaccineRecords: {
+        vaccineRecords: ({
+            protocolDose: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                protocolId: string;
+                vaccineName: string;
+                doseOrder: number;
+                intervalDays: number;
+            } | null;
+        } & {
             id: string;
             name: string;
             createdAt: Date;
             updatedAt: Date;
             clinicId: string;
             date: Date;
-            petId: string;
             status: import(".prisma/client").$Enums.VaccineStatus;
+            petId: string;
             nextDoseDate: Date | null;
             protocolId: string | null;
             protocolDoseId: string | null;
@@ -79,7 +89,7 @@ export declare class PetsService {
             manufacturer: string | null;
             appliedById: string | null;
             notes: string | null;
-        }[];
+        })[];
         clinicalRecords: {
             id: string;
             createdAt: Date;

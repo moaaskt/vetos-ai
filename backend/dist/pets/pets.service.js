@@ -18,6 +18,10 @@ let PetsService = class PetsService {
         this.prisma = prisma;
     }
     create(clinicId, data) {
+        const allowedSpecies = ['DOG', 'CAT', 'OTHER'];
+        if (!allowedSpecies.includes(data.species)) {
+            throw new common_1.BadRequestException('Espécie inválida. As espécies permitidas são DOG, CAT ou OTHER.');
+        }
         return this.prisma.pet.create({
             data: { ...data, clinicId },
         });
@@ -40,6 +44,9 @@ let PetsService = class PetsService {
                     orderBy: { date: 'desc' },
                 },
                 vaccineRecords: {
+                    include: {
+                        protocolDose: true,
+                    },
                     orderBy: { date: 'desc' },
                 },
                 weightRecords: {
@@ -49,6 +56,12 @@ let PetsService = class PetsService {
         });
     }
     update(clinicId, id, data) {
+        if (data.species) {
+            const allowedSpecies = ['DOG', 'CAT', 'OTHER'];
+            if (!allowedSpecies.includes(data.species)) {
+                throw new common_1.BadRequestException('Espécie inválida. As espécies permitidas são DOG, CAT ou OTHER.');
+            }
+        }
         return this.prisma.pet.updateMany({
             where: { id, clinicId },
             data,

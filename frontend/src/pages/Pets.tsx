@@ -10,6 +10,19 @@ import { Skeleton } from '../components/ui/skeleton'
 import { EmptyState } from '../components/EmptyState'
 import { Input as BaseInput } from '../components/ui/input'
 
+export function getSpeciesLabel(species?: string): string {
+  switch (species?.toUpperCase()) {
+    case 'DOG':
+      return 'Cão'
+    case 'CAT':
+      return 'Gato'
+    case 'OTHER':
+      return 'Outro'
+    default:
+      return species || 'Não especificada'
+  }
+}
+
 export function Pets() {
   const [pets, setPets] = useState<Pet[]>([])
   const [clients, setClients] = useState<Client[]>([])
@@ -144,7 +157,7 @@ export function Pets() {
                   </div>
                 </div>
                 <span className="rounded-full bg-primary/10 border border-primary/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary shrink-0 shadow-sm">
-                  {pet.species}
+                  {getSpeciesLabel(pet.species)}
                 </span>
               </div>
 
@@ -218,7 +231,7 @@ function PetModal({
   onCreated: () => void
 }) {
   const [name, setName] = useState('')
-  const [species, setSpecies] = useState('')
+  const [species, setSpecies] = useState('DOG')
   const [breed, setBreed] = useState('')
   const [age, setAge] = useState('')
   const [clientId, setClientId] = useState(clients[0]?.id ?? '')
@@ -250,7 +263,21 @@ function PetModal({
     <Modal title="Cadastrar Novo Paciente" onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-5 pt-2">
         <Input label="Nome do Paciente" placeholder="Ex: Thor, Mel" value={name} onChange={setName} required />
-        <Input label="Espécie" placeholder="Ex: Canino, Felino, Silvestre" value={species} onChange={setSpecies} required />
+        <label className="block space-y-2">
+          <span className="block text-sm font-semibold text-foreground">
+            Espécie <span className="text-primary">*</span>
+          </span>
+          <select
+            className="flex h-10 w-full rounded-lg border border-input bg-card px-3 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-foreground font-medium animate-in fade-in-0 duration-200"
+            value={species}
+            onChange={(event) => setSpecies(event.target.value)}
+            required
+          >
+            <option value="DOG" className="bg-background text-foreground font-medium">Cão</option>
+            <option value="CAT" className="bg-background text-foreground font-medium">Gato</option>
+            <option value="OTHER" className="bg-background text-foreground font-medium">Outro</option>
+          </select>
+        </label>
         <Input label="Raça ou Pelagem (Opcional)" placeholder="Ex: Poodle, SRD" value={breed} onChange={setBreed} />
         <Input label="Idade em Anos (Opcional)" placeholder="Ex: 4" value={age} onChange={setAge} type="number" min="0" />
         
