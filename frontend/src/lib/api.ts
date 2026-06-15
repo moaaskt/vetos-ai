@@ -90,6 +90,7 @@ export type Pet = {
   clinicalRecords?: ClinicalRecord[]
   weightRecords?: WeightRecord[]
   vaccineRecords?: VaccineRecord[]
+  clinicalAttachments?: ClinicalAttachment[]
 }
 
 export type AppointmentStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
@@ -164,5 +165,21 @@ export type AnalyticsTrends = {
     hasAppointments: boolean
   }[]
 }
+
+export type ClinicalAttachment = {
+  id: string
+  clinicId: string
+  petId: string
+  clinicalRecordId?: string | null
+  originalFileName: string
+  storedFileName: string
+  mimeType: string
+  fileSize: number
+  storagePath: string
+  uploadedById?: string | null
+  notes?: string | null
+  createdAt?: string
+}
+
 
 

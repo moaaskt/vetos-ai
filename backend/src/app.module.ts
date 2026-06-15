@@ -19,6 +19,7 @@ import { WeightRecordsModule } from './weight-records/weight-records.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { ClinicalAttachmentsModule } from './clinical-attachments/clinical-attachments.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     VaccinesModule,
     WeightRecordsModule,
     AnalyticsModule,
+    ClinicalAttachmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
