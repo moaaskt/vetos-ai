@@ -90,8 +90,8 @@ function AttachmentThumbnail({ att }: { att: ClinicalAttachment }) {
 
   if (!isImage) {
     return (
-      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-rose-500/5 border border-rose-500/10 text-rose-500 shadow-sm transition-all group-hover/card:scale-105 duration-200">
-        <FileText className="h-6 w-6" />
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500/15 to-rose-500/5 border border-rose-500/20 text-rose-500 shadow-sm transition-all group-hover/card:scale-105 duration-200">
+        <FileText className="h-6.5 w-6.5" />
       </div>
     )
   }
@@ -156,10 +156,10 @@ export function PetDetails() {
   }
 
   useEffect(() => {
-    if (id && activeTab === 'attachments') {
+    if (id) {
       loadAttachments()
     }
-  }, [id, activeTab])
+  }, [id])
 
   async function handleUploadFiles(files: FileList) {
     if (!id || files.length === 0) return
@@ -875,6 +875,38 @@ export function PetDetails() {
                                 Histórico de Consulta (Apenas Leitura)
                               </div>
                             )}
+
+                            {!isApp && (() => {
+                              const itemAttachments = attachments.filter(
+                                (att) => att.clinicalRecordId === item.id
+                              );
+                              if (itemAttachments.length === 0) return null;
+
+                              return (
+                                <div className="mt-3 pt-3 border-t border-border/40 space-y-2">
+                                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-muted border border-border/60 text-foreground/85 select-none">
+                                    <span>📎</span>
+                                    <span>
+                                      {itemAttachments.length}{' '}
+                                      {itemAttachments.length === 1 ? 'anexo' : 'anexos'}
+                                    </span>
+                                  </div>
+                                  
+                                  {itemAttachments.length <= 3 && (
+                                    <ul className="space-y-1.5 text-xs text-muted-foreground font-medium pl-1">
+                                      {itemAttachments.map((att) => (
+                                        <li key={att.id} className="flex items-center gap-1.5 truncate">
+                                          <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/35 shrink-0" />
+                                          <span className="truncate max-w-[320px]" title={att.originalFileName}>
+                                            {att.originalFileName}
+                                          </span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  )}
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                       )
@@ -990,7 +1022,7 @@ export function PetDetails() {
 
                             {/* Detalhes do Anexo */}
                             <div className="flex-1 min-w-0 space-y-1.5">
-                              <div className="flex items-start justify-between gap-2">
+                              <div className="flex flex-col gap-0.5">
                                 <h4
                                   onClick={() => isImage && handleOpenPreview(att)}
                                   className={`text-sm font-bold text-foreground truncate select-none leading-snug ${
@@ -1000,6 +1032,11 @@ export function PetDetails() {
                                 >
                                   {att.originalFileName}
                                 </h4>
+                                {att.notes && (
+                                  <p className="text-xs text-muted-foreground/80 font-medium italic line-clamp-2 leading-relaxed">
+                                    {att.notes}
+                                  </p>
+                                )}
                               </div>
 
                               {/* Badges de Metadados */}
@@ -1009,7 +1046,7 @@ export function PetDetails() {
                                     ? 'bg-rose-500/5 text-rose-600 border-rose-500/10'
                                     : 'bg-indigo-500/5 text-indigo-600 border-indigo-500/10'
                                 }`}>
-                                  {att.mimeType === 'application/pdf' ? 'PDF' : 'IMAGEM'}
+                                  {att.mimeType === 'application/pdf' ? 'Documento PDF' : 'IMAGEM'}
                                 </span>
 
                                 {att.clinicalRecordId && (
@@ -1031,15 +1068,6 @@ export function PetDetails() {
                               </div>
                             </div>
                           </div>
-
-                          {/* Seção de Notas */}
-                          {att.notes && (
-                            <div className="mt-3.5 p-2.5 rounded-xl bg-muted/40 border-l-2 border-primary/20">
-                              <p className="text-xs text-muted-foreground font-medium italic line-clamp-2 leading-relaxed">
-                                "{att.notes}"
-                              </p>
-                            </div>
-                          )}
 
                           {/* Ações */}
                           <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between">
