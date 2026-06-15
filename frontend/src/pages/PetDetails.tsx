@@ -42,6 +42,85 @@ type TimelineItem = {
   original: unknown
 }
 
+function AttachmentThumbnail({ att }: { att: ClinicalAttachment }) {
+  const [thumbUrl, setThumbUrl] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    let createdUrl: string | null = null
+    const isImage = att.mimeType.startsWith('image/')
+
+    if (!isImage) return
+
+    async function fetchThumbnail() {
+      setLoading(true)
+      setError(false)
+      try {
+        const response = await api.get(`/attachments/${att.id}/download`, {
+          responseType: 'blob',
+        })
+        if (!active) return
+        const blob = new Blob([response.data], { type: att.mimeType })
+        createdUrl = window.URL.createObjectURL(blob)
+        setThumbUrl(createdUrl)
+      } catch (err) {
+        if (active) {
+          setError(true)
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
+    }
+
+    fetchThumbnail()
+
+    return () => {
+      active = false
+      if (createdUrl) {
+        window.URL.revokeObjectURL(createdUrl)
+      }
+    }
+  }, [att.id, att.mimeType])
+
+  const isImage = att.mimeType.startsWith('image/')
+
+  if (!isImage) {
+    return (
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-rose-500/5 border border-rose-500/10 text-rose-500 shadow-sm transition-all group-hover/card:scale-105 duration-200">
+        <FileText className="h-6 w-6" />
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-muted animate-pulse border border-border shadow-sm">
+        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground/60" />
+      </div>
+    )
+  }
+
+  if (error || !thumbUrl) {
+    return (
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary/5 border border-primary/10 text-primary shadow-sm">
+        <ImageIcon className="h-6 w-6" />
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={thumbUrl}
+      alt={att.originalFileName}
+      className="h-14 w-14 shrink-0 rounded-xl object-cover border border-border/80 shadow-sm transition-all group-hover/card:scale-105 duration-200"
+    />
+  )
+}
+
 export function PetDetails() {
   const { id } = useParams<{ id: string }>()
   const [pet, setPet] = useState<Pet | null>(null)
@@ -898,78 +977,105 @@ export function PetDetails() {
                       return (
                         <div
                           key={att.id}
-                          className="group/card flex flex-col justify-between bg-card border border-border/80 hover:border-primary/30 rounded-2xl p-4 transition-all duration-200 shadow-sm"
+                          className="group/card flex flex-col justify-between bg-card border border-border/80 hover:border-primary/20 hover:shadow-md rounded-2xl p-4 transition-all duration-200"
                         >
-                          <div className="flex items-start gap-3">
-                            <div
+                          <div className="flex items-start gap-4">
+                            {/* Thumbnail do Anexo */}
+                            <div 
+                              className={isImage ? "cursor-pointer" : ""}
                               onClick={() => isImage && handleOpenPreview(att)}
-                              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border text-primary shadow-sm ${
-                                isImage ? 'cursor-pointer hover:opacity-80' : ''
-                              } ${
-                                att.mimeType === 'application/pdf'
-                                  ? 'bg-rose-500/5 border-rose-500/10 text-rose-500'
-                                  : 'bg-primary/5 border-primary/10 text-primary'
-                              }`}
                             >
-                              {isImage ? (
-                                <ImageIcon className="h-6 w-6" />
-                              ) : (
-                                <FileText className="h-6 w-6" />
-                              )}
+                              <AttachmentThumbnail att={att} />
                             </div>
 
-                            <div className="flex-1 min-w-0 space-y-1">
-                              <h4
-                                onClick={() => isImage && handleOpenPreview(att)}
-                                className={`text-sm font-bold text-foreground truncate ${
-                                  isImage ? 'cursor-pointer hover:text-primary hover:underline' : ''
-                                }`}
-                                title={att.originalFileName}
-                              >
-                                {att.originalFileName}
-                              </h4>
-                              <div className="flex flex-wrap gap-x-2 text-[10px] text-muted-foreground font-semibold">
-                                <span>{displaySize}</span>
-                                <span>•</span>
-                                <span>{att.createdAt ? formatDisplayDate(att.createdAt, false) : ''}</span>
+                            {/* Detalhes do Anexo */}
+                            <div className="flex-1 min-w-0 space-y-1.5">
+                              <div className="flex items-start justify-between gap-2">
+                                <h4
+                                  onClick={() => isImage && handleOpenPreview(att)}
+                                  className={`text-sm font-bold text-foreground truncate select-none leading-snug ${
+                                    isImage ? 'cursor-pointer hover:text-primary hover:underline' : ''
+                                  }`}
+                                  title={att.originalFileName}
+                                >
+                                  {att.originalFileName}
+                                </h4>
                               </div>
-                              {att.notes && (
-                                <p className="text-xs text-muted-foreground/80 italic line-clamp-1">
-                                  {att.notes}
-                                </p>
-                              )}
+
+                              {/* Badges de Metadados */}
+                              <div className="flex flex-wrap gap-1.5">
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-extrabold tracking-wider uppercase border ${
+                                  att.mimeType === 'application/pdf'
+                                    ? 'bg-rose-500/5 text-rose-600 border-rose-500/10'
+                                    : 'bg-indigo-500/5 text-indigo-600 border-indigo-500/10'
+                                }`}>
+                                  {att.mimeType === 'application/pdf' ? 'PDF' : 'IMAGEM'}
+                                </span>
+
+                                {att.clinicalRecordId && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold tracking-wider uppercase bg-emerald-500/5 text-emerald-600 border border-emerald-500/10">
+                                    Vínculo Clínico
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Tamanho e Data */}
+                              <div className="flex items-center gap-2.5 text-[10px] text-muted-foreground/85 font-semibold">
+                                <span className="flex items-center gap-1">
+                                  {displaySize}
+                                </span>
+                                <span>•</span>
+                                <span className="flex items-center gap-1">
+                                  {att.createdAt ? formatDisplayDate(att.createdAt, false) : ''}
+                                </span>
+                              </div>
                             </div>
                           </div>
 
-                          <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-end gap-2.5">
-                            {isImage && (
+                          {/* Seção de Notas */}
+                          {att.notes && (
+                            <div className="mt-3.5 p-2.5 rounded-xl bg-muted/40 border-l-2 border-primary/20">
+                              <p className="text-xs text-muted-foreground font-medium italic line-clamp-2 leading-relaxed">
+                                "{att.notes}"
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Ações */}
+                          <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between">
+                            <div className="text-[10px] text-muted-foreground/60 font-semibold select-none">
+                              {att.mimeType.split('/')[1]?.toUpperCase()}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {isImage && (
+                                <Button
+                                  onClick={() => handleOpenPreview(att)}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 text-xs font-bold text-primary hover:bg-primary/10 hover:text-primary px-3 rounded-lg flex items-center gap-1"
+                                >
+                                  Visualizar
+                                </Button>
+                              )}
                               <Button
-                                onClick={() => handleOpenPreview(att)}
+                                onClick={() => handleDownloadAttachment(att)}
                                 variant="ghost"
-                                size="sm"
-                                className="h-8 text-[11px] font-bold text-primary hover:bg-primary/10 px-2.5 rounded-lg"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg"
+                                title="Baixar arquivo"
                               >
-                                Visualizar
+                                <Download className="h-4 w-4" />
                               </Button>
-                            )}
-                            <Button
-                              onClick={() => handleDownloadAttachment(att)}
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-lg"
-                              title="Baixar arquivo"
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              onClick={() => handleDeleteAttachment(att.id, att.originalFileName)}
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
-                              title="Remover anexo"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                              <Button
+                                onClick={() => handleDeleteAttachment(att.id, att.originalFileName)}
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
+                                title="Remover anexo"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       );
