@@ -407,7 +407,7 @@ export class VerificationController {
 |---|-------|---------|---------------|
 | A1 | Pacote `qrcode` é compatível com o ecossistema NestJS/Node atual. | Standard Stack | Baixo risco. O pacote é puro JS e amplamente testado. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Exibição do logo da clínica nos layouts de impressão:**
    - O que sabemos: As clínicas salvam dados no banco, mas uploads de imagem/logos não foram detalhados nas tabelas de config.

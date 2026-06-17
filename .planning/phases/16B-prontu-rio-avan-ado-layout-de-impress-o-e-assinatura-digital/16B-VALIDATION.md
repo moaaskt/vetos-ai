@@ -2,8 +2,8 @@
 phase: 16B
 slug: prontu-rio-avan-ado-layout-de-impress-o-e-assinatura-digital
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-17
 ---
 
@@ -38,10 +38,10 @@ created: 2026-06-17
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 16B-01-01 | 01 | 1 | REQ-01 | T-16B-01 | Validação de pertencer do Pet à clínica ao salvar receitas | unit | `npm run test -- prescriptions.service.spec.ts` | ❌ Wave 0 | ⬜ pending |
-| 16B-01-02 | 01 | 1 | REQ-02 | T-16B-02 | Geração de hash SHA-256 e status de imutabilidade | unit | `npm run test -- prescriptions.service.spec.ts` | ❌ Wave 0 | ⬜ pending |
-| 16B-01-03 | 01 | 1 | REQ-03 | — | Resolução de placeholders dinâmicos em termos | unit | `npm run test -- consent-terms.service.spec.ts` | ❌ Wave 0 | ⬜ pending |
-| 16B-01-04 | 01 | 1 | REQ-04 | T-16B-03 | Endpoint público de verificação de hashes de integridade | unit | `npm run test -- verification.controller.spec.ts` | ❌ Wave 0 | ⬜ pending |
+| 16B-01-01 | 01 | 1 | REQ-01 | T-16B-01 | Validação de pertencer do Pet à clínica ao salvar receitas | unit | `npm run test -- prescriptions.service.spec.ts` | ❌ Wave 1 | ⬜ pending |
+| 16B-01-02 | 01 | 1 | REQ-02 | T-16B-02 | Geração de hash SHA-256 e status de imutabilidade | unit | `npm run test -- prescriptions.service.spec.ts` | ❌ Wave 1 | ⬜ pending |
+| 16B-01-03 | 01 | 1 | REQ-03 | — | Resolução de placeholders dinâmicos em termos | unit | `npm run test -- consent-terms.service.spec.ts` | ❌ Wave 1 | ⬜ pending |
+| 16B-02-01 | 02 | 2 | REQ-04 | T-16B-04 | Endpoint público de verificação de hashes de integridade | unit | `npm run test -- verification.controller.spec.ts` | ❌ Wave 2 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -49,9 +49,7 @@ created: 2026-06-17
 
 ## Wave 0 Requirements
 
-- [ ] `backend/src/prescriptions/prescriptions.service.spec.ts` — stubs para REQ-01 e REQ-02
-- [ ] `backend/src/consent-terms/consent-terms.service.spec.ts` — stubs para REQ-03
-- [ ] `backend/src/verification/verification.controller.spec.ts` — stubs para REQ-04
+Nenhum — os stubs de testes unitários do backend serão gerados diretamente durante as tarefas de implementação da Wave 1.
 
 ---
 
