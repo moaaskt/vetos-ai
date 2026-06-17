@@ -435,6 +435,16 @@ export function PetDetails() {
     }
   }
 
+  async function refreshPetDataSilently() {
+    if (!id) return
+    try {
+      const response = await api.get<Pet>(`/pets/${id}`)
+      setPet(response.data)
+    } catch {
+      // Falha silenciosa: dados da timeline serão atualizados na próxima navegação
+    }
+  }
+
   useEffect(() => {
     loadPetData()
   }, [id])
@@ -2087,8 +2097,9 @@ export function PetDetails() {
             setIsPrintPreviewOpen(false)
             setSelectedDocForPrint(null)
           }}
-          onSigned={async () => {
-            await loadPetData()
+          onSigned={(signedDoc) => {
+            setSelectedDocForPrint(signedDoc)
+            refreshPetDataSilently()
           }}
         />
       )}

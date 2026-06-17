@@ -52,6 +52,12 @@ let PetsService = class PetsService {
                 weightRecords: {
                     orderBy: { date: 'desc' },
                 },
+                prescriptions: {
+                    orderBy: { createdAt: 'desc' },
+                },
+                consentTerms: {
+                    orderBy: { createdAt: 'desc' },
+                },
             },
         });
     }
