@@ -53,6 +53,14 @@ export type WeightRecord = {
   petId: string
 }
 
+export type VaccineProtocolDose = {
+  id: string
+  protocolId: string
+  vaccineName: string
+  doseOrder: number
+  intervalDays: number
+}
+
 export type VaccineRecord = {
   id: string
   name: string
@@ -64,6 +72,9 @@ export type VaccineRecord = {
   appliedById?: string | null
   notes?: string | null
   petId: string
+  protocolId?: string | null
+  protocolDoseId?: string | null
+  protocolDose?: VaccineProtocolDose | null
 }
 
 export type Pet = {
@@ -79,6 +90,9 @@ export type Pet = {
   clinicalRecords?: ClinicalRecord[]
   weightRecords?: WeightRecord[]
   vaccineRecords?: VaccineRecord[]
+  clinicalAttachments?: ClinicalAttachment[]
+  prescriptions?: Prescription[]
+  consentTerms?: ConsentTerm[]
 }
 
 export type AppointmentStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
@@ -153,5 +167,71 @@ export type AnalyticsTrends = {
     hasAppointments: boolean
   }[]
 }
+
+export type ClinicalAttachment = {
+  id: string
+  clinicId: string
+  petId: string
+  clinicalRecordId?: string | null
+  originalFileName: string
+  storedFileName: string
+  mimeType: string
+  fileSize: number
+  storagePath: string
+  uploadedById?: string | null
+  notes?: string | null
+  createdAt?: string
+}
+
+export type DocumentStatus = 'DRAFT' | 'SIGNED'
+
+export type Prescription = {
+  id: string
+  medicamento: string
+  dosagem: string
+  frequencia: string
+  duracao: string
+  viaAdministracao: string
+  observacoes?: string | null
+  status: DocumentStatus
+  documentHash?: string | null
+  signedAt?: string | null
+  verificationUrl?: string | null
+  verificationQrCode?: string | null
+  petId: string
+  clinicId: string
+  clinicalRecordId?: string | null
+  appointmentId?: string | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type ConsentTemplate = {
+  id: string
+  clinicId: string
+  name: string
+  procedureType: string
+  baseText: string
+  isActive: boolean
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type ConsentTerm = {
+  id: string
+  petId: string
+  clinicId: string
+  appointmentId?: string | null
+  consentTemplateId?: string | null
+  finalText: string
+  status: DocumentStatus
+  documentHash?: string | null
+  signedAt?: string | null
+  verificationUrl?: string | null
+  verificationQrCode?: string | null
+  createdAt?: string
+  updatedAt?: string
+}
+
 
 

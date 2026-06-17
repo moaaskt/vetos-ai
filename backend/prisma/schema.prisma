@@ -28,6 +28,10 @@ model Clinic {
   notificationTemplates NotificationTemplate[]
   notificationLogs      NotificationLog[]
   vaccineProtocols      VaccineProtocol[]
+  clinicalAttachments   ClinicalAttachment[]
+  prescriptions         Prescription[]
+  consentTemplates      ConsentTemplate[]
+  consentTerms          ConsentTerm[]
 }
 
 model User {
@@ -40,7 +44,8 @@ model User {
   updatedAt         DateTime           @updatedAt
   clinic            Clinic?            @relation(fields: [clinicId], references: [id])
   impersonationLogs ImpersonationLog[]
-  vaccineRecords    VaccineRecord[]
+  vaccineRecords      VaccineRecord[]
+  uploadedAttachments ClinicalAttachment[]
 }
 
 model Client {
@@ -73,8 +78,11 @@ model Pet {
   weightRecords    WeightRecord[]
   allergies        Allergy[]
   vaccineRecords   VaccineRecord[]
-  clinicalRecords  ClinicalRecord[]
-  notificationLogs NotificationLog[]
+  clinicalRecords     ClinicalRecord[]
+  notificationLogs    NotificationLog[]
+  clinicalAttachments ClinicalAttachment[]
+  prescriptions    Prescription[]
+  consentTerms     ConsentTerm[]
 }
 
 model Appointment {
@@ -90,9 +98,11 @@ model Appointment {
   notifiedAt       DateTime?
   notificationLogs NotificationLog[]
 
-  pet    Pet    @relation(fields: [petId], references: [id])
-  client Client @relation(fields: [clientId], references: [id])
-  clinic Clinic @relation(fields: [clinicId], references: [id])
+  pet           Pet            @relation(fields: [petId], references: [id])
+  client        Client         @relation(fields: [clientId], references: [id])
+  clinic        Clinic         @relation(fields: [clinicId], references: [id])
+  prescriptions Prescription[]
+  consentTerms  ConsentTerm[]
 }
 
 model ImpersonationLog {
@@ -264,8 +274,10 @@ model ClinicalRecord {
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
 
-  pet    Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
-  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  pet           Pet                  @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinic        Clinic               @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  attachments   ClinicalAttachment[]
+  prescriptions Prescription[]
 }
 
 model NotificationConfig {
@@ -339,4 +351,108 @@ model NotificationLog {
   @@index([petId])
   @@index([vaccineRecordId])
   @@index([clinicId, vaccineRecordId, event, channel])
+}
+
+model ClinicalAttachment {
+  id               String          @id @default(uuid())
+  clinicId         String
+  petId            String
+  clinicalRecordId String?
+  originalFileName String
+  storedFileName   String
+  mimeType         String
+  fileSize         BigInt          // Suporta arquivos grandes com precisão em bytes
+  storagePath      String
+  uploadedById     String?
+  notes            String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  clinic         Clinic          @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  pet            Pet             @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinicalRecord ClinicalRecord? @relation(fields: [clinicalRecordId], references: [id], onDelete: SetNull)
+  uploadedBy     User?           @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@index([clinicId])
+  @@index([petId])
+  @@index([clinicalRecordId])
+  @@index([uploadedById])
+}
+
+enum DocumentStatus {
+  DRAFT
+  SIGNED
+}
+
+model Prescription {
+  id                 String          @id @default(uuid())
+  medicamento        String
+  dosagem            String
+  frequencia         String
+  duracao            String
+  viaAdministracao   String
+  observacoes        String?
+  status             DocumentStatus  @default(DRAFT)
+  documentHash       String?         @unique
+  signedAt           DateTime?
+  verificationUrl    String?
+  verificationQrCode String?
+  petId              String
+  clinicId           String
+  clinicalRecordId   String?
+  appointmentId      String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  pet            Pet             @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinic         Clinic          @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinicalRecord ClinicalRecord? @relation(fields: [clinicalRecordId], references: [id], onDelete: SetNull)
+  appointment    Appointment?    @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+
+  @@index([petId])
+  @@index([clinicId])
+  @@index([clinicalRecordId])
+  @@index([appointmentId])
+}
+
+model ConsentTemplate {
+  id            String        @id @default(uuid())
+  clinicId      String
+  name          String
+  procedureType String
+  baseText      String
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  clinic       Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  consentTerms ConsentTerm[]
+
+  @@index([clinicId])
+}
+
+model ConsentTerm {
+  id                 String           @id @default(uuid())
+  petId              String
+  clinicId           String
+  appointmentId      String?
+  consentTemplateId  String?
+  finalText          String
+  status             DocumentStatus   @default(DRAFT)
+  documentHash       String?          @unique
+  signedAt           DateTime?
+  verificationUrl    String?
+  verificationQrCode String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  pet             Pet              @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinic          Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointment     Appointment?     @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  consentTemplate ConsentTemplate? @relation(fields: [consentTemplateId], references: [id], onDelete: SetNull)
+
+  @@index([petId])
+  @@index([clinicId])
+  @@index([appointmentId])
+  @@index([consentTemplateId])
 }

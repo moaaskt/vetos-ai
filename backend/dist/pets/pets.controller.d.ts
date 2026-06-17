@@ -63,7 +63,17 @@ export declare class PetsController {
             clinicId: string;
             petId: string;
         }[];
-        vaccineRecords: {
+        vaccineRecords: ({
+            protocolDose: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                vaccineName: string;
+                protocolId: string;
+                doseOrder: number;
+                intervalDays: number;
+            } | null;
+        } & {
             id: string;
             name: string;
             createdAt: Date;
@@ -79,7 +89,7 @@ export declare class PetsController {
             manufacturer: string | null;
             appliedById: string | null;
             notes: string | null;
-        }[];
+        })[];
         clinicalRecords: {
             id: string;
             createdAt: Date;
@@ -90,6 +100,41 @@ export declare class PetsController {
             type: import(".prisma/client").$Enums.ClinicalRecordType;
             title: string | null;
             content: string;
+        }[];
+        prescriptions: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            clinicId: string;
+            petId: string;
+            status: import(".prisma/client").$Enums.DocumentStatus;
+            appointmentId: string | null;
+            clinicalRecordId: string | null;
+            medicamento: string;
+            dosagem: string;
+            frequencia: string;
+            duracao: string;
+            viaAdministracao: string;
+            observacoes: string | null;
+            documentHash: string | null;
+            signedAt: Date | null;
+            verificationUrl: string | null;
+            verificationQrCode: string | null;
+        }[];
+        consentTerms: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            clinicId: string;
+            petId: string;
+            status: import(".prisma/client").$Enums.DocumentStatus;
+            appointmentId: string | null;
+            documentHash: string | null;
+            signedAt: Date | null;
+            verificationUrl: string | null;
+            verificationQrCode: string | null;
+            finalText: string;
+            consentTemplateId: string | null;
         }[];
     } & {
         id: string;

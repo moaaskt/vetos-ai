@@ -112,3 +112,81 @@
     text-rendering: geometricPrecision;
   }
 }
+
+@media print {
+  /* ===== 1. Suprimir header/footer do browser (URL, data, nº página) ===== */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  /* ===== 2. Colapsar body para não gerar páginas em branco ===== */
+  /* visibility:hidden oculta mas mantém espaço no flow → páginas extras.
+     Solução: colapsar html/body para height:0 + overflow:hidden,
+     assim conteúdo invisível não gera páginas. */
+  html, body {
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* ===== 3. Ocultar toda a SPA ===== */
+  /* visibility:hidden (NÃO display:none) permite que filhos
+     sobrescrevam com visibility:visible. */
+  body * {
+    visibility: hidden;
+  }
+
+  /* ===== 4. Exibir apenas o container de impressão ===== */
+  /* position:fixed escapa do body colapsado e preenche a viewport. */
+  .printable-container {
+    visibility: visible !important;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    z-index: 99999;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: white !important;
+    color: #0f172a !important;
+  }
+
+  .printable-container * {
+    visibility: visible !important;
+  }
+
+  /* ===== 5. Ajustar conteúdo interno do documento ===== */
+  .printable-container > div {
+    min-height: auto !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 15mm !important;
+    box-sizing: border-box;
+  }
+
+  /* ===== 6. Impedir quebras indesejadas ===== */
+  .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* ===== 7. Garantir QR Code e backgrounds impressos ===== */
+  .printable-container img {
+    max-width: 100%;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .printable-container [class*="bg-"] {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
