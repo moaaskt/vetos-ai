@@ -11,7 +11,7 @@ export function PrintReceita({ prescription }: PrintReceitaProps) {
     : new Date().toLocaleDateString('pt-BR')
 
   return (
-    <div className="w-full max-w-[21cm] min-h-[29.7cm] bg-white text-slate-900 p-12 flex flex-col justify-between select-none">
+    <div className="w-full max-w-[21cm] bg-white text-slate-900 p-12 flex flex-col justify-between select-none">
       {/* Cabeçalho Oficial */}
       <div className="space-y-6">
         <div className="flex justify-between items-start border-b border-slate-200 pb-6">
@@ -84,7 +84,7 @@ export function PrintReceita({ prescription }: PrintReceitaProps) {
 
           {/* Assinatura e QR Code de Validação Jurídica */}
           {isSigned && (
-            <div className="flex items-center gap-4 border border-slate-100 bg-slate-50/80 p-3 rounded-lg max-w-[380px]">
+            <div className="flex items-center gap-4 border border-slate-100 bg-slate-50/80 p-3 rounded-lg max-w-[380px] overflow-hidden">
               {prescription.verificationQrCode && (
                 <img
                   src={prescription.verificationQrCode}
@@ -92,7 +92,7 @@ export function PrintReceita({ prescription }: PrintReceitaProps) {
                   className="h-16 w-16 bg-white p-1 border border-slate-200 rounded shrink-0"
                 />
               )}
-              <div className="space-y-1 text-left">
+              <div className="space-y-1 text-left min-w-0">
                 <p className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
                   ✓ DOCUMENTO ASSINADO DIGITALMENTE
                 </p>
@@ -102,7 +102,7 @@ export function PrintReceita({ prescription }: PrintReceitaProps) {
                   </p>
                 )}
                 {prescription.verificationUrl && (
-                  <p className="text-[9px] text-slate-500 font-medium leading-tight">
+                  <p className="text-[9px] text-slate-500 font-medium leading-tight break-all" style={{ overflowWrap: 'anywhere' }}>
                     Valide em:{' '}
                     <span className="font-bold text-slate-700 select-all">
                       {window.location.origin}{prescription.verificationUrl}

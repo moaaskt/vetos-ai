@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Printer, ShieldCheck, Loader2 } from 'lucide-react'
+import { X, Printer, ShieldCheck, Loader2, CheckCircle2 } from 'lucide-react'
 import { Button } from './ui/button'
 import { PrintProntuario } from './print/PrintProntuario'
 import { PrintReceita } from './print/PrintReceita'
@@ -10,7 +10,7 @@ type PrintPreviewModalProps = {
   document: any
   type: 'prescription' | 'consentTerm' | 'prontuario'
   onClose: () => void
-  onSigned?: () => void
+  onSigned?: (signedDocument: any) => void
 }
 
 export function PrintPreviewModal({
@@ -21,6 +21,7 @@ export function PrintPreviewModal({
 }: PrintPreviewModalProps) {
   const [currentDoc, setCurrentDoc] = useState(document)
   const [isSigning, setIsSigning] = useState(false)
+  const [justSigned, setJustSigned] = useState(false)
   const [error, setError] = useState('')
 
   const isSigned = type === 'prontuario' || currentDoc?.status === 'SIGNED'
@@ -36,8 +37,9 @@ export function PrintPreviewModal({
           
       const response = await api.post(endpoint)
       setCurrentDoc(response.data)
+      setJustSigned(true)
       if (onSigned) {
-        onSigned()
+        onSigned(response.data)
       }
     } catch (err) {
       setError('Falha ao assinar o documento. Por favor, verifique a conexão e tente novamente.')
@@ -69,6 +71,13 @@ export function PrintPreviewModal({
         {error && (
           <div className="hidden md:block text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-lg max-w-sm truncate">
             {error}
+          </div>
+        )}
+
+        {justSigned && (
+          <div className="hidden md:flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg animate-in fade-in-0 slide-in-from-top-2 duration-300">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Documento assinado com sucesso
           </div>
         )}
 
@@ -114,6 +123,13 @@ export function PrintPreviewModal({
       {error && (
         <div className="md:hidden block mx-6 mt-4 text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-lg">
           {error}
+        </div>
+      )}
+
+      {justSigned && (
+        <div className="md:hidden flex items-center gap-1.5 mx-6 mt-4 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg animate-in fade-in-0 duration-300">
+          <CheckCircle2 className="h-3.5 w-3.5" />
+          Documento assinado com sucesso
         </div>
       )}
 

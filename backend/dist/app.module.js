@@ -29,6 +29,9 @@ const bullmq_1 = require("@nestjs/bullmq");
 const schedule_1 = require("@nestjs/schedule");
 const analytics_module_1 = require("./analytics/analytics.module");
 const clinical_attachments_module_1 = require("./clinical-attachments/clinical-attachments.module");
+const prescriptions_module_1 = require("./prescriptions/prescriptions.module");
+const consent_terms_module_1 = require("./consent-terms/consent-terms.module");
+const verification_module_1 = require("./verification/verification.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -61,6 +64,9 @@ exports.AppModule = AppModule = __decorate([
             weight_records_module_1.WeightRecordsModule,
             analytics_module_1.AnalyticsModule,
             clinical_attachments_module_1.ClinicalAttachmentsModule,
+            prescriptions_module_1.PrescriptionsModule,
+            consent_terms_module_1.ConsentTermsModule,
+            verification_module_1.VerificationModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
