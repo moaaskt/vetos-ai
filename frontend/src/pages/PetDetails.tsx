@@ -23,23 +23,30 @@ import {
   Download,
   Loader2,
   X,
+  Pill,
+  FileSignature,
+  Lock,
+  Printer,
 } from 'lucide-react'
 import { api, type Pet, type VaccineRecord, type ClinicalAttachment } from '../lib/api'
 import { Button } from '../components/ui/button'
 import { Card, CardContent } from '../components/ui/card'
 import { Skeleton } from '../components/ui/skeleton'
 import { Modal } from '../components/Modal'
+import { CreatePrescriptionModal } from '../components/CreatePrescriptionModal'
+import { CreateConsentTermModal } from '../components/CreateConsentTermModal'
+import { PrintPreviewModal } from '../components/PrintPreviewModal'
 import { Input } from '../components/ui/input'
 import { getSpeciesLabel } from './Pets'
 
 type TimelineItem = {
   id: string
   date: string
-  type: 'APPOINTMENT' | 'NOTE' | 'PROCEDURE'
+  type: 'APPOINTMENT' | 'NOTE' | 'PROCEDURE' | 'PRESCRIPTION' | 'CONSENT_TERM'
   title: string
   content: string
   status?: string
-  original: unknown
+  original: any
 }
 
 function AttachmentThumbnail({ att }: { att: ClinicalAttachment }) {
@@ -130,6 +137,14 @@ export function PetDetails() {
 
   // Abas
   const [activeTab, setActiveTab] = useState<'timeline' | 'attachments'>('timeline')
+
+  // Modais de Receitas, Termos e Impressão (Fase 16B)
+  const [isPrescriptionModalOpen, setIsPrescriptionModalOpen] = useState(false)
+  const [isConsentTermModalOpen, setIsConsentTermModalOpen] = useState(false)
+  const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false)
+  const [isPrintDropdownOpen, setIsPrintDropdownOpen] = useState(false)
+  const [selectedDocForPrint, setSelectedDocForPrint] = useState<any>(null)
+  const [printDocType, setPrintDocType] = useState<'prescription' | 'consentTerm' | 'prontuario'>('prontuario')
 
   // Anexos Clínicos
   const [attachments, setAttachments] = useState<ClinicalAttachment[]>([])
@@ -499,6 +514,32 @@ export function PetDetails() {
     }
   }
 
+  async function handleDeletePrescription(prescriptionId: string) {
+    if (!confirm('Tem certeza de que deseja remover permanentemente este rascunho de receita?')) return
+    try {
+      await api.delete(`/prescriptions/${prescriptionId}`)
+      await loadPetData()
+    } catch {
+      setError('Falha ao remover rascunho de receita.')
+    }
+  }
+
+  async function handleDeleteConsentTerm(termId: string) {
+    if (!confirm('Tem certeza de que deseja remover permanentemente este rascunho de termo?')) return
+    try {
+      await api.delete(`/consent-terms/${termId}`)
+      await loadPetData()
+    } catch {
+      setError('Falha ao remover rascunho de termo.')
+    }
+  }
+
+  function handleOpenPrintPreview(doc: any, type: 'prescription' | 'consentTerm' | 'prontuario') {
+    setSelectedDocForPrint(doc)
+    setPrintDocType(type)
+    setIsPrintPreviewOpen(true)
+  }
+
   // Wave 2 Actions
   async function handleAddVaccine(e: React.FormEvent) {
     e.preventDefault()
@@ -582,7 +623,7 @@ export function PetDetails() {
     }
   }
 
-  // Combina consultas e registros clínicos em ordem cronológica reversa
+  // Combina consultas, registros clínicos, receitas e termos em ordem cronológica reversa
   const timelineItems: TimelineItem[] = []
   if (pet) {
     if (pet.appointments) {
@@ -608,6 +649,34 @@ export function PetDetails() {
           title: rec.title || (rec.type === 'NOTE' ? 'Evolução Clínica' : 'Procedimento Realizado'),
           content: rec.content,
           original: rec,
+        })
+      })
+    }
+
+    if (pet.prescriptions) {
+      pet.prescriptions.forEach((presc) => {
+        timelineItems.push({
+          id: presc.id,
+          date: presc.createdAt || '',
+          type: 'PRESCRIPTION',
+          title: 'Receita Médica',
+          content: `${presc.medicamento} - ${presc.dosagem} (${presc.frequencia})`,
+          status: presc.status,
+          original: presc,
+        })
+      })
+    }
+
+    if (pet.consentTerms) {
+      pet.consentTerms.forEach((term) => {
+        timelineItems.push({
+          id: term.id,
+          date: term.createdAt || '',
+          type: 'CONSENT_TERM',
+          title: 'Termo de Consentimento',
+          content: term.finalText,
+          status: term.status,
+          original: term,
         })
       })
     }
@@ -674,9 +743,81 @@ export function PetDetails() {
           <ArrowLeft className="h-4 w-4" />
           Voltar para Pacientes
         </Link>
-        <Button onClick={loadPetData} variant="ghost" size="icon" title="Atualizar dados" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-          <RefreshCw className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Dropdown de Impressão Centralizado */}
+          <div className="relative">
+            <Button
+              onClick={() => setIsPrintDropdownOpen(!isPrintDropdownOpen)}
+              variant="outline"
+              size="sm"
+              className="font-bold gap-1.5 text-xs h-8 border-border bg-card"
+            >
+              <Printer className="h-3.5 w-3.5 text-primary" />
+              Imprimir
+            </Button>
+            {isPrintDropdownOpen && (
+              <div className="absolute right-0 mt-1.5 w-56 rounded-lg border border-border bg-card p-1 shadow-lg z-50 animate-in fade-in-0 slide-in-from-top-1 duration-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPrintDropdownOpen(false)
+                    handleOpenPrintPreview(pet, 'prontuario')
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-muted text-xs font-semibold flex items-center gap-2 text-foreground"
+                >
+                  <ClipboardList className="h-3.5 w-3.5 text-primary" />
+                  Prontuário Completo
+                </button>
+                
+                <div className="h-px bg-border/60 my-1" />
+                <div className="px-3 py-1 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Receitas</div>
+                {(!pet?.prescriptions || pet.prescriptions.length === 0) ? (
+                  <div className="px-3 py-1.5 text-[11px] text-muted-foreground italic">Nenhuma receita emitida</div>
+                ) : (
+                  pet.prescriptions.map((presc) => (
+                    <button
+                      type="button"
+                      key={presc.id}
+                      onClick={() => {
+                        setIsPrintDropdownOpen(false)
+                        handleOpenPrintPreview(presc, 'prescription')
+                      }}
+                      className="w-full text-left px-3 py-1.5 rounded-md hover:bg-muted text-[11px] font-medium truncate flex items-center gap-1.5 text-foreground"
+                    >
+                      <span className="text-xs">💊</span>
+                      <span className="truncate">{presc.medicamento} ({presc.status === 'SIGNED' ? 'Assinada' : 'Rascunho'})</span>
+                    </button>
+                  ))
+                )}
+
+                <div className="h-px bg-border/60 my-1" />
+                <div className="px-3 py-1 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Termos</div>
+                {(!pet?.consentTerms || pet.consentTerms.length === 0) ? (
+                  <div className="px-3 py-1.5 text-[11px] text-muted-foreground italic">Nenhum termo assinado</div>
+                ) : (
+                  pet.consentTerms.map((term) => (
+                    <button
+                      type="button"
+                      key={term.id}
+                      onClick={() => {
+                        setIsPrintDropdownOpen(false)
+                        handleOpenPrintPreview(term, 'consentTerm')
+                      }}
+                      className="w-full text-left px-3 py-1.5 rounded-md hover:bg-muted text-[11px] font-medium truncate flex items-center gap-1.5 text-foreground"
+                    >
+                      <span className="text-xs">📄</span>
+                      <span className="truncate">{term.finalText.substring(0, 25)}... ({term.status === 'SIGNED' ? 'Assinado' : 'Rascunho'})</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          <Button onClick={loadPetData} variant="ghost" size="icon" title="Atualizar dados" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -803,6 +944,14 @@ export function PetDetails() {
                       <Plus className="h-4 w-4" />
                       Registrar Evolução
                     </Button>
+                    <Button onClick={() => setIsPrescriptionModalOpen(true)} variant="outline" className="font-bold gap-1.5 text-xs h-9 border-border bg-card">
+                      <Plus className="h-4 w-4 text-primary" />
+                      Nova Receita
+                    </Button>
+                    <Button onClick={() => setIsConsentTermModalOpen(true)} variant="outline" className="font-bold gap-1.5 text-xs h-9 border-border bg-card">
+                      <Plus className="h-4 w-4 text-primary" />
+                      Novo Termo
+                    </Button>
                   </div>
                 </div>
 
@@ -817,6 +966,8 @@ export function PetDetails() {
                     {timelineItems.map((item) => {
                       const isApp = item.type === 'APPOINTMENT'
                       const isNote = item.type === 'NOTE'
+                      const isPresc = item.type === 'PRESCRIPTION'
+                      const isTerm = item.type === 'CONSENT_TERM'
                       
                       return (
                         <div key={item.id} className="relative group/item animate-in fade-in-0 duration-300">
@@ -826,12 +977,20 @@ export function PetDetails() {
                               ? 'bg-blue-500/10 border-blue-500/20 text-blue-400 group-hover/item:bg-blue-500 group-hover/item:text-white'
                               : isNote
                               ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400 group-hover/item:bg-indigo-500 group-hover/item:text-white'
+                              : isPresc
+                              ? 'bg-purple-500/10 border-purple-500/20 text-purple-400 group-hover/item:bg-purple-500 group-hover/item:text-white'
+                              : isTerm
+                              ? 'bg-amber-500/10 border-amber-500/20 text-amber-400 group-hover/item:bg-amber-500 group-hover/item:text-white'
                               : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 group-hover/item:bg-emerald-500 group-hover/item:text-white'
                           }`}>
                             {isApp ? (
                               <Calendar className="h-3.5 w-3.5" />
                             ) : isNote ? (
                               <FileText className="h-3.5 w-3.5" />
+                            ) : isPresc ? (
+                              <Pill className="h-3.5 w-3.5" />
+                            ) : isTerm ? (
+                              <FileSignature className="h-3.5 w-3.5" />
                             ) : (
                               <Activity className="h-3.5 w-3.5" />
                             )}
@@ -851,24 +1010,110 @@ export function PetDetails() {
                                       {getStatusLabel(item.status).text}
                                     </span>
                                   )}
+                                  {(isPresc || isTerm) && (
+                                    <span className={`inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-[10px] font-bold ${
+                                      item.status === 'SIGNED'
+                                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                                        : 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400'
+                                    }`}>
+                                      {item.status === 'SIGNED' ? (
+                                        <span className="flex items-center gap-0.5">
+                                          Assinado <Lock className="h-2.5 w-2.5" />
+                                        </span>
+                                      ) : 'Rascunho'}
+                                    </span>
+                                  )}
                                 </h3>
                               </div>
 
-                              {/* Ações para itens criados (não read-only) */}
-                              {!isApp && (
-                                <button
-                                  onClick={() => handleDeleteRecord(item.id)}
-                                  className="opacity-0 group-hover/item:opacity-100 h-8 w-8 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all shadow-sm"
-                                  title="Excluir Registro"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              )}
+                              {/* Ações para itens criados */}
+                              {!isApp && (() => {
+                                const isSigned = item.status === 'SIGNED'
+                                if (isSigned) return null;
+
+                                return (
+                                  <button
+                                    onClick={() => {
+                                      if (isPresc) {
+                                        handleDeletePrescription(item.id)
+                                      } else if (isTerm) {
+                                        handleDeleteConsentTerm(item.id)
+                                      } else {
+                                        handleDeleteRecord(item.id)
+                                      }
+                                    }}
+                                    className="opacity-0 group-hover/item:opacity-100 h-8 w-8 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all shadow-sm"
+                                    title="Excluir Rascunho"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                )
+                              })()}
                             </div>
 
-                            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap font-medium">
-                              {item.content}
-                            </p>
+                            {/* Detalhes específicos por tipo */}
+                            {isPresc && (
+                              <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-2 bg-purple-500/5 border border-purple-500/10 rounded-lg p-3 text-sm text-foreground/90 font-medium max-w-md">
+                                  <span>💊</span>
+                                  <div>
+                                    <div className="font-bold">{item.content}</div>
+                                    <div className="text-xs text-muted-foreground mt-0.5">
+                                      Via: {item.original.viaAdministracao} | Duração: {item.original.duracao}
+                                    </div>
+                                  </div>
+                                </div>
+                                {item.original.observacoes && (
+                                  <p className="text-xs text-muted-foreground italic pl-1">
+                                    Obs: {item.original.observacoes}
+                                  </p>
+                                )}
+                                <div className="flex items-center gap-3 mt-1.5">
+                                  <Button
+                                    onClick={() => handleOpenPrintPreview(item.original, 'prescription')}
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 text-xs font-bold gap-1 border-border bg-card"
+                                  >
+                                    Visualizar Impressão
+                                  </Button>
+                                  {item.status === 'SIGNED' && item.original.documentHash && (
+                                    <span className="text-[10px] text-muted-foreground font-mono bg-muted px-2 py-1 rounded truncate max-w-[280px]" title={item.original.documentHash}>
+                                      Hash: {item.original.documentHash}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {isTerm && (
+                              <div className="flex flex-col gap-2">
+                                <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap font-medium line-clamp-3">
+                                  {item.content}
+                                </p>
+                                <div className="flex items-center gap-3 mt-1">
+                                  <Button
+                                    onClick={() => handleOpenPrintPreview(item.original, 'consentTerm')}
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 text-xs font-bold gap-1 border-border bg-card"
+                                  >
+                                    Visualizar Impressão
+                                  </Button>
+                                  {item.status === 'SIGNED' && item.original.documentHash && (
+                                    <span className="text-[10px] text-muted-foreground font-mono bg-muted px-2 py-1 rounded truncate max-w-[280px]" title={item.original.documentHash}>
+                                      Hash: {item.original.documentHash}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {!isPresc && !isTerm && (
+                              <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap font-medium">
+                                {item.content}
+                              </p>
+                            )}
 
                             {isApp && (
                               <div className="flex items-center gap-1 text-[10px] text-amber-500/80 font-bold uppercase tracking-wider bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded w-fit">
@@ -876,7 +1121,7 @@ export function PetDetails() {
                               </div>
                             )}
 
-                            {!isApp && (() => {
+                            {!isApp && !isPresc && !isTerm && (() => {
                               const itemAttachments = attachments.filter(
                                 (att) => att.clinicalRecordId === item.id
                               );
@@ -1809,6 +2054,43 @@ export function PetDetails() {
             />
           </div>
         </div>
+      )}
+
+      {/* Modais da Wave 3 e 4 (Fase 16B) */}
+      {isPrescriptionModalOpen && (
+        <CreatePrescriptionModal
+          petId={pet.id}
+          onClose={() => setIsPrescriptionModalOpen(false)}
+          onCreated={async () => {
+            setIsPrescriptionModalOpen(false)
+            await loadPetData()
+          }}
+        />
+      )}
+
+      {isConsentTermModalOpen && (
+        <CreateConsentTermModal
+          pet={pet}
+          onClose={() => setIsConsentTermModalOpen(false)}
+          onCreated={async () => {
+            setIsConsentTermModalOpen(false)
+            await loadPetData()
+          }}
+        />
+      )}
+
+      {isPrintPreviewOpen && (
+        <PrintPreviewModal
+          document={selectedDocForPrint}
+          type={printDocType}
+          onClose={() => {
+            setIsPrintPreviewOpen(false)
+            setSelectedDocForPrint(null)
+          }}
+          onSigned={async () => {
+            await loadPetData()
+          }}
+        />
       )}
     </div>
   )

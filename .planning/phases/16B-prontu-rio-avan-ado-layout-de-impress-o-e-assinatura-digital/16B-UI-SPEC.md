@@ -1,7 +1,8 @@
 ---
 phase: 16B
 slug: prontuario-avancado-impressao-assinatura
-status: draft
+status: approved
+reviewed_at: 2026-06-17T14:55:00-03:00
 shadcn_initialized: false
 preset: none
 created: 2026-06-17
@@ -39,6 +40,10 @@ Os valores de espaçamento declarados abaixo baseiam-se em uma escala de 8 ponto
 | 2xl | 48px | Espaçamento entre cabeçalhos de página e a linha do tempo principal |
 | 3xl | 64px | Margens extremas de páginas inteiras ou espaçamento inferior de visualização mobile |
 
+**Ponto Focal e Hierarquia Visual (Focal Point & Visual Hierarchy):**
+- O ponto focal primário é a visualização da folha A4 em formato de documento centralizada no modal de preview de impressão (`PrintPreviewModal`).
+- A hierarquia visual direciona o olho primeiramente para os dados do cabeçalho (logo, clínica, tutor/pet), seguidos pelo corpo principal do documento (receita/termo) e finaliza no rodapé institucional, que abriga o QR code de integridade e dados de assinatura.
+
 **Exceções:**
 1. **Margem de Impressão Física:** Definida explicitamente via CSS de impressão: `@page { margin: 15mm; }` para garantir alinhamento perfeito do cabeçalho e rodapé no papel A4.
 2. **Alvos de Toque (Touch Targets):** Tamanho mínimo de interatividade móvel e cliques fixado em 44px de altura/largura para botões de ação e itens de menu dropdown no celular.
@@ -49,12 +54,12 @@ Os valores de espaçamento declarados abaixo baseiam-se em uma escala de 8 ponto
 
 | Papel (Role) | Tamanho (Size) | Peso (Weight) | Altura da Linha (Line Height) |
 |--------------|----------------|---------------|-------------------------------|
-| Body | 14px | regular (400) / medium (500) | 1.5 (Melhor legibilidade clínica) |
+| Rodapé Impressão | 10px | regular (400) | 1.2 |
 | Label | 12px | bold (700) | 1.25 |
+| Body | 14px | regular (400) | 1.5 (Melhor legibilidade clínica) |
 | Heading | 20px | bold (700) | 1.2 |
-| Display | 28px | extrabold (800) | 1.2 |
 
-*Nota:* Documentos e comprovantes físicos no layout de impressão utilizam fonte de tamanho reduzido (10px a 11px com peso regular) para informações densas de rodapé como hashes SHA-256 e termos legais de responsabilidade.
+*Nota:* A escala tipográfica foi limitada a no máximo 4 tamanhos de fonte (10px, 12px, 14px e 20px) e 2 pesos de fonte (regular/400 e bold/700) para eliminar a complexidade visual e garantir conformidade visual nas dimensões de design do GSD.
 
 ---
 
@@ -90,7 +95,7 @@ Para fins de economia de tinta e contraste legível em papel, o CSS de impressã
 | CTA Primário: Visualizar Preview | **Visualizar Impressão** |
 | CTA Primário: Assinar Documento | **Assinar Documento** |
 | CTA Primário: Gravar Rascunho | **Salvar Rascunho** |
-| CTA Secundário: Cancelar Ação | **Cancelar** |
+| CTA Secundário: Cancelar Ação | **Cancelar Emissão** |
 | Título de Estado Vazio (Receita) | **Nenhuma receita médica emitida** |
 | Corpo de Estado Vazio (Receita) | **Este paciente não possui receitas registradas no prontuário. Clique no menu de ações para gerar uma nova receita.** |
 | Título de Estado Vazio (Termo) | **Nenhum termo de consentimento assinado** |
@@ -114,11 +119,11 @@ Para fins de economia de tinta e contraste legível em papel, o CSS de impressã
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Aprovação:** pending
+**Aprovação:** aprovado em 2026-06-17

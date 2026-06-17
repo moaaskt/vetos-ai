@@ -20,6 +20,9 @@ import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { ClinicalAttachmentsModule } from './clinical-attachments/clinical-attachments.module';
+import { PrescriptionsModule } from './prescriptions/prescriptions.module';
+import { ConsentTermsModule } from './consent-terms/consent-terms.module';
+import { VerificationModule } from './verification/verification.module';
 
 @Module({
   imports: [
@@ -50,6 +53,9 @@ import { ClinicalAttachmentsModule } from './clinical-attachments/clinical-attac
     WeightRecordsModule,
     AnalyticsModule,
     ClinicalAttachmentsModule,
+    PrescriptionsModule,
+    ConsentTermsModule,
+    VerificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

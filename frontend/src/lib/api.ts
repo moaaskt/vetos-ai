@@ -91,6 +91,8 @@ export type Pet = {
   weightRecords?: WeightRecord[]
   vaccineRecords?: VaccineRecord[]
   clinicalAttachments?: ClinicalAttachment[]
+  prescriptions?: Prescription[]
+  consentTerms?: ConsentTerm[]
 }
 
 export type AppointmentStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
@@ -179,6 +181,56 @@ export type ClinicalAttachment = {
   uploadedById?: string | null
   notes?: string | null
   createdAt?: string
+}
+
+export type DocumentStatus = 'DRAFT' | 'SIGNED'
+
+export type Prescription = {
+  id: string
+  medicamento: string
+  dosagem: string
+  frequencia: string
+  duracao: string
+  viaAdministracao: string
+  observacoes?: string | null
+  status: DocumentStatus
+  documentHash?: string | null
+  signedAt?: string | null
+  verificationUrl?: string | null
+  verificationQrCode?: string | null
+  petId: string
+  clinicId: string
+  clinicalRecordId?: string | null
+  appointmentId?: string | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type ConsentTemplate = {
+  id: string
+  clinicId: string
+  name: string
+  procedureType: string
+  baseText: string
+  isActive: boolean
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type ConsentTerm = {
+  id: string
+  petId: string
+  clinicId: string
+  appointmentId?: string | null
+  consentTemplateId?: string | null
+  finalText: string
+  status: DocumentStatus
+  documentHash?: string | null
+  signedAt?: string | null
+  verificationUrl?: string | null
+  verificationQrCode?: string | null
+  createdAt?: string
+  updatedAt?: string
 }
 
 

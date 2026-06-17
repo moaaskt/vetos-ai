@@ -70,9 +70,9 @@ Output: api.ts atualizado, novos modais modulares de criação criados e integra
   <action>
     1. Editar 'frontend/src/lib/api.ts' para exportar os novos tipos:
        - 'DocumentStatus': 'DRAFT' | 'SIGNED'
-       - 'Prescription' (campos do modelo Prisma)
+       - 'Prescription' (campos do modelo Prisma, incluindo 'verificationUrl' e 'verificationQrCode')
        - 'ConsentTemplate' (campos do modelo Prisma)
-       - 'ConsentTerm' (campos do modelo Prisma)
+       - 'ConsentTerm' (campos do modelo Prisma, incluindo 'verificationUrl' e 'verificationQrCode')
        - Estender a interface 'Pet' para conter: 'prescriptions?: Prescription[]' e 'consentTerms?: ConsentTerm[]'.
     2. Criar o componente modular 'frontend/src/components/CreatePrescriptionModal.tsx' usando o modal reutilizável. O formulário deve ser híbrido (D-06):
        - Campos estruturados obrigatórios: medicamento, dosagem, frequencia, duracao, viaAdministracao.

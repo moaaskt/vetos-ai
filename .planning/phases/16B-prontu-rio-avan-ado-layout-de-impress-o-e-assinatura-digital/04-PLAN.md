@@ -78,15 +78,15 @@ Output: PrintPreviewModal.tsx, layouts de impressão criados e integrados, e css
     1. Criar a pasta 'frontend/src/components/print/' e os componentes de layout A4:
        - 'PrintProntuario.tsx': Compila cabeçalho da clínica, dados básicos do pet/tutor, timeline de consultas, notas, procedimentos, exames e vacinas.
        - 'PrintReceita.tsx': Exibe os campos estruturados de medicamentos em tabela organizada e a caixa de observações adicionais.
-       - 'PrintTermo.tsx': Renderiza o texto final do termo de consentimento.
-       - Todos os três devem conter um cabeçalho oficial (logo/nome/endereço da clínica) e rodapé estruturado (data, campo para assinatura manual do veterinário e QR Code de verificação online quando assinado) (D-03).
-    2. Criar o componente modal 'frontend/src/components/PrintPreviewModal.tsx' fullscreen:
+        - 'PrintTermo.tsx': Renderiza o texto final do termo de consentimento.
+        - Todos os três devem conter um cabeçalho oficial (logo/nome/endereço da clínica) e rodapé estruturado (data, campo para assinatura manual do veterinário, o link legível da URL de verificação 'verificationUrl' e o QR Code de verificação online renderizado a partir de 'verificationQrCode' quando assinado) (D-03).
+     2. Criar o componente modal 'frontend/src/components/PrintPreviewModal.tsx' fullscreen:
        - Recebe o documento ('prescription', 'consentTerm' ou o próprio 'pet' para o prontuário completo) e o tipo.
        - Renderiza no corpo o layout correspondente ('PrintProntuario', 'PrintReceita' ou 'PrintTermo') envolvido por uma div com a classe CSS 'printable-container'.
        - Exibe uma barra de ferramentas superior fixa na tela contendo:
-         - Botão "Fechar" (ícone X).
-         - Botão "Assinar Documento" (destacado e visível apenas se o status for DRAFT). Ao clicar, chama a rota de assinatura no backend ('POST /prescriptions/:id/sign' ou '/consent-terms/:id/sign'), atualiza os dados locais do documento com o QR code/hash gerados e altera o status para SIGNED.
-         - Botão "Imprimir" (só habilitado se o status for SIGNED ou se for o prontuário que não exige assinatura digital). Ao clicar, invoca 'window.print()' nativo (D-01).
+          - Botão "Fechar" (ícone X).
+          - Botão "Assinar Documento" (destacado e visível apenas se o status for DRAFT). Ao clicar, chama a rota de assinatura no backend ('POST /prescriptions/:id/sign' ou '/consent-terms/:id/sign'), atualiza os dados locais do documento com o hash, a URL textual e o QR code base64 ('verificationQrCode') gerados e altera o status para SIGNED.
+          - Botão "Imprimir" (só habilitado se o status for SIGNED ou se for o prontuário que não exige assinatura digital). Ao clicar, invoca 'window.print()' nativo (D-01).
     3. Integrar o 'PrintPreviewModal' no 'frontend/src/pages/PetDetails.tsx' acionando-o pelo menu dropdown de ações centralizado ou pelo botão de visualização em cada card da timeline.
   </action>
   <verify>
@@ -94,8 +94,9 @@ Output: PrintPreviewModal.tsx, layouts de impressão criados e integrados, e css
   </verify>
   <acceptance_criteria>
     - Todos os layouts compilam sem erros TypeScript.
-    - O modal de preview exibe o botão "Assinar Documento" para rascunhos.
-    - Ao assinar, os dados retornam com hash SHA-256 e a imagem base64 do QR code, habilitando o botão "Imprimir".
+     - O modal de preview exibe o botão "Assinar Documento" para rascunhos.
+     - Ao assinar, os dados retornam com hash SHA-256, a URL pública de verificação e a imagem base64 do QR code no campo 'verificationQrCode', habilitando o botão "Imprimir".
+     - O arquivo 'PetDetails.tsx' compila com sucesso.
   </acceptance_criteria>
   <done>Componentes de layouts de impressão A4 e visualizador de impressão fullscreen criados e integrados ao prontuário.</done>
 </task>
