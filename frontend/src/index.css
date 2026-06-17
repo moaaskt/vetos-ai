@@ -112,3 +112,38 @@
     text-rendering: geometricPrecision;
   }
 }
+
+@media print {
+  /* Ocultar toda a SPA */
+  body * {
+    visibility: hidden;
+  }
+  /* Exibir apenas o container de impressao */
+  .printable-container,
+  .printable-container * {
+    visibility: visible;
+  }
+  .printable-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 21cm;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+    color: #0f172a !important;
+  }
+  /* Margens do papel A4 */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+  /* Impedir quebras indesejadas */
+  .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
