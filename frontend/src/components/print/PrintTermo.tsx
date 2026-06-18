@@ -87,6 +87,20 @@ export function PrintTermo({ consentTerm }: PrintTermoProps) {
           )}
         </div>
 
+        {consentTerm.tutorSigned && (
+          <div className="border border-emerald-100 bg-emerald-50/30 p-3.5 rounded-lg text-left text-[10px] text-emerald-800 font-medium space-y-1">
+            <p className="font-bold text-emerald-900 flex items-center gap-1">
+              ✓ Termo Assinado Eletronicamente pelo Tutor
+            </p>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
+              <p><span className="font-bold text-emerald-900">Assinante:</span> {consentTerm.tutorSignatureName}</p>
+              <p><span className="font-bold text-emerald-900">CPF:</span> {consentTerm.tutorSignatureCpf}</p>
+              <p><span className="font-bold text-emerald-900">Data/Hora:</span> {new Date(consentTerm.tutorSignedAt || '').toLocaleString('pt-BR')}</p>
+              <p><span className="font-bold text-emerald-900">Endereço IP:</span> {consentTerm.tutorSignatureIp}</p>
+            </div>
+          </div>
+        )}
+
         {/* Rodapé institucional de rodagem de página */}
         <div className="text-center text-[9px] text-slate-400 font-semibold">
           Este documento clínico faz parte do prontuário veterinário e foi emitido eletronicamente.

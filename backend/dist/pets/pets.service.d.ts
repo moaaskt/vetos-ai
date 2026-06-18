@@ -42,8 +42,8 @@ export declare class PetsService {
             reason: string | null;
             clientId: string;
             date: Date;
-            status: import(".prisma/client").$Enums.AppointmentStatus;
             petId: string;
+            status: import(".prisma/client").$Enums.AppointmentStatus;
             notifiedAt: Date | null;
         }[];
         weightRecords: {
@@ -68,8 +68,8 @@ export declare class PetsService {
                 id: string;
                 createdAt: Date;
                 updatedAt: Date;
-                protocolId: string;
                 vaccineName: string;
+                protocolId: string;
                 doseOrder: number;
                 intervalDays: number;
             } | null;
@@ -80,8 +80,8 @@ export declare class PetsService {
             updatedAt: Date;
             clinicId: string;
             date: Date;
-            status: import(".prisma/client").$Enums.VaccineStatus;
             petId: string;
+            status: import(".prisma/client").$Enums.VaccineStatus;
             nextDoseDate: Date | null;
             protocolId: string | null;
             protocolDoseId: string | null;
@@ -106,8 +106,10 @@ export declare class PetsService {
             createdAt: Date;
             updatedAt: Date;
             clinicId: string;
-            status: import(".prisma/client").$Enums.DocumentStatus;
             petId: string;
+            status: import(".prisma/client").$Enums.DocumentStatus;
+            appointmentId: string | null;
+            clinicalRecordId: string | null;
             medicamento: string;
             dosagem: string;
             frequencia: string;
@@ -119,24 +121,28 @@ export declare class PetsService {
             verificationUrl: string | null;
             verificationQrCode: string | null;
             lastSharedAt: Date | null;
-            clinicalRecordId: string | null;
-            appointmentId: string | null;
         }[];
         consentTerms: {
             id: string;
             createdAt: Date;
             updatedAt: Date;
             clinicId: string;
-            status: import(".prisma/client").$Enums.DocumentStatus;
             petId: string;
+            status: import(".prisma/client").$Enums.DocumentStatus;
+            appointmentId: string | null;
             documentHash: string | null;
             signedAt: Date | null;
             verificationUrl: string | null;
             verificationQrCode: string | null;
             lastSharedAt: Date | null;
-            appointmentId: string | null;
-            consentTemplateId: string | null;
             finalText: string;
+            tutorSigned: boolean;
+            tutorSignedAt: Date | null;
+            tutorSignatureName: string | null;
+            tutorSignatureCpf: string | null;
+            tutorSignatureIp: string | null;
+            tutorSignatureUserAgent: string | null;
+            consentTemplateId: string | null;
         }[];
     } & {
         id: string;

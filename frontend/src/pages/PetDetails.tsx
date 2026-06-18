@@ -1032,7 +1032,7 @@ export function PetDetails() {
                                       {getStatusLabel(item.status).text}
                                     </span>
                                   )}
-                                  {(isPresc || isTerm) && (
+                                  {isPresc && (
                                     <span className={`inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-[10px] font-bold ${
                                       item.status === 'SIGNED'
                                         ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
@@ -1042,6 +1042,27 @@ export function PetDetails() {
                                         <span className="flex items-center gap-0.5">
                                           Assinado <Lock className="h-2.5 w-2.5" />
                                         </span>
+                                      ) : 'Rascunho'}
+                                    </span>
+                                  )}
+                                  {isTerm && (
+                                    <span className={`inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-[10px] font-bold ${
+                                      item.status === 'SIGNED'
+                                        ? item.original.tutorSigned
+                                          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                                          : 'bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400'
+                                        : 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400'
+                                    }`}>
+                                      {item.status === 'SIGNED' ? (
+                                        item.original.tutorSigned ? (
+                                          <span className="flex items-center gap-0.5">
+                                            ✓ Assinado pelo Tutor <Lock className="h-2.5 w-2.5" />
+                                          </span>
+                                        ) : (
+                                          <span className="flex items-center gap-0.5">
+                                            Registrado pela Clínica <Lock className="h-2.5 w-2.5" />
+                                          </span>
+                                        )
                                       ) : 'Rascunho'}
                                     </span>
                                   )}
