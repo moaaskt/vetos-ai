@@ -49,26 +49,25 @@ export function PrintTermo({ consentTerm }: PrintTermoProps) {
       {/* Rodapé Oficial de Validação e Assinatura */}
       <div className="border-t border-slate-200 pt-8 mt-12 space-y-6 break-inside-avoid">
         <div className="flex justify-between items-end gap-8">
-          {/* Assinatura Manual do Tutor */}
-          <div className="flex-1 space-y-1 text-center max-w-[280px]">
-            <div className="border-b border-slate-300 pb-1 w-full" />
-            <p className="text-[11px] font-bold text-slate-600 uppercase">Assinatura do Proprietário/Tutor</p>
-            <p className="text-[9px] text-slate-400 font-medium">Declaração de Consentimento</p>
+          {/* Declaração de Consentimento */}
+          <div className="flex-1 space-y-1 text-left max-w-[280px]">
+            <p className="text-[12px] font-bold text-slate-700 uppercase">Declaração de Consentimento</p>
+            <p className="text-[10px] text-slate-500 font-semibold">Emitido e registrado pela clínica</p>
           </div>
 
           {/* Assinatura e QR Code de Validação Jurídica */}
           {isSigned && (
-            <div className="flex items-center gap-4 border border-slate-100 bg-slate-50/80 p-3 rounded-lg max-w-[380px] overflow-hidden">
+            <div className="flex items-center gap-4 border border-slate-100 bg-slate-50/80 p-3 rounded-lg max-w-[420px] overflow-hidden">
               {consentTerm.verificationQrCode && (
                 <img
                   src={consentTerm.verificationQrCode}
                   alt="QR Code de Validação"
-                  className="h-16 w-16 bg-white p-1 border border-slate-200 rounded shrink-0"
+                  className="h-24 w-24 bg-white p-1 border border-slate-200 rounded shrink-0"
                 />
               )}
               <div className="space-y-1 text-left min-w-0">
-                <p className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                  ✓ DOCUMENTO ASSINADO DIGITALMENTE
+                <p className="text-[9px] font-bold text-emerald-600 flex items-center gap-1 uppercase">
+                  ✓ Documento emitido e registrado digitalmente pela clínica
                 </p>
                 {consentTerm.documentHash && (
                   <p className="text-[8px] font-mono text-slate-400 select-all leading-tight break-all font-semibold" title={consentTerm.documentHash}>

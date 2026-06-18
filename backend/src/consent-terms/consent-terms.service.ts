@@ -220,9 +220,9 @@ A Clínica ${clinicName} compartilhou um Termo de Consentimento referente ao ate
 
 📄 Documento: Termo de Consentimento
 🐾 Pet: ${petName}
-📅 Assinado em: ${signedAt}
+📅 Registrado em: ${signedAt}
 
-Visualize o documento assinado digitalmente:
+Visualize o termo emitido e registrado digitalmente pela clínica:
 ${link}
 
 Atenciosamente,
