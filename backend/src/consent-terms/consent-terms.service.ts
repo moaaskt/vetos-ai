@@ -5,10 +5,14 @@ import { CreateConsentTermDto } from './dto/create-consent-term.dto';
 import { DocumentStatus } from '@prisma/client';
 import * as crypto from 'crypto';
 import * as QRCode from 'qrcode';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ConsentTermsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   // Cria um novo template de termo
   async createTemplate(clinicId: string, data: CreateConsentTemplateDto) {
@@ -173,6 +177,77 @@ export class ConsentTermsService {
 
     await this.prisma.consentTerm.delete({
       where: { id },
+    });
+
+    return { success: true };
+  }
+
+  async share(clinicId: string, id: string, channels: ('EMAIL' | 'WHATSAPP')[]) {
+    const doc = await this.prisma.consentTerm.findFirst({
+      where: { id, clinicId },
+      include: {
+        pet: {
+          include: {
+            client: true,
+          },
+        },
+        clinic: true,
+      },
+    });
+
+    if (!doc) {
+      throw new NotFoundException('Termo de consentimento não encontrado.');
+    }
+
+    if (doc.status !== DocumentStatus.SIGNED) {
+      throw new BadRequestException('Apenas termos de consentimento assinados podem ser compartilhados.');
+    }
+
+    const frontendUrl = process.env.FRONTEND_URL || 'https://vetos.ai';
+    const link = `${frontendUrl}/documento/${doc.documentHash}`;
+    const tutorName = doc.pet.client.name;
+    const petName = doc.pet.name;
+    const clinicName = doc.clinic.name;
+    const messageBody = `Olá, ${tutorName}! A ${clinicName} compartilhou o termo de consentimento assinado do paciente ${petName}. Acesse o documento em: ${link}`;
+
+    for (const channel of channels) {
+      if (channel === 'EMAIL') {
+        if (!doc.pet.client.email) {
+          throw new BadRequestException('Tutor não possui e-mail cadastrado.');
+        }
+        await this.notificationsService.enqueueNotification({
+          clinicId,
+          channel: 'EMAIL',
+          to: doc.pet.client.email,
+          subject: `Termo de Consentimento de ${petName} - ${clinicName}`,
+          body: messageBody,
+          event: 'CONSENT_TERM_SHARED',
+          petId: doc.petId,
+          clientId: doc.pet.clientId,
+          consentTermId: doc.id,
+        });
+      } else if (channel === 'WHATSAPP') {
+        if (!doc.pet.client.phone) {
+          throw new BadRequestException('Tutor não possui telefone cadastrado.');
+        }
+        await this.notificationsService.enqueueNotification({
+          clinicId,
+          channel: 'WHATSAPP',
+          to: doc.pet.client.phone,
+          body: messageBody,
+          event: 'CONSENT_TERM_SHARED',
+          petId: doc.petId,
+          clientId: doc.pet.clientId,
+          consentTermId: doc.id,
+        });
+      }
+    }
+
+    await this.prisma.consentTerm.update({
+      where: { id },
+      data: {
+        lastSharedAt: new Date(),
+      },
     });
 
     return { success: true };

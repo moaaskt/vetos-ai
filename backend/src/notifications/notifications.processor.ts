@@ -289,6 +289,8 @@ export class NotificationsProcessor extends WorkerHost {
         clientId: payload.clientId,
         petId: payload.petId,
         vaccineRecordId: payload.vaccineRecordId,
+        prescriptionId: payload.prescriptionId,
+        consentTermId: payload.consentTermId,
       },
     });
   }

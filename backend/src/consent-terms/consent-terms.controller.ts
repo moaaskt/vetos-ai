@@ -49,6 +49,15 @@ export class ConsentTermsController {
     return this.consentTermsService.sign(user.clinicId, id);
   }
 
+  @Post(':id/share')
+  share(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() body: { channels: ('EMAIL' | 'WHATSAPP')[] },
+  ) {
+    return this.consentTermsService.share(user.clinicId, id, body.channels);
+  }
+
   @Delete(':id')
   remove(@CurrentUser() user: any, @Param('id') id: string) {
     return this.consentTermsService.remove(user.clinicId, id);

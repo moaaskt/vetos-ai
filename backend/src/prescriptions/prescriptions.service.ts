@@ -4,10 +4,14 @@ import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { DocumentStatus } from '@prisma/client';
 import * as crypto from 'crypto';
 import * as QRCode from 'qrcode';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class PrescriptionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async create(clinicId: string, data: CreatePrescriptionDto) {
     const pet = await this.prisma.pet.findFirst({
@@ -114,6 +118,77 @@ export class PrescriptionsService {
 
     await this.prisma.prescription.delete({
       where: { id },
+    });
+
+    return { success: true };
+  }
+
+  async share(clinicId: string, id: string, channels: ('EMAIL' | 'WHATSAPP')[]) {
+    const doc = await this.prisma.prescription.findFirst({
+      where: { id, clinicId },
+      include: {
+        pet: {
+          include: {
+            client: true,
+          },
+        },
+        clinic: true,
+      },
+    });
+
+    if (!doc) {
+      throw new NotFoundException('Receita não encontrada.');
+    }
+
+    if (doc.status !== DocumentStatus.SIGNED) {
+      throw new BadRequestException('Apenas receitas assinadas podem ser compartilhadas.');
+    }
+
+    const frontendUrl = process.env.FRONTEND_URL || 'https://vetos.ai';
+    const link = `${frontendUrl}/documento/${doc.documentHash}`;
+    const tutorName = doc.pet.client.name;
+    const petName = doc.pet.name;
+    const clinicName = doc.clinic.name;
+    const messageBody = `Olá, ${tutorName}! A ${clinicName} compartilhou a receita médica do seu pet ${petName}. Acesse o documento assinado em: ${link}`;
+
+    for (const channel of channels) {
+      if (channel === 'EMAIL') {
+        if (!doc.pet.client.email) {
+          throw new BadRequestException('Tutor não possui e-mail cadastrado.');
+        }
+        await this.notificationsService.enqueueNotification({
+          clinicId,
+          channel: 'EMAIL',
+          to: doc.pet.client.email,
+          subject: `Receita Médica de ${petName} - ${clinicName}`,
+          body: messageBody,
+          event: 'PRESCRIPTION_SHARED',
+          petId: doc.petId,
+          clientId: doc.pet.clientId,
+          prescriptionId: doc.id,
+        });
+      } else if (channel === 'WHATSAPP') {
+        if (!doc.pet.client.phone) {
+          throw new BadRequestException('Tutor não possui telefone cadastrado.');
+        }
+        await this.notificationsService.enqueueNotification({
+          clinicId,
+          channel: 'WHATSAPP',
+          to: doc.pet.client.phone,
+          body: messageBody,
+          event: 'PRESCRIPTION_SHARED',
+          petId: doc.petId,
+          clientId: doc.pet.clientId,
+          prescriptionId: doc.id,
+        });
+      }
+    }
+
+    await this.prisma.prescription.update({
+      where: { id },
+      data: {
+        lastSharedAt: new Date(),
+      },
     });
 
     return { success: true };
