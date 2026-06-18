@@ -334,6 +334,8 @@ model NotificationLog {
   clientId          String?
   petId             String?
   vaccineRecordId   String?
+  prescriptionId    String?
+  consentTermId     String?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
 
@@ -342,6 +344,8 @@ model NotificationLog {
   client        Client?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
   pet           Pet?           @relation(fields: [petId], references: [id], onDelete: SetNull)
   vaccineRecord VaccineRecord? @relation(fields: [vaccineRecordId], references: [id], onDelete: SetNull)
+  prescription  Prescription?  @relation(fields: [prescriptionId], references: [id], onDelete: SetNull)
+  consentTerm   ConsentTerm?   @relation(fields: [consentTermId], references: [id], onDelete: SetNull)
 
   @@index([clinicId, status])
   @@index([clinicId, channel])
@@ -350,6 +354,8 @@ model NotificationLog {
   @@index([clientId])
   @@index([petId])
   @@index([vaccineRecordId])
+  @@index([prescriptionId])
+  @@index([consentTermId])
   @@index([clinicId, vaccineRecordId, event, channel])
 }
 
@@ -385,29 +391,31 @@ enum DocumentStatus {
 }
 
 model Prescription {
-  id                 String          @id @default(uuid())
+  id                 String            @id @default(uuid())
   medicamento        String
   dosagem            String
   frequencia         String
   duracao            String
   viaAdministracao   String
   observacoes        String?
-  status             DocumentStatus  @default(DRAFT)
-  documentHash       String?         @unique
+  status             DocumentStatus    @default(DRAFT)
+  documentHash       String?           @unique
   signedAt           DateTime?
   verificationUrl    String?
   verificationQrCode String?
+  lastSharedAt       DateTime?
   petId              String
   clinicId           String
   clinicalRecordId   String?
   appointmentId      String?
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
-  pet            Pet             @relation(fields: [petId], references: [id], onDelete: Cascade)
-  clinic         Clinic          @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  clinicalRecord ClinicalRecord? @relation(fields: [clinicalRecordId], references: [id], onDelete: SetNull)
-  appointment    Appointment?    @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  pet              Pet               @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinic           Clinic            @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinicalRecord   ClinicalRecord?   @relation(fields: [clinicalRecordId], references: [id], onDelete: SetNull)
+  appointment      Appointment?      @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  notificationLogs NotificationLog[]
 
   @@index([petId])
   @@index([clinicId])
@@ -443,13 +451,15 @@ model ConsentTerm {
   signedAt           DateTime?
   verificationUrl    String?
   verificationQrCode String?
+  lastSharedAt       DateTime?
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
 
-  pet             Pet              @relation(fields: [petId], references: [id], onDelete: Cascade)
-  clinic          Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  appointment     Appointment?     @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
-  consentTemplate ConsentTemplate? @relation(fields: [consentTemplateId], references: [id], onDelete: SetNull)
+  pet              Pet              @relation(fields: [petId], references: [id], onDelete: Cascade)
+  clinic           Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointment      Appointment?     @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  consentTemplate  ConsentTemplate? @relation(fields: [consentTemplateId], references: [id], onDelete: SetNull)
+  notificationLogs NotificationLog[]
 
   @@index([petId])
   @@index([clinicId])

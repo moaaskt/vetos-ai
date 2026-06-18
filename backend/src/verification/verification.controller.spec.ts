@@ -89,4 +89,49 @@ describe('VerificationController', () => {
       await expect(controller.verify(hash)).rejects.toThrow(NotFoundException);
     });
   });
+
+  describe('getDetails', () => {
+    const hash = 'a6c8e31...';
+
+    it('returns full prescription object if signed', async () => {
+      const mockPrescription = {
+        id: 'presc-1',
+        medicamento: 'Amoxicilina',
+        dosagem: '250mg',
+        status: DocumentStatus.SIGNED,
+        clinic: { name: 'Clinica Vet' },
+        pet: { name: 'Bidu', client: { name: 'John Doe' } },
+      };
+      mockPrisma.prescription.findFirst.mockResolvedValue(mockPrescription);
+
+      const result = await controller.getDetails(hash);
+      expect(result).toBeDefined();
+      expect(result.documentType).toBe('RECEITA_MEDICA');
+      expect(result.document).toEqual(mockPrescription);
+    });
+
+    it('returns full consent term object if signed', async () => {
+      mockPrisma.prescription.findFirst.mockResolvedValue(null);
+      const mockConsentTerm = {
+        id: 'term-1',
+        finalText: 'Mariana autorizou...',
+        status: DocumentStatus.SIGNED,
+        clinic: { name: 'Clinica Vet' },
+        pet: { name: 'Bidu', client: { name: 'John Doe' } },
+      };
+      mockPrisma.consentTerm.findFirst.mockResolvedValue(mockConsentTerm);
+
+      const result = await controller.getDetails(hash);
+      expect(result).toBeDefined();
+      expect(result.documentType).toBe('TERMO_DE_CONSENTIMENTO');
+      expect(result.document).toEqual(mockConsentTerm);
+    });
+
+    it('throws NotFoundException if no signed document corresponds to the hash', async () => {
+      mockPrisma.prescription.findFirst.mockResolvedValue(null);
+      mockPrisma.consentTerm.findFirst.mockResolvedValue(null);
+
+      await expect(controller.getDetails(hash)).rejects.toThrow(NotFoundException);
+    });
+  });
 });

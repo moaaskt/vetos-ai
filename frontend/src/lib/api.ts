@@ -198,6 +198,7 @@ export type Prescription = {
   signedAt?: string | null
   verificationUrl?: string | null
   verificationQrCode?: string | null
+  lastSharedAt?: string | null
   petId: string
   clinicId: string
   clinicalRecordId?: string | null
@@ -229,6 +230,7 @@ export type ConsentTerm = {
   signedAt?: string | null
   verificationUrl?: string | null
   verificationQrCode?: string | null
+  lastSharedAt?: string | null
   createdAt?: string
   updatedAt?: string
 }

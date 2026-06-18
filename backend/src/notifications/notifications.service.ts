@@ -27,6 +27,8 @@ export interface EnqueueNotificationInput {
   clientId?: string;
   petId?: string;
   vaccineRecordId?: string;
+  prescriptionId?: string;
+  consentTermId?: string;
   delayMs?: number;
   jobId?: string;
   clientName?: string;

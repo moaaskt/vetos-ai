@@ -18,6 +18,7 @@ import { NotificationTemplatesPage } from './pages/messaging/NotificationTemplat
 import { NotificationLogsPage } from './pages/messaging/NotificationLogsPage'
 import { SettingsPage } from './pages/settings/SettingsPage'
 import { VaccineProtocolsPage } from './pages/settings/VaccineProtocolsPage'
+import { PublicDocumentView } from './pages/PublicDocumentView'
 
 
 function defaultAuthenticatedRoute(role?: string) {
@@ -105,6 +106,7 @@ const router = createBrowserRouter([
       { path: '/super-admin/clinics', element: <SuperAdminClinics /> },
     ],
   },
+  { path: '/documento/:hash', element: <PublicDocumentView /> },
   { path: '*', element: <RootRedirect /> },
 ])
 

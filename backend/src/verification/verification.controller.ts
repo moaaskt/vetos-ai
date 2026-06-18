@@ -57,4 +57,55 @@ export class VerificationController {
     // 3. Caso não encontre em nenhuma tabela
     throw new NotFoundException('Documento não encontrado ou inválido.');
   }
+
+  @Get(':hash/details')
+  async getDetails(@Param('hash') hash: string) {
+    // 1. Busca em receitas médicas assinadas
+    const prescription = await this.prisma.prescription.findFirst({
+      where: {
+        documentHash: hash,
+        status: DocumentStatus.SIGNED,
+      },
+      include: {
+        pet: {
+          include: {
+            client: true,
+          },
+        },
+        clinic: true,
+      },
+    });
+
+    if (prescription) {
+      return {
+        documentType: 'RECEITA_MEDICA',
+        document: prescription,
+      };
+    }
+
+    // 2. Busca em termos de consentimento assinados
+    const consentTerm = await this.prisma.consentTerm.findFirst({
+      where: {
+        documentHash: hash,
+        status: DocumentStatus.SIGNED,
+      },
+      include: {
+        pet: {
+          include: {
+            client: true,
+          },
+        },
+        clinic: true,
+      },
+    });
+
+    if (consentTerm) {
+      return {
+        documentType: 'TERMO_DE_CONSENTIMENTO',
+        document: consentTerm,
+      };
+    }
+
+    throw new NotFoundException('Documento não encontrado ou inválido.');
+  }
 }

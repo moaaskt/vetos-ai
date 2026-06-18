@@ -35,6 +35,15 @@ export class PrescriptionsController {
     return this.prescriptionsService.sign(user.clinicId, id);
   }
 
+  @Post(':id/share')
+  share(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() body: { channels: ('EMAIL' | 'WHATSAPP')[] },
+  ) {
+    return this.prescriptionsService.share(user.clinicId, id, body.channels);
+  }
+
   @Delete(':id')
   remove(@CurrentUser() user: any, @Param('id') id: string) {
     return this.prescriptionsService.remove(user.clinicId, id);
