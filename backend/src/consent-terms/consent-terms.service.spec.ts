@@ -3,9 +3,11 @@ import { ConsentTermsService } from './consent-terms.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { DocumentStatus } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 
 describe('ConsentTermsService', () => {
   let service: ConsentTermsService;
+  let notificationsService: NotificationsService;
 
   const mockPrisma = {
     pet: {
@@ -23,6 +25,10 @@ describe('ConsentTermsService', () => {
     },
   };
 
+  const mockNotificationsService = {
+    enqueueNotification: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
@@ -33,10 +39,15 @@ describe('ConsentTermsService', () => {
           provide: PrismaService,
           useValue: mockPrisma,
         },
+        {
+          provide: NotificationsService,
+          useValue: mockNotificationsService,
+        },
       ],
     }).compile();
 
     service = module.get<ConsentTermsService>(ConsentTermsService);
+    notificationsService = module.get<NotificationsService>(NotificationsService);
   });
 
   describe('findAllTemplates', () => {
@@ -149,6 +160,64 @@ describe('ConsentTermsService', () => {
         BadRequestException,
       );
       expect(mockPrisma.consentTerm.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('share', () => {
+    it('shares a signed consent term successfully', async () => {
+      const mockDoc = {
+        id: 'term-1',
+        clinicId: 'clinic-1',
+        petId: 'pet-1',
+        status: DocumentStatus.SIGNED,
+        documentHash: 'some-hash',
+        pet: {
+          id: 'pet-1',
+          name: 'Rex',
+          clientId: 'client-1',
+          client: {
+            id: 'client-1',
+            name: 'John Doe',
+            email: 'john@example.com',
+            phone: '123456789',
+          },
+        },
+        clinic: {
+          id: 'clinic-1',
+          name: 'Clinic Vet',
+        },
+      };
+
+      mockPrisma.consentTerm.findFirst.mockResolvedValue(mockDoc);
+      mockPrisma.consentTerm.update.mockResolvedValue({ ...mockDoc, lastSharedAt: new Date() });
+
+      const result = await service.share('clinic-1', 'term-1', ['EMAIL', 'WHATSAPP']);
+      expect(result).toEqual({ success: true });
+      expect(mockNotificationsService.enqueueNotification).toHaveBeenCalledTimes(2);
+      expect(mockPrisma.consentTerm.update).toHaveBeenCalledWith({
+        where: { id: 'term-1' },
+        data: { lastSharedAt: expect.any(Date) },
+      });
+    });
+
+    it('throws BadRequestException if document is DRAFT', async () => {
+      mockPrisma.consentTerm.findFirst.mockResolvedValue({
+        id: 'term-1',
+        clinicId: 'clinic-1',
+        status: DocumentStatus.DRAFT,
+      });
+
+      await expect(service.share('clinic-1', 'term-1', ['EMAIL'])).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('throws NotFoundException if term does not exist', async () => {
+      mockPrisma.consentTerm.findFirst.mockResolvedValue(null);
+
+      await expect(service.share('clinic-1', 'term-1', ['EMAIL'])).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

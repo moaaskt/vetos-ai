@@ -25,6 +25,7 @@ gantt
 ## Detalhamento das Próximas Fases
 
 ### Phase 14B: Interface de Gerenciamento de Vacinas (Frontend UI)
+
 - **Goal:** Fornecer ao administrador da clínica visibilidade completa sobre o motor de lembretes automáticos de imunização.
 - **Funcionalidades**:
   - Tela de monitoramento de lembretes futuros na fila do BullMQ (D0, D-1, D-7).
@@ -33,6 +34,7 @@ gantt
 - **Depends on:** Phase 14A.
 
 ### Phase 15: Faturamento SaaS & Controle de Limites (Billing)
+
 - **Goal:** Monetizar a plataforma VetOS AI com planos recorrentes e aplicar travas automáticas para proteção de infraestrutura.
 - **Funcionalidades**:
   - Integração do backend com gateways de pagamento (e.g. Stripe, Asaas) via webhooks.
@@ -41,6 +43,7 @@ gantt
 - **Depends on:** Phase 2, Phase 7.
 
 ### Phase 16A: Uploads de Exames e Anexos Clínicos
+
 - **Goal:** Habilitar o upload e armazenamento seguro de exames e laudos diretamente no prontuário do pet.
 - **Funcionalidades**:
   - Área de uploads de arquivos no prontuário (laudos de exames de sangue, imagens de raio-x, ultrassom) no frontend e backend.
@@ -49,13 +52,26 @@ gantt
 - **Depends on:** Phase 11.
 
 ### Phase 16B: Prontuário Avançado, Layout de Impressão e Assinatura Digital
+
 - **Goal:** Elevar o nível de conformidade legal do prontuário veterinário e permitir a assinatura digital de termos e receitas.
 - **Funcionalidades**:
   - Layout limpo e responsivo para impressão física ou geração de PDF de prontuários, receitas médicas e termos de consentimento.
   - Integração com assinaturas digitais qualificadas (ICP-Brasil) para chancelar procedimentos e diagnósticos realizados.
 - **Depends on:** Phase 16A.
 
+### Phase 16B.1: Compartilhamento de Documentos com Tutor (INSERTED)
+
+- **Goal:** Permitir o envio de Receitas e Termos assinados para Email e WhatsApp do tutor, integrando o fluxo de assinatura digital da Phase 16B com os canais de notificação existentes.
+- **Funcionalidades**:
+  - Envio de receitas médicas assinadas digitalmente para o email do tutor.
+  - Compartilhamento de termos de consentimento assinados via WhatsApp (Evolution API).
+  - Geração de PDF do documento assinado para anexo nos envios.
+  - Registro de histórico de compartilhamentos no prontuário do pet.
+- **Depends on:** Phase 16B, Phase 4.
+- **Plans:** 0/2 plans complete
+
 ### Phase 17: IA Assistente (AI Copilot) & Otimizador de Consultas
+
 - **Goal:** Trazer inteligência artificial generativa e preditiva para o ecossistema do VetOS AI.
 - **Funcionalidades**:
   - **Copilot de Anamnese**: Sugestão de possíveis diagnósticos e exames complementares com base na inserção de sintomas e queixas do tutor no prontuário.
@@ -64,6 +80,7 @@ gantt
 - **Depends on:** Phase 6, Phase 11, Phase 13.
 
 ### Phase 18: Refinamento de Segurança, Infraestrutura e Testes e2e
+
 - **Goal:** Sanar débitos técnicos, blindar a segurança da API e expandir a estabilidade da plataforma.
 - **Funcionalidades**:
   - **Módulo Redis do NestJS**: Encapsular a conexão do `ioredis` na injeção de dependências do NestJS ao invés de usar importação direta em runtime.

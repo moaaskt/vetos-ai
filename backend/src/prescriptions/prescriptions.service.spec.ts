@@ -3,9 +3,11 @@ import { PrescriptionsService } from './prescriptions.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { DocumentStatus } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 
 describe('PrescriptionsService', () => {
   let service: PrescriptionsService;
+  let notificationsService: NotificationsService;
 
   const mockPrisma = {
     pet: {
@@ -19,6 +21,10 @@ describe('PrescriptionsService', () => {
     },
   };
 
+  const mockNotificationsService = {
+    enqueueNotification: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
@@ -29,10 +35,15 @@ describe('PrescriptionsService', () => {
           provide: PrismaService,
           useValue: mockPrisma,
         },
+        {
+          provide: NotificationsService,
+          useValue: mockNotificationsService,
+        },
       ],
     }).compile();
 
     service = module.get<PrescriptionsService>(PrescriptionsService);
+    notificationsService = module.get<NotificationsService>(NotificationsService);
   });
 
   describe('create', () => {
@@ -136,6 +147,64 @@ describe('PrescriptionsService', () => {
         BadRequestException,
       );
       expect(mockPrisma.prescription.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('share', () => {
+    it('shares a signed prescription successfully', async () => {
+      const mockDoc = {
+        id: 'presc-1',
+        clinicId: 'clinic-1',
+        petId: 'pet-1',
+        status: DocumentStatus.SIGNED,
+        documentHash: 'some-hash',
+        pet: {
+          id: 'pet-1',
+          name: 'Rex',
+          clientId: 'client-1',
+          client: {
+            id: 'client-1',
+            name: 'John Doe',
+            email: 'john@example.com',
+            phone: '123456789',
+          },
+        },
+        clinic: {
+          id: 'clinic-1',
+          name: 'Clinic Vet',
+        },
+      };
+
+      mockPrisma.prescription.findFirst.mockResolvedValue(mockDoc);
+      mockPrisma.prescription.update.mockResolvedValue({ ...mockDoc, lastSharedAt: new Date() });
+
+      const result = await service.share('clinic-1', 'presc-1', ['EMAIL', 'WHATSAPP']);
+      expect(result).toEqual({ success: true });
+      expect(mockNotificationsService.enqueueNotification).toHaveBeenCalledTimes(2);
+      expect(mockPrisma.prescription.update).toHaveBeenCalledWith({
+        where: { id: 'presc-1' },
+        data: { lastSharedAt: expect.any(Date) },
+      });
+    });
+
+    it('throws BadRequestException if document is DRAFT', async () => {
+      mockPrisma.prescription.findFirst.mockResolvedValue({
+        id: 'presc-1',
+        clinicId: 'clinic-1',
+        status: DocumentStatus.DRAFT,
+      });
+
+      await expect(service.share('clinic-1', 'presc-1', ['EMAIL'])).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('throws NotFoundException if prescription does not exist', async () => {
+      mockPrisma.prescription.findFirst.mockResolvedValue(null);
+
+      await expect(service.share('clinic-1', 'presc-1', ['EMAIL'])).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });
