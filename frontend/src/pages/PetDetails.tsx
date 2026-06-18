@@ -36,6 +36,7 @@ import { Modal } from '../components/Modal'
 import { CreatePrescriptionModal } from '../components/CreatePrescriptionModal'
 import { CreateConsentTermModal } from '../components/CreateConsentTermModal'
 import { PrintPreviewModal } from '../components/PrintPreviewModal'
+import { ShareDocumentModal } from '../components/ShareDocumentModal'
 import { Input } from '../components/ui/input'
 import { getSpeciesLabel } from './Pets'
 
@@ -145,6 +146,17 @@ export function PetDetails() {
   const [isPrintDropdownOpen, setIsPrintDropdownOpen] = useState(false)
   const [selectedDocForPrint, setSelectedDocForPrint] = useState<any>(null)
   const [printDocType, setPrintDocType] = useState<'prescription' | 'consentTerm' | 'prontuario'>('prontuario')
+
+  // Compartilhamento com Tutor (Fase 16B.1)
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false)
+  const [shareDocId, setShareDocId] = useState('')
+  const [shareDocType, setShareDocType] = useState<'prescription' | 'consent-term'>('prescription')
+
+  function handleOpenShareModal(id: string, type: 'prescription' | 'consent-term') {
+    setShareDocId(id)
+    setShareDocType(type)
+    setIsShareModalOpen(true)
+  }
 
   // Anexos Clínicos
   const [attachments, setAttachments] = useState<ClinicalAttachment[]>([])
@@ -1087,6 +1099,14 @@ export function PetDetails() {
                                   >
                                     Visualizar Impressão
                                   </Button>
+                                  {item.status === 'SIGNED' && (
+                                    <Button
+                                      onClick={() => handleOpenShareModal(item.original.id, 'prescription')}
+                                      className="h-8 text-xs font-bold gap-1 bg-emerald-600 hover:bg-emerald-500 text-white"
+                                    >
+                                      ✉ Enviar ao Tutor
+                                    </Button>
+                                  )}
                                   {item.status === 'SIGNED' && item.original.documentHash && (
                                     <span className="text-[10px] text-muted-foreground font-mono bg-muted px-2 py-1 rounded truncate max-w-[280px]" title={item.original.documentHash}>
                                       Hash: {item.original.documentHash}
@@ -1110,6 +1130,14 @@ export function PetDetails() {
                                   >
                                     Visualizar Impressão
                                   </Button>
+                                  {item.status === 'SIGNED' && (
+                                    <Button
+                                      onClick={() => handleOpenShareModal(item.original.id, 'consent-term')}
+                                      className="h-8 text-xs font-bold gap-1 bg-emerald-600 hover:bg-emerald-500 text-white"
+                                    >
+                                      ✉ Enviar ao Tutor
+                                    </Button>
+                                  )}
                                   {item.status === 'SIGNED' && item.original.documentHash && (
                                     <span className="text-[10px] text-muted-foreground font-mono bg-muted px-2 py-1 rounded truncate max-w-[280px]" title={item.original.documentHash}>
                                       Hash: {item.original.documentHash}
@@ -2099,6 +2127,30 @@ export function PetDetails() {
           }}
           onSigned={(signedDoc) => {
             setSelectedDocForPrint(signedDoc)
+            refreshPetDataSilently()
+          }}
+          tutorName={pet.client?.name}
+          tutorEmail={pet.client?.email}
+          tutorPhone={pet.client?.phone}
+          petName={pet.name}
+          onShareSuccess={() => {
+            refreshPetDataSilently()
+          }}
+        />
+      )}
+
+      {/* Modal de Compartilhamento Standalone a partir da Timeline */}
+      {isShareModalOpen && pet.client && (
+        <ShareDocumentModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          documentId={shareDocId}
+          documentType={shareDocType}
+          tutorName={pet.client.name}
+          tutorEmail={pet.client.email}
+          tutorPhone={pet.client.phone}
+          petName={pet.name}
+          onShareSuccess={() => {
             refreshPetDataSilently()
           }}
         />

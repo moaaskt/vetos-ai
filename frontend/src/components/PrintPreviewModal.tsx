@@ -5,12 +5,18 @@ import { PrintProntuario } from './print/PrintProntuario'
 import { PrintReceita } from './print/PrintReceita'
 import { PrintTermo } from './print/PrintTermo'
 import { api } from '../lib/api'
+import { ShareDocumentModal } from './ShareDocumentModal'
 
 type PrintPreviewModalProps = {
   document: any
   type: 'prescription' | 'consentTerm' | 'prontuario'
   onClose: () => void
   onSigned?: (signedDocument: any) => void
+  tutorName?: string
+  tutorEmail?: string | null
+  tutorPhone?: string | null
+  petName?: string
+  onShareSuccess?: () => void
 }
 
 export function PrintPreviewModal({
@@ -18,11 +24,17 @@ export function PrintPreviewModal({
   type,
   onClose,
   onSigned,
+  tutorName,
+  tutorEmail,
+  tutorPhone,
+  petName,
+  onShareSuccess,
 }: PrintPreviewModalProps) {
   const [currentDoc, setCurrentDoc] = useState(document)
   const [isSigning, setIsSigning] = useState(false)
   const [justSigned, setJustSigned] = useState(false)
   const [error, setError] = useState('')
+  const [isShareOpen, setIsShareOpen] = useState(false)
 
   const isSigned = type === 'prontuario' || currentDoc?.status === 'SIGNED'
 
@@ -109,6 +121,16 @@ export function PrintPreviewModal({
             Imprimir
           </Button>
 
+          {/* Botão de Compartilhar / Enviar ao Tutor */}
+          {isSigned && type !== 'prontuario' && tutorName && (
+            <Button
+              onClick={() => setIsShareOpen(true)}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold gap-1.5 text-xs h-9 shadow-md shadow-emerald-900/20"
+            >
+              ✉ Enviar ao Tutor
+            </Button>
+          )}
+
           {/* Botão Fechar */}
           <button
             onClick={onClose}
@@ -141,6 +163,21 @@ export function PrintPreviewModal({
           {type === 'consentTerm' && <PrintTermo consentTerm={currentDoc} />}
         </div>
       </div>
+
+      {/* Modal de Compartilhamento Standalone */}
+      {tutorName && (
+        <ShareDocumentModal
+          isOpen={isShareOpen}
+          onClose={() => setIsShareOpen(false)}
+          documentId={currentDoc.id}
+          documentType={type === 'prescription' ? 'prescription' : 'consent-term'}
+          tutorName={tutorName}
+          tutorEmail={tutorEmail}
+          tutorPhone={tutorPhone}
+          petName={petName || ''}
+          onShareSuccess={onShareSuccess}
+        />
+      )}
     </div>
   )
 }
