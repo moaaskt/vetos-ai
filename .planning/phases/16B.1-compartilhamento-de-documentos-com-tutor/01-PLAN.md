@@ -72,15 +72,15 @@ Output: Banco sincronizado, APIs de compartilhamento (/share) e API de detalhes 
        - Relacionamento `prescription Prescription? @relation(fields: [prescriptionId], references: [id], onDelete: SetNull)`
        - Relacionamento `consentTerm ConsentTerm? @relation(fields: [consentTermId], references: [id], onDelete: SetNull)`
        - Adicionar índices: `@@index([prescriptionId])` e `@@index([consentTermId])`.
-    4. Executar o schema push do Prisma para sincronizar o banco de dados.
+    4. Executar o schema push do Prisma para sincronizar o banco de dados. Se o Prisma solicitar perda de dados (data loss) ou reset/drop, parar imediatamente e reportar ao usuário antes de continuar.
   </action>
   <verify>
     <automated>npx prisma validate</automated>
-    <automated>npx prisma db push --accept-data-loss</automated>
+    <automated>npx prisma db push</automated>
   </verify>
   <acceptance_criteria>
     - O comando 'npx prisma validate' executa com sucesso.
-    - O comando 'npx prisma db push' atualiza a base de dados local sem falhas.
+    - O comando 'npx prisma db push' atualiza a base de dados local sem falhas e sem requerer perda de dados ou reset/drop.
   </acceptance_criteria>
   <done>Banco de dados local sincronizado e atualizado.</done>
 </task>
@@ -125,16 +125,16 @@ Output: Banco sincronizado, APIs de compartilhamento (/share) e API de detalhes 
   <action>
     1. No `VerificationController`, expor a rota pública `GET /verify/:hash/details` (sem `JwtAuthGuard`).
     2. No `VerificationService`, implementar a busca baseada no hash do documento:
-       - Tentar buscar em `Prescription` pelo `documentHash === hash`. Se encontrar, incluir relações de `Pet` (e seu Tutor/Client) e `Clinic`.
-       - Se não encontrar, tentar buscar em `ConsentTerm` pelo `documentHash === hash`, incluindo relações de `Pet` (e seu Tutor) e `Clinic`.
-       - Retornar o objeto de detalhes completo do documento. Se não encontrar em nenhum, lançar `NotFoundException`.
+       - Tentar buscar em `Prescription` pelo `documentHash === hash` e `status === SIGNED`. Se encontrar, incluir relações de `Pet` (e seu Tutor/Client) e `Clinic`.
+       - Se não encontrar, tentar buscar em `ConsentTerm` pelo `documentHash === hash` e `status === SIGNED`, incluindo relações de `Pet` (e seu Tutor) e `Clinic`.
+       - Retornar o objeto de detalhes completo do documento. Se não encontrar em nenhum ou se o status for DRAFT, lançar `NotFoundException` (exibir 404).
   </action>
   <verify>
     <automated>npm --prefix backend run test:e2e</automated>
   </verify>
   <acceptance_criteria>
-    - Requisições para `GET /verify/:hash/details` com hash válido retornam o payload completo do documento (receita ou termo).
-    - Requisições com hash inválido retornam status 404.
+    - Requisições para `GET /verify/:hash/details` com hash válido e status SIGNED retornam o payload completo do documento (receita ou termo).
+    - Requisições com hash de documento com status DRAFT ou hash inválido devem retornar status 404.
   </acceptance_criteria>
   <done>Endpoint público implementado.</done>
 </task>
