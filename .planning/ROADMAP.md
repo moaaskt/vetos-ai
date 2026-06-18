@@ -68,7 +68,7 @@ gantt
   - Geração de PDF do documento assinado para anexo nos envios.
   - Registro de histórico de compartilhamentos no prontuário do pet.
 - **Depends on:** Phase 16B, Phase 4.
-- **Plans:** 0 plans
+- **Plans:** 0/2 plans complete
 
 ### Phase 17: IA Assistente (AI Copilot) & Otimizador de Consultas
 
