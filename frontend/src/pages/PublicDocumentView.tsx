@@ -87,10 +87,15 @@ export function PublicDocumentView() {
             ✓
           </div>
           <div className="text-left">
-            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Documento Autenticado</p>
-            <h2 className="text-sm font-bold text-slate-800">
+            <p className="text-xs text-emerald-600 font-bold uppercase tracking-wider flex items-center gap-1">
+              ✓ Documento Autenticado
+            </p>
+            <h2 className="text-sm font-bold text-slate-800 leading-tight">
               {data.documentType === 'RECEITA_MEDICA' ? 'Receita Médica Veterinária' : 'Termo de Consentimento Livre'}
             </h2>
+            <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5">
+              Documento válido e registrado digitalmente
+            </p>
           </div>
         </div>
         <button
