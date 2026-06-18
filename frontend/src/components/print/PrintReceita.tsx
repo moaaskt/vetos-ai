@@ -84,12 +84,12 @@ export function PrintReceita({ prescription }: PrintReceitaProps) {
 
           {/* Assinatura e QR Code de Validação Jurídica */}
           {isSigned && (
-            <div className="flex items-center gap-4 border border-slate-100 bg-slate-50/80 p-3 rounded-lg max-w-[380px] overflow-hidden">
+            <div className="flex items-center gap-4 border border-slate-100 bg-slate-50/80 p-3 rounded-lg max-w-[420px] overflow-hidden">
               {prescription.verificationQrCode && (
                 <img
                   src={prescription.verificationQrCode}
                   alt="QR Code de Validação"
-                  className="h-16 w-16 bg-white p-1 border border-slate-200 rounded shrink-0"
+                  className="h-24 w-24 bg-white p-1 border border-slate-200 rounded shrink-0"
                 />
               )}
               <div className="space-y-1 text-left min-w-0">
