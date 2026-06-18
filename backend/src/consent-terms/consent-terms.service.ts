@@ -208,7 +208,25 @@ export class ConsentTermsService {
     const tutorName = doc.pet.client.name;
     const petName = doc.pet.name;
     const clinicName = doc.clinic.name;
-    const messageBody = `Olá, ${tutorName}! A ${clinicName} compartilhou o termo de consentimento assinado do paciente ${petName}. Acesse o documento em: ${link}`;
+    const signedAt = doc.signedAt
+      ? new Date(doc.signedAt).toLocaleDateString('pt-BR')
+      : new Date(doc.createdAt).toLocaleDateString('pt-BR');
+
+    const messageBody = `📄 Termo de Consentimento Disponível
+
+Olá, ${tutorName}!
+
+A Clínica ${clinicName} compartilhou um Termo de Consentimento referente ao atendimento do pet ${petName}.
+
+📄 Documento: Termo de Consentimento
+🐾 Pet: ${petName}
+📅 Assinado em: ${signedAt}
+
+Visualize o documento assinado digitalmente:
+${link}
+
+Atenciosamente,
+Equipe ${clinicName}`;
 
     for (const channel of channels) {
       if (channel === 'EMAIL') {
@@ -219,7 +237,7 @@ export class ConsentTermsService {
           clinicId,
           channel: 'EMAIL',
           to: doc.pet.client.email,
-          subject: `Termo de Consentimento de ${petName} - ${clinicName}`,
+          subject: `📄 Termo de Consentimento Disponível`,
           body: messageBody,
           event: 'CONSENT_TERM_SHARED',
           petId: doc.petId,

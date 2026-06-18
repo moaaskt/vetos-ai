@@ -149,7 +149,25 @@ export class PrescriptionsService {
     const tutorName = doc.pet.client.name;
     const petName = doc.pet.name;
     const clinicName = doc.clinic.name;
-    const messageBody = `Olá, ${tutorName}! A ${clinicName} compartilhou a receita médica do seu pet ${petName}. Acesse o documento assinado em: ${link}`;
+    const issuedAt = doc.signedAt
+      ? new Date(doc.signedAt).toLocaleDateString('pt-BR')
+      : new Date(doc.createdAt).toLocaleDateString('pt-BR');
+
+    const messageBody = `🐾 Receita Médica Disponível
+
+Olá, ${tutorName}!
+
+A Clínica ${clinicName} disponibilizou uma receita médica para o pet ${petName}.
+
+📄 Documento: Receita Médica
+🐾 Pet: ${petName}
+📅 Emitido em: ${issuedAt}
+
+Visualize o documento assinado digitalmente:
+${link}
+
+Atenciosamente,
+Equipe ${clinicName}`;
 
     for (const channel of channels) {
       if (channel === 'EMAIL') {
@@ -160,7 +178,7 @@ export class PrescriptionsService {
           clinicId,
           channel: 'EMAIL',
           to: doc.pet.client.email,
-          subject: `Receita Médica de ${petName} - ${clinicName}`,
+          subject: `🐾 Receita Médica Disponível`,
           body: messageBody,
           event: 'PRESCRIPTION_SHARED',
           petId: doc.petId,
