@@ -20,6 +20,7 @@ describe('ConsentTermsService', () => {
     consentTerm: {
       create: jest.fn(),
       findFirst: jest.fn(),
+      findUnique: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
     },
@@ -218,6 +219,46 @@ describe('ConsentTermsService', () => {
       await expect(service.share('clinic-1', 'term-1', ['EMAIL'])).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('tutorSign', () => {
+    const hash = 'term-hash';
+    const data = { name: 'Maria Silva', cpf: '111.444.777-35', ip: '192.168.0.1', userAgent: 'Mozilla/5.0' };
+
+    it('successfully signs a consent term as tutor', async () => {
+      const mockDoc = { id: 'term-1', documentHash: hash, status: DocumentStatus.SIGNED, tutorSigned: false };
+      mockPrisma.consentTerm.findUnique.mockResolvedValue(mockDoc);
+      mockPrisma.consentTerm.update.mockImplementation(({ data: updateData }) => ({
+        ...mockDoc,
+        ...updateData,
+      }));
+
+      const result = await service.tutorSign(hash, data);
+      expect(result.tutorSigned).toBe(true);
+      expect(result.tutorSignatureName).toBe(data.name);
+      expect(result.tutorSignatureCpf).toBe(data.cpf);
+      expect(result.tutorSignatureIp).toBe(data.ip);
+      expect(result.tutorSignatureUserAgent).toBe(data.userAgent);
+      expect(result.tutorSignedAt).toBeInstanceOf(Date);
+    });
+
+    it('throws NotFoundException if term does not exist', async () => {
+      mockPrisma.consentTerm.findUnique.mockResolvedValue(null);
+
+      await expect(service.tutorSign(hash, data)).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws BadRequestException if term is in DRAFT', async () => {
+      mockPrisma.consentTerm.findUnique.mockResolvedValue({ id: 'term-1', status: DocumentStatus.DRAFT, tutorSigned: false });
+
+      await expect(service.tutorSign(hash, data)).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws BadRequestException if term is already signed by tutor', async () => {
+      mockPrisma.consentTerm.findUnique.mockResolvedValue({ id: 'term-1', status: DocumentStatus.SIGNED, tutorSigned: true });
+
+      await expect(service.tutorSign(hash, data)).rejects.toThrow(BadRequestException);
     });
   });
 });
