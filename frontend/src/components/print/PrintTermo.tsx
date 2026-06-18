@@ -67,8 +67,8 @@ export function PrintTermo({ consentTerm }: PrintTermoProps) {
                 />
               )}
               <div className="space-y-1 text-left min-w-0">
-                <p className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                  ✓ DOCUMENTO ASSINADO DIGITALMENTE
+                <p className="text-[9px] font-bold text-emerald-600 flex items-center gap-1 uppercase">
+                  ✓ Documento emitido e registrado digitalmente pela clínica
                 </p>
                 {consentTerm.documentHash && (
                   <p className="text-[8px] font-mono text-slate-400 select-all leading-tight break-all font-semibold" title={consentTerm.documentHash}>
