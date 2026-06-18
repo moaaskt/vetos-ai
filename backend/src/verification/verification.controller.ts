@@ -1,10 +1,14 @@
-import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Ip, Headers, Req, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { DocumentStatus } from '@prisma/client';
+import { ConsentTermsService } from '../consent-terms/consent-terms.service';
 
 @Controller('verify')
 export class VerificationController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly consentTermsService: ConsentTermsService,
+  ) {}
 
   @Get(':hash')
   async verify(@Param('hash') hash: string) {
@@ -107,5 +111,22 @@ export class VerificationController {
     }
 
     throw new NotFoundException('Documento não encontrado ou inválido.');
+  }
+
+  @Post(':hash/tutor-sign')
+  async tutorSign(
+    @Param('hash') hash: string,
+    @Body() body: { name: string; cpf: string },
+    @Ip() ip: string,
+    @Headers('user-agent') userAgent: string,
+    @Req() req: any,
+  ) {
+    const realIp = req.headers['x-forwarded-for'] || ip || req.socket.remoteAddress;
+    return this.consentTermsService.tutorSign(hash, {
+      name: body.name,
+      cpf: body.cpf,
+      ip: typeof realIp === 'string' ? realIp.split(',')[0].trim() : realIp,
+      userAgent: userAgent || '',
+    });
   }
 }

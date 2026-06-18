@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { VerificationController } from './verification.controller';
 import { PrismaService } from '../prisma/prisma.service';
+import { ConsentTermsService } from '../consent-terms/consent-terms.service';
 import { NotFoundException } from '@nestjs/common';
 import { DocumentStatus } from '@prisma/client';
 
@@ -16,6 +17,10 @@ describe('VerificationController', () => {
     },
   };
 
+  const mockConsentTermsService = {
+    tutorSign: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
@@ -25,6 +30,10 @@ describe('VerificationController', () => {
         {
           provide: PrismaService,
           useValue: mockPrisma,
+        },
+        {
+          provide: ConsentTermsService,
+          useValue: mockConsentTermsService,
         },
       ],
     }).compile();
@@ -132,6 +141,27 @@ describe('VerificationController', () => {
       mockPrisma.consentTerm.findFirst.mockResolvedValue(null);
 
       await expect(controller.getDetails(hash)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('tutorSign', () => {
+    const hash = 'a6c8e31...';
+    const body = { name: 'Maria Silva', cpf: '111.444.777-35' };
+
+    it('calls consentTermsService.tutorSign with parameters', async () => {
+      mockConsentTermsService.tutorSign.mockResolvedValue({ id: 'term-1', tutorSigned: true });
+
+      const req = { headers: { 'x-forwarded-for': '192.168.0.1' }, socket: {} };
+      const result = await controller.tutorSign(hash, body, '127.0.0.1', 'Mozilla/5.0', req);
+
+      expect(mockConsentTermsService.tutorSign).toHaveBeenCalledWith(hash, {
+        name: body.name,
+        cpf: body.cpf,
+        ip: '192.168.0.1',
+        userAgent: 'Mozilla/5.0',
+      });
+      expect(result).toBeDefined();
+      expect(result.tutorSigned).toBe(true);
     });
   });
 });

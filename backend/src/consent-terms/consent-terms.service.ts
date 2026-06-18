@@ -270,4 +270,66 @@ Equipe ${clinicName}`;
 
     return { success: true };
   }
+
+  async tutorSign(hash: string, data: { name: string; cpf: string; ip: string; userAgent: string }) {
+    const term = await this.prisma.consentTerm.findUnique({
+      where: { documentHash: hash },
+    });
+
+    if (!term) {
+      throw new NotFoundException('Termo de consentimento não encontrado.');
+    }
+
+    if (term.status !== DocumentStatus.SIGNED) {
+      throw new BadRequestException('Apenas termos de consentimento assinados pela clínica podem receber assinatura do tutor.');
+    }
+
+    if (term.tutorSigned) {
+      throw new BadRequestException('Este termo de consentimento já foi assinado pelo tutor.');
+    }
+
+    const cleanCpf = data.cpf.replace(/\D/g, '');
+    if (!this.isValidCpf(cleanCpf)) {
+      throw new BadRequestException('CPF inválido.');
+    }
+
+    const formattedCpf = cleanCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+
+    return this.prisma.consentTerm.update({
+      where: { id: term.id },
+      data: {
+        tutorSigned: true,
+        tutorSignedAt: new Date(),
+        tutorSignatureName: data.name,
+        tutorSignatureCpf: formattedCpf,
+        tutorSignatureIp: data.ip,
+        tutorSignatureUserAgent: data.userAgent,
+      },
+    });
+  }
+
+  private isValidCpf(cpf: string): boolean {
+    if (cpf.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(cpf)) return false;
+
+    let sum = 0;
+    let remainder;
+
+    for (let i = 1; i <= 9; i++) {
+      sum += parseInt(cpf.substring(i - 1, i), 10) * (11 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cpf.substring(9, 10), 10)) return false;
+
+    sum = 0;
+    for (let i = 1; i <= 10; i++) {
+      sum += parseInt(cpf.substring(i - 1, i), 10) * (12 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cpf.substring(10, 11), 10)) return false;
+
+    return true;
+  }
 }

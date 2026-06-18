@@ -452,6 +452,12 @@ model ConsentTerm {
   verificationUrl    String?
   verificationQrCode String?
   lastSharedAt       DateTime?
+  tutorSigned             Boolean          @default(false)
+  tutorSignedAt           DateTime?
+  tutorSignatureName      String?
+  tutorSignatureCpf       String?
+  tutorSignatureIp        String?
+  tutorSignatureUserAgent String?
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
 
