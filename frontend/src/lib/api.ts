@@ -231,6 +231,12 @@ export type ConsentTerm = {
   verificationUrl?: string | null
   verificationQrCode?: string | null
   lastSharedAt?: string | null
+  tutorSigned?: boolean
+  tutorSignedAt?: string | null
+  tutorSignatureName?: string | null
+  tutorSignatureCpf?: string | null
+  tutorSignatureIp?: string | null
+  tutorSignatureUserAgent?: string | null
   createdAt?: string
   updatedAt?: string
 }

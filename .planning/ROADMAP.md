@@ -70,6 +70,17 @@ gantt
 - **Depends on:** Phase 16B, Phase 4.
 - **Plans:** 0/2 plans complete
 
+### Phase 16B.1.1: Aceite e Assinatura Digital do Tutor (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 16B.1
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 16B.1.1 to break down)
+
 ### Phase 17: IA Assistente (AI Copilot) & Otimizador de Consultas
 
 - **Goal:** Trazer inteligência artificial generativa e preditiva para o ecossistema do VetOS AI.
