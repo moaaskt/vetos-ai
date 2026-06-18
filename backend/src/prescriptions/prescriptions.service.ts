@@ -144,7 +144,7 @@ export class PrescriptionsService {
       throw new BadRequestException('Apenas receitas assinadas podem ser compartilhadas.');
     }
 
-    const frontendUrl = process.env.FRONTEND_URL || 'https://vetos.ai';
+    const frontendUrl = process.env.FRONTEND_PUBLIC_URL || process.env.PUBLIC_APP_URL || 'http://localhost:5173';
     const link = `${frontendUrl}/documento/${doc.documentHash}`;
     const tutorName = doc.pet.client.name;
     const petName = doc.pet.name;
