@@ -26,6 +26,22 @@ export type Client = {
   email?: string | null
   phone?: string | null
   createdAt?: string
+
+  // Novos campos estruturados
+  cpf?: string | null
+  rg?: string | null
+  birthDate?: string | null
+  whatsapp?: string | null
+  emailAlt?: string | null
+  emergencyName?: string | null
+  emergencyPhone?: string | null
+  postalCode?: string | null
+  street?: string | null
+  number?: string | null
+  complement?: string | null
+  neighborhood?: string | null
+  city?: string | null
+  state?: string | null
 }
 
 export type Allergy = {

@@ -83,6 +83,15 @@ gantt
 Plans:
 - [x] Aceite e Assinatura Digital do Tutor (npx prisma db push, backend validation, frontend form & mask, timeline status) [completed]
 
+### Phase 16B.1.2: Cadastro Completo do Tutor (INSERTED)
+- **Goal:** Habilitar um formulário público ou fluxo inteligente de captação de dados cadastrais completos do Tutor (Cliente) no fluxo pós-assinatura ou via link dedicado.
+- **Funcionalidades**:
+  - Tela pública para atualização cadastral com endereço, telefone adicional, e-mail e dados de contato de emergência.
+  - Validação rigorosa dos campos e sincronização direta no banco de dados para evitar cadastros incompletos no prontuário.
+  - Integração visual com o status cadastral na ficha de detalhes do Pet.
+- **Depends on:** Phase 16B.1.1
+
+
 ### Phase 17: IA Assistente (AI Copilot) & Otimizador de Consultas
 
 - **Goal:** Trazer inteligência artificial generativa e preditiva para o ecossistema do VetOS AI.

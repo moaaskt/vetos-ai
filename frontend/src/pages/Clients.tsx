@@ -16,6 +16,8 @@ export function Clients() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null)
+
   async function loadClients() {
     setIsLoading(true)
 
@@ -74,7 +76,7 @@ export function Clients() {
         badge="Tutores Responsáveis"
         description="Gerencie os cadastros de clientes e tutores, contatos telefônicos, e-mails verificados e histórico de relacionamento."
         action={
-          <Button onClick={() => setIsModalOpen(true)} className="bg-primary text-primary-foreground font-semibold hover:opacity-90 shadow-sm gap-2">
+          <Button onClick={() => { setSelectedClient(null); setIsModalOpen(true); }} className="bg-primary text-primary-foreground font-semibold hover:opacity-90 shadow-sm gap-2">
             <UserPlus className="h-4 w-4" />
             Cadastrar Cliente
           </Button>
@@ -179,7 +181,7 @@ export function Clients() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10 gap-1 rounded-lg text-xs font-medium">
+                      <Button onClick={() => { setSelectedClient(client); setIsModalOpen(true); }} variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-primary/10 gap-1 rounded-lg text-xs font-medium">
                         <span>Detalhes</span>
                         <ChevronRight className="h-3.5 w-3.5" />
                       </Button>
@@ -197,7 +199,7 @@ export function Clients() {
                 title={searchQuery ? "Nenhum cliente encontrado na busca" : "Nenhum cliente cadastrado"}
                 description={searchQuery ? "Tente refinar os termos da pesquisa ou limpe o campo de filtro." : "Seu diretório de clientes está vazio. Cadastre o primeiro tutor para iniciar o vínculo de prontuários."}
                 actionLabel={searchQuery ? "Limpar Busca" : "Cadastrar Cliente"}
-                onAction={() => searchQuery ? setSearchQuery('') : setIsModalOpen(true)}
+                onAction={() => { if (searchQuery) { setSearchQuery('') } else { setSelectedClient(null); setIsModalOpen(true); } }}
               />
             </div>
           )}
@@ -214,9 +216,11 @@ export function Clients() {
 
       {isModalOpen && (
         <ClientModal
-          onClose={() => setIsModalOpen(false)}
+          clientToEdit={selectedClient}
+          onClose={() => { setIsModalOpen(false); setSelectedClient(null); }}
           onCreated={() => {
             setIsModalOpen(false)
+            setSelectedClient(null)
             loadClients()
           }}
         />
@@ -225,39 +229,238 @@ export function Clients() {
   )
 }
 
-function ClientModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
+import axios from 'axios'
+
+function formatCpf(val: string) {
+  const nums = val.replace(/\D/g, '').slice(0, 11)
+  if (nums.length <= 3) return nums
+  if (nums.length <= 6) return `${nums.slice(0, 3)}.${nums.slice(3)}`
+  if (nums.length <= 9) return `${nums.slice(0, 3)}.${nums.slice(3, 6)}.${nums.slice(6)}`
+  return `${nums.slice(0, 3)}.${nums.slice(3, 6)}.${nums.slice(6, 9)}-${nums.slice(9)}`
+}
+
+function formatCep(val: string) {
+  const nums = val.replace(/\D/g, '').slice(0, 8)
+  if (nums.length <= 5) return nums
+  return `${nums.slice(0, 5)}-${nums.slice(5)}`
+}
+
+function formatPhone(val: string) {
+  const nums = val.replace(/\D/g, '').slice(0, 11)
+  if (nums.length <= 2) return nums
+  if (nums.length <= 6) return `(${nums.slice(0, 2)}) ${nums.slice(2)}`
+  if (nums.length <= 10) return `(${nums.slice(0, 2)}) ${nums.slice(2, 6)}-${nums.slice(6)}`
+  return `(${nums.slice(0, 2)}) ${nums.slice(2, 7)}-${nums.slice(7)}`
+}
+
+interface ClientModalProps {
+  clientToEdit?: Client | null
+  onClose: () => void
+  onCreated: () => void
+}
+
+function ClientModal({ clientToEdit, onClose, onCreated }: ClientModalProps) {
+  const [activeTab, setActiveTab] = useState<'basics' | 'contacts' | 'address' | 'emergency'>('basics')
+  
+  // Dados Básicos
+  const [name, setName] = useState(clientToEdit?.name || '')
+  const [cpf, setCpf] = useState(clientToEdit?.cpf ? formatCpf(clientToEdit.cpf) : '')
+  const [rg, setRg] = useState(clientToEdit?.rg || '')
+  const [birthDate, setBirthDate] = useState(clientToEdit?.birthDate ? new Date(clientToEdit.birthDate).toISOString().split('T')[0] : '')
+
+  // Contatos
+  const [email, setEmail] = useState(clientToEdit?.email || '')
+  const [phone, setPhone] = useState(clientToEdit?.phone ? formatPhone(clientToEdit.phone) : '')
+  const [whatsapp, setWhatsapp] = useState(clientToEdit?.whatsapp ? formatPhone(clientToEdit.whatsapp) : '')
+  const [emailAlt, setEmailAlt] = useState(clientToEdit?.emailAlt || '')
+
+  // Endereço
+  const [postalCode, setPostalCode] = useState(clientToEdit?.postalCode ? formatCep(clientToEdit.postalCode) : '')
+  const [street, setStreet] = useState(clientToEdit?.street || '')
+  const [number, setNumber] = useState(clientToEdit?.number || '')
+  const [complement, setComplement] = useState(clientToEdit?.complement || '')
+  const [neighborhood, setNeighborhood] = useState(clientToEdit?.neighborhood || '')
+  const [city, setCity] = useState(clientToEdit?.city || '')
+  const [state, setState] = useState(clientToEdit?.state || '')
+
+  // Emergência
+  const [emergencyName, setEmergencyName] = useState(clientToEdit?.emergencyName || '')
+  const [emergencyPhone, setEmergencyPhone] = useState(clientToEdit?.emergencyPhone ? formatPhone(clientToEdit.emergencyPhone) : '')
+
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoadingCep, setIsLoadingCep] = useState(false)
+
+  // Busca de CEP
+  useEffect(() => {
+    const cleanCep = postalCode.replace(/\D/g, '')
+    if (cleanCep.length === 8) {
+      setIsLoadingCep(true)
+      axios.get(`https://viacep.com.br/ws/${cleanCep}/json/`)
+        .then((res) => {
+          if (res.data && !res.data.erro) {
+            setStreet(res.data.logradouro || '')
+            setNeighborhood(res.data.bairro || '')
+            setCity(res.data.localidade || '')
+            setState(res.data.uf || '')
+          }
+        })
+        .catch(() => {
+          // Tratar de forma silenciosa para não travar preenchimento manual
+        })
+        .finally(() => {
+          setIsLoadingCep(false)
+        })
+    }
+  }, [postalCode])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
     setIsSubmitting(true)
 
+    const payload = {
+      name,
+      email: email || undefined,
+      phone: phone ? phone.replace(/\D/g, '') : undefined,
+      cpf: cpf ? cpf.replace(/\D/g, '') : null, // Garante que seja persistido como null e não string inválida
+      rg: rg || undefined,
+      birthDate: birthDate || undefined,
+      whatsapp: whatsapp ? whatsapp.replace(/\D/g, '') : undefined,
+      emailAlt: emailAlt || undefined,
+      postalCode: postalCode ? postalCode.replace(/\D/g, '') : undefined,
+      street: street || undefined,
+      number: number || undefined,
+      complement: complement || undefined,
+      neighborhood: neighborhood || undefined,
+      city: city || undefined,
+      state: state || undefined,
+      emergencyName: emergencyName || undefined,
+      emergencyPhone: emergencyPhone ? emergencyPhone.replace(/\D/g, '') : undefined,
+    }
+
     try {
-      await api.post('/clients', {
-        name,
-        email: email || undefined,
-        phone: phone || undefined,
-      })
+      if (clientToEdit) {
+        await api.patch(`/clients/${clientToEdit.id}`, payload)
+      } else {
+        await api.post('/clients', payload)
+      }
       onCreated()
-    } catch {
-      setError('Não foi possível efetuar o cadastro. Verifique os dados e tente novamente.')
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        setError('CPF já cadastrado para outro cliente nesta clínica.')
+      } else if (err.response?.data?.message === 'CPF inválido.') {
+        setError('O CPF informado é inválido.')
+      } else {
+        setError('Não foi possível salvar o cadastro. Verifique os dados e tente novamente.')
+      }
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <Modal title="Cadastrar Cliente / Tutor" onClose={onClose}>
-      <form onSubmit={handleSubmit} className="space-y-5 pt-2">
-        <Field label="Nome Completo do Tutor" placeholder="Ex: Dr. Roberto Guimarães" value={name} onChange={setName} required />
-        <Field label="E-mail de Contato (Opcional)" placeholder="Ex: roberto@email.com" value={email} onChange={setEmail} type="email" />
-        <Field label="Telefone com DDD (Opcional)" placeholder="Ex: (11) 98888-0123" value={phone} onChange={setPhone} type="tel" />
-        
+    <Modal title={clientToEdit ? 'Editar Cliente / Tutor' : 'Cadastrar Cliente / Tutor'} onClose={onClose}>
+      <form onSubmit={handleSubmit} className="space-y-6 pt-2 max-h-[80vh] overflow-y-auto pr-1">
+        {/* Navigation Tabs */}
+        <div className="flex border-b border-border text-xs font-semibold gap-1 mb-4 overflow-x-auto whitespace-nowrap">
+          <button
+            type="button"
+            onClick={() => setActiveTab('basics')}
+            className={`pb-2 px-3 border-b-2 transition-all ${
+              activeTab === 'basics' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'
+            }`}
+          >
+            Dados Básicos
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('contacts')}
+            className={`pb-2 px-3 border-b-2 transition-all ${
+              activeTab === 'contacts' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'
+            }`}
+          >
+            Contatos
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('address')}
+            className={`pb-2 px-3 border-b-2 transition-all ${
+              activeTab === 'address' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'
+            }`}
+          >
+            Endereço
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('emergency')}
+            className={`pb-2 px-3 border-b-2 transition-all ${
+              activeTab === 'emergency' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'
+            }`}
+          >
+            Emergência
+          </button>
+        </div>
+
+        {/* Tab Contents */}
+        {activeTab === 'basics' && (
+          <div className="space-y-4">
+            <Field label="Nome Completo do Tutor" placeholder="Ex: Dr. Roberto Guimarães" value={name} onChange={setName} required />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="CPF" placeholder="Ex: 000.000.000-00" value={cpf} onChange={(val) => setCpf(formatCpf(val))} />
+              <Field label="RG" placeholder="Ex: 12.345.678-9" value={rg} onChange={setRg} />
+            </div>
+            <Field label="Data de Nascimento" type="date" value={birthDate} onChange={setBirthDate} />
+          </div>
+        )}
+
+        {activeTab === 'contacts' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="E-mail Principal" placeholder="Ex: roberto@email.com" value={email} onChange={setEmail} type="email" />
+              <Field label="E-mail Alternativo" placeholder="Ex: roberto.alt@email.com" value={emailAlt} onChange={setEmailAlt} type="email" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="WhatsApp Principal" placeholder="Ex: (11) 98888-0123" value={whatsapp} onChange={(val) => setWhatsapp(formatPhone(val))} type="tel" />
+              <Field label="Telefone Fixo / Secundário" placeholder="Ex: (11) 5555-0123" value={phone} onChange={(val) => setPhone(formatPhone(val))} type="tel" />
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'address' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="col-span-2">
+                <Field
+                  label={`CEP ${isLoadingCep ? '(Buscando...)' : ''}`}
+                  placeholder="Ex: 01001-000"
+                  value={postalCode}
+                  onChange={(val) => setPostalCode(formatCep(val))}
+                />
+              </div>
+              <Field label="UF" placeholder="Ex: SP" value={state} onChange={(val) => setState(val.toUpperCase().slice(0, 2))} maxLength={2} />
+            </div>
+            <Field label="Logradouro" placeholder="Ex: Avenida Paulista" value={street} onChange={setStreet} />
+            <div className="grid grid-cols-3 gap-4">
+              <Field label="Número" placeholder="Ex: 1000" value={number} onChange={setNumber} />
+              <div className="col-span-2">
+                <Field label="Complemento" placeholder="Ex: Apto 12" value={complement} onChange={setComplement} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="Bairro" placeholder="Ex: Bela Vista" value={neighborhood} onChange={setNeighborhood} />
+              <Field label="Cidade" placeholder="Ex: São Paulo" value={city} onChange={setCity} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'emergency' && (
+          <div className="space-y-4">
+            <Field label="Nome do Contato de Emergência" placeholder="Ex: Maria Guimarães (Esposa)" value={emergencyName} onChange={setEmergencyName} />
+            <Field label="Telefone de Emergência" placeholder="Ex: (11) 98888-0000" value={emergencyPhone} onChange={(val) => setEmergencyPhone(formatPhone(val))} type="tel" />
+          </div>
+        )}
+
         {error && (
           <div className="flex items-center gap-3 rounded-lg bg-destructive/15 border border-destructive/30 px-4 py-3 text-sm text-destructive font-medium">
             <AlertCircle className="h-5 w-5 shrink-0 text-destructive" />
@@ -274,7 +477,7 @@ function ClientModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
             className="bg-primary text-primary-foreground font-semibold hover:opacity-90 shadow-sm"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Cadastrando...' : 'Confirmar Cadastro'}
+            {isSubmitting ? 'Salvando...' : clientToEdit ? 'Salvar Alterações' : 'Confirmar Cadastro'}
           </Button>
         </div>
       </form>
@@ -289,6 +492,7 @@ function Field({
   placeholder,
   type = 'text',
   required = false,
+  maxLength,
 }: {
   label: string
   value: string
@@ -296,6 +500,7 @@ function Field({
   placeholder?: string
   type?: string
   required?: boolean
+  maxLength?: number
 }) {
   return (
     <label className="block space-y-2 font-semibold">
@@ -308,8 +513,10 @@ function Field({
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
         required={required}
+        maxLength={maxLength}
         className="bg-background border-border focus-visible:ring-primary font-medium h-10"
       />
     </label>
   )
 }
+
