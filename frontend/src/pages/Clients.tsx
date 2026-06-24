@@ -217,6 +217,7 @@ export function Clients() {
       {isModalOpen && (
         <ClientModal
           clientToEdit={selectedClient}
+          existingClients={clients}
           onClose={() => { setIsModalOpen(false); setSelectedClient(null); }}
           onCreated={() => {
             setIsModalOpen(false)
@@ -255,11 +256,12 @@ function formatPhone(val: string) {
 
 interface ClientModalProps {
   clientToEdit?: Client | null
+  existingClients: Client[]
   onClose: () => void
   onCreated: () => void
 }
 
-function ClientModal({ clientToEdit, onClose, onCreated }: ClientModalProps) {
+function ClientModal({ clientToEdit, existingClients, onClose, onCreated }: ClientModalProps) {
   const [activeTab, setActiveTab] = useState<'basics' | 'contacts' | 'address' | 'emergency'>('basics')
   
   // Dados Básicos
@@ -291,6 +293,64 @@ function ClientModal({ clientToEdit, onClose, onCreated }: ClientModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoadingCep, setIsLoadingCep] = useState(false)
 
+  // Algoritmo de validação de CPF no frontend
+  const isCpfValid = useMemo(() => {
+    const cleanCpf = cpf.replace(/\D/g, '')
+    if (cleanCpf === '') return true // Vazio é aceito como opcional
+    if (cleanCpf.length < 11) return false
+    if (/^(\d)\1{10}$/.test(cleanCpf)) return false
+
+    let sum = 0
+    let remainder
+
+    for (let i = 1; i <= 9; i++) sum = sum + parseInt(cleanCpf.substring(i - 1, i)) * (11 - i)
+    remainder = (sum * 10) % 11
+    if (remainder === 10 || remainder === 11) remainder = 0
+    if (remainder !== parseInt(cleanCpf.substring(9, 10))) return false
+
+    sum = 0
+    for (let i = 1; i <= 10; i++) sum = sum + parseInt(cleanCpf.substring(i - 1, i)) * (12 - i)
+    remainder = (sum * 10) % 11
+    if (remainder === 10 || remainder === 11) remainder = 0
+    if (remainder !== parseInt(cleanCpf.substring(10, 11))) return false
+
+    return true
+  }, [cpf])
+
+  // Validação em tempo real se o CPF já pertence a outro tutor/cliente cadastrado
+  const isCpfDuplicate = useMemo(() => {
+    const cleanCpf = cpf.replace(/\D/g, '')
+    if (cleanCpf === '') return false
+
+    return existingClients.some(client => {
+      const clientCpf = client.cpf ? client.cpf.replace(/\D/g, '') : ''
+      // Se for edição, desconsiderar o próprio cliente editado
+      const isSelf = clientToEdit ? client.id === clientToEdit.id : false
+      return !isSelf && clientCpf === cleanCpf
+    })
+  }, [cpf, existingClients, clientToEdit])
+
+  const cpfStatusMessage = useMemo(() => {
+    const cleanCpf = cpf.replace(/\D/g, '')
+    if (cleanCpf === '') return null
+    if (cleanCpf.length < 11) {
+      return <span className="text-xs text-amber-500 font-medium">CPF incompleto</span>
+    }
+    if (!isCpfValid) {
+      return <span className="text-xs text-destructive font-medium">CPF inválido</span>
+    }
+    if (isCpfDuplicate) {
+      return <span className="text-xs text-destructive font-medium">CPF já em uso nesta clínica</span>
+    }
+    return <span className="text-xs text-emerald-500 font-medium">✓ CPF válido</span>
+  }, [cpf, isCpfValid, isCpfDuplicate])
+
+  const isFormInvalid = useMemo(() => {
+    const cleanCpf = cpf.replace(/\D/g, '')
+    if (cleanCpf === '') return false
+    return cleanCpf.length < 11 || !isCpfValid || isCpfDuplicate
+  }, [cpf, isCpfValid, isCpfDuplicate])
+
   // Busca de CEP
   useEffect(() => {
     const cleanCep = postalCode.replace(/\D/g, '')
@@ -316,6 +376,7 @@ function ClientModal({ clientToEdit, onClose, onCreated }: ClientModalProps) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (isFormInvalid) return
     setError('')
     setIsSubmitting(true)
 
@@ -407,7 +468,10 @@ function ClientModal({ clientToEdit, onClose, onCreated }: ClientModalProps) {
           <div className="space-y-4">
             <Field label="Nome Completo do Tutor" placeholder="Ex: Dr. Roberto Guimarães" value={name} onChange={setName} required />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="CPF" placeholder="Ex: 000.000.000-00" value={cpf} onChange={(val) => setCpf(formatCpf(val))} />
+              <div className="space-y-1">
+                <Field label="CPF" placeholder="Ex: 000.000.000-00" value={cpf} onChange={(val) => setCpf(formatCpf(val))} />
+                <div className="min-h-4 px-1">{cpfStatusMessage}</div>
+              </div>
               <Field label="RG" placeholder="Ex: 12.345.678-9" value={rg} onChange={setRg} />
             </div>
             <Field label="Data de Nascimento" type="date" value={birthDate} onChange={setBirthDate} />
@@ -475,7 +539,7 @@ function ClientModal({ clientToEdit, onClose, onCreated }: ClientModalProps) {
           <Button
             type="submit"
             className="bg-primary text-primary-foreground font-semibold hover:opacity-90 shadow-sm"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isFormInvalid}
           >
             {isSubmitting ? 'Salvando...' : clientToEdit ? 'Salvar Alterações' : 'Confirmar Cadastro'}
           </Button>
