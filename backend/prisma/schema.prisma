@@ -60,6 +60,28 @@ model Client {
   pets             Pet[]
   appointments     Appointment[]
   notificationLogs NotificationLog[]
+
+  // Identificação e Dados Jurídicos (Opcionais)
+  cpf              String?
+  rg               String?
+  birthDate        DateTime?
+
+  // Contatos Expandidos
+  whatsapp         String?
+  emailAlt         String?
+  emergencyName    String?
+  emergencyPhone   String?
+
+  // Endereço Estruturado
+  postalCode       String?
+  street           String?
+  number           String?
+  complement       String?
+  neighborhood     String?
+  city             String?
+  state            String?
+
+  @@unique([clinicId, cpf])
 }
 
 model Pet {

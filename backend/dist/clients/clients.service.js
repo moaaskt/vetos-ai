@@ -17,9 +17,82 @@ let ClientsService = class ClientsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    create(clinicId, data) {
+    validateCpf(cpf) {
+        const cleanCpf = cpf.replace(/\D/g, '');
+        if (cleanCpf.length !== 11 || /^(\d)\1{10}$/.test(cleanCpf))
+            return false;
+        let sum = 0;
+        let remainder;
+        for (let i = 1; i <= 9; i++)
+            sum = sum + parseInt(cleanCpf.substring(i - 1, i)) * (11 - i);
+        remainder = (sum * 10) % 11;
+        if (remainder === 10 || remainder === 11)
+            remainder = 0;
+        if (remainder !== parseInt(cleanCpf.substring(9, 10)))
+            return false;
+        sum = 0;
+        for (let i = 1; i <= 10; i++)
+            sum = sum + parseInt(cleanCpf.substring(i - 1, i)) * (12 - i);
+        remainder = (sum * 10) % 11;
+        if (remainder === 10 || remainder === 11)
+            remainder = 0;
+        if (remainder !== parseInt(cleanCpf.substring(10, 11)))
+            return false;
+        return true;
+    }
+    cleanAndNormalizeData(data) {
+        const normalized = { ...data };
+        if (normalized.cpf === undefined || normalized.cpf === null || String(normalized.cpf).trim() === '') {
+            normalized.cpf = null;
+        }
+        else {
+            const cleanCpf = String(normalized.cpf).replace(/\D/g, '');
+            if (cleanCpf === '') {
+                normalized.cpf = null;
+            }
+            else {
+                if (!this.validateCpf(cleanCpf)) {
+                    throw new common_1.BadRequestException('CPF inválido.');
+                }
+                normalized.cpf = cleanCpf;
+            }
+        }
+        if (normalized.postalCode) {
+            normalized.postalCode = String(normalized.postalCode).replace(/\D/g, '');
+        }
+        if (normalized.phone) {
+            normalized.phone = String(normalized.phone).replace(/\D/g, '');
+        }
+        if (normalized.whatsapp) {
+            normalized.whatsapp = String(normalized.whatsapp).replace(/\D/g, '');
+        }
+        if (normalized.emergencyPhone) {
+            normalized.emergencyPhone = String(normalized.emergencyPhone).replace(/\D/g, '');
+        }
+        if (normalized.birthDate) {
+            normalized.birthDate = new Date(normalized.birthDate);
+        }
+        return normalized;
+    }
+    async checkDuplicateCpf(clinicId, cpf, excludeId) {
+        if (!cpf)
+            return;
+        const existing = await this.prisma.client.findFirst({
+            where: {
+                clinicId,
+                cpf,
+                ...(excludeId ? { id: { not: excludeId } } : {}),
+            },
+        });
+        if (existing) {
+            throw new common_1.ConflictException('Já existe um cliente cadastrado com este CPF nesta clínica.');
+        }
+    }
+    async create(clinicId, data) {
+        const normalizedData = this.cleanAndNormalizeData(data);
+        await this.checkDuplicateCpf(clinicId, normalizedData.cpf);
         return this.prisma.client.create({
-            data: { ...data, clinicId },
+            data: { ...normalizedData, clinicId },
         });
     }
     findAll(clinicId) {
@@ -28,11 +101,14 @@ let ClientsService = class ClientsService {
     findOne(clinicId, id) {
         return this.prisma.client.findFirst({ where: { id, clinicId } });
     }
-    update(clinicId, id, data) {
-        return this.prisma.client.updateMany({
-            where: { id, clinicId },
-            data,
+    async update(clinicId, id, data) {
+        const normalizedData = this.cleanAndNormalizeData(data);
+        await this.checkDuplicateCpf(clinicId, normalizedData.cpf, id);
+        await this.prisma.client.update({
+            where: { id },
+            data: normalizedData,
         });
+        return { count: 1 };
     }
     remove(clinicId, id) {
         return this.prisma.client.deleteMany({

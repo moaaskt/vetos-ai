@@ -26,6 +26,7 @@ export declare class PetsController {
     }[]>;
     findOne(user: any, id: string): import(".prisma/client").Prisma.Prisma__PetClient<({
         client: {
+            number: string | null;
             id: string;
             name: string;
             phone: string | null;
@@ -33,6 +34,19 @@ export declare class PetsController {
             updatedAt: Date;
             email: string | null;
             clinicId: string;
+            cpf: string | null;
+            rg: string | null;
+            birthDate: Date | null;
+            whatsapp: string | null;
+            emailAlt: string | null;
+            emergencyName: string | null;
+            emergencyPhone: string | null;
+            postalCode: string | null;
+            street: string | null;
+            complement: string | null;
+            neighborhood: string | null;
+            city: string | null;
+            state: string | null;
         };
         appointments: {
             id: string;

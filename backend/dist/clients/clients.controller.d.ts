@@ -2,7 +2,8 @@ import { ClientsService } from './clients.service';
 export declare class ClientsController {
     private readonly clientsService;
     constructor(clientsService: ClientsService);
-    create(user: any, createClientDto: any): import(".prisma/client").Prisma.Prisma__ClientClient<{
+    create(user: any, createClientDto: any): Promise<{
+        number: string | null;
         id: string;
         name: string;
         phone: string | null;
@@ -10,8 +11,22 @@ export declare class ClientsController {
         updatedAt: Date;
         email: string | null;
         clinicId: string;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs>;
+        cpf: string | null;
+        rg: string | null;
+        birthDate: Date | null;
+        whatsapp: string | null;
+        emailAlt: string | null;
+        emergencyName: string | null;
+        emergencyPhone: string | null;
+        postalCode: string | null;
+        street: string | null;
+        complement: string | null;
+        neighborhood: string | null;
+        city: string | null;
+        state: string | null;
+    }>;
     findAll(user: any): import(".prisma/client").Prisma.PrismaPromise<{
+        number: string | null;
         id: string;
         name: string;
         phone: string | null;
@@ -19,8 +34,22 @@ export declare class ClientsController {
         updatedAt: Date;
         email: string | null;
         clinicId: string;
+        cpf: string | null;
+        rg: string | null;
+        birthDate: Date | null;
+        whatsapp: string | null;
+        emailAlt: string | null;
+        emergencyName: string | null;
+        emergencyPhone: string | null;
+        postalCode: string | null;
+        street: string | null;
+        complement: string | null;
+        neighborhood: string | null;
+        city: string | null;
+        state: string | null;
     }[]>;
     findOne(user: any, id: string): import(".prisma/client").Prisma.Prisma__ClientClient<{
+        number: string | null;
         id: string;
         name: string;
         phone: string | null;
@@ -28,7 +57,22 @@ export declare class ClientsController {
         updatedAt: Date;
         email: string | null;
         clinicId: string;
+        cpf: string | null;
+        rg: string | null;
+        birthDate: Date | null;
+        whatsapp: string | null;
+        emailAlt: string | null;
+        emergencyName: string | null;
+        emergencyPhone: string | null;
+        postalCode: string | null;
+        street: string | null;
+        complement: string | null;
+        neighborhood: string | null;
+        city: string | null;
+        state: string | null;
     } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
-    update(user: any, id: string, updateClientDto: any): import(".prisma/client").Prisma.PrismaPromise<import(".prisma/client").Prisma.BatchPayload>;
+    update(user: any, id: string, updateClientDto: any): Promise<{
+        count: number;
+    }>;
     remove(user: any, id: string): import(".prisma/client").Prisma.PrismaPromise<import(".prisma/client").Prisma.BatchPayload>;
 }

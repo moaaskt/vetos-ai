@@ -1,0 +1,16 @@
+- [x] Modelagem do Banco (Prisma)
+  - [x] Adicionar campos opcionais ao modelo Client no `schema.prisma`
+  - [x] Criar o índice composto `@@unique([clinicId, cpf])` no `schema.prisma`
+  - [x] Validar esquema com `npx prisma validate`
+  - [x] Sincronizar o banco de dados local com `npx prisma db push` de forma segura (sem reset)
+- [x] Backend (NestJS)
+  - [x] Atualizar `create-client.dto.ts` com campos opcionais e validações apropriadas
+  - [x] Atualizar `update-client.dto.ts`
+  - [x] Implementar helper de validação e normalização de CPF/CEP em `clients.service.ts`
+  - [x] Tratar string vazia/com espaços/máscaras de CPF para persistir como `null`
+  - [x] Implementar barreira de ConflictException no `clients.service.ts` se CPF já existir para o mesmo tenant
+  - [x] Executar testes de backend (`npm --prefix backend run test`) e garantir conformidade
+- [x] Frontend (React)
+  - [x] Adaptar o formulário `ClientModal` em `Clients.tsx` para suporte a abas ou seções
+  - [x] Implementar máscaras e preenchimento de endereço inteligente usando ViaCEP
+  - [x] Testar integração do frontend com o backend
