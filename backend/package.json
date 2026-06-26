@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "trigger-vaccine-reminders": "ts-node src/scripts/trigger-vaccine-reminders.ts"
+    "trigger-vaccine-reminders": "ts-node src/scripts/trigger-vaccine-reminders.ts",
+    "seed:demo": "prisma db seed"
   },
   "dependencies": {
     "@nestjs/bullmq": "^11.0.4",
@@ -91,5 +92,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   }
 }
