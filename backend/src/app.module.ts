@@ -23,6 +23,7 @@ import { ClinicalAttachmentsModule } from './clinical-attachments/clinical-attac
 import { PrescriptionsModule } from './prescriptions/prescriptions.module';
 import { ConsentTermsModule } from './consent-terms/consent-terms.module';
 import { VerificationModule } from './verification/verification.module';
+import { TutorAuthModule } from './tutor-auth/tutor-auth.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { VerificationModule } from './verification/verification.module';
     PrescriptionsModule,
     ConsentTermsModule,
     VerificationModule,
+    TutorAuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
