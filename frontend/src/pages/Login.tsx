@@ -26,6 +26,21 @@ export function Login() {
     }
   }
 
+  async function handleQuickLogin(targetEmail: string) {
+    setError('')
+    setIsSubmitting(true)
+    setEmail(targetEmail)
+    setPassword('Senha123!')
+    try {
+      const user = await login(targetEmail, 'Senha123!')
+      navigate(user?.role === 'SUPERADMIN' ? '/super-admin/dashboard' : '/dashboard')
+    } catch {
+      setError('Erro na autenticação rápida demo.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <main className="grid min-h-screen place-items-center bg-background px-4 py-10 text-foreground font-sans selection:bg-primary/20 selection:text-primary">
       <section className="w-full max-w-md animate-in fade-in-0 duration-500">
@@ -76,6 +91,29 @@ export function Login() {
                 autoComplete="current-password"
               />
             </label>
+
+            {/* Acesso Rápido (Demo) */}
+            <div className="pt-2 border-t border-border/50">
+              <span className="block text-[10px] font-bold text-muted-foreground/80 uppercase tracking-wider mb-2 text-center">Acesso Rápido (Demo)</span>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickLogin('superadmin@vetos.ai')}
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-xs font-bold text-foreground hover:bg-muted/80 transition shadow-sm active:scale-95 disabled:opacity-50"
+                >
+                  <span>🔑 Super Admin</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickLogin('admin@alfa.com')}
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-xs font-bold text-foreground hover:bg-muted/80 transition shadow-sm active:scale-95 disabled:opacity-50"
+                >
+                  <span>🏥 Admin Alfa</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           {error && (

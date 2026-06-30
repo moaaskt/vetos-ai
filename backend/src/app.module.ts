@@ -23,7 +23,7 @@ import { ClinicalAttachmentsModule } from './clinical-attachments/clinical-attac
 import { PrescriptionsModule } from './prescriptions/prescriptions.module';
 import { ConsentTermsModule } from './consent-terms/consent-terms.module';
 import { VerificationModule } from './verification/verification.module';
-
+import { TutorPlatformModule } from './tutor-platform/tutor-platform.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -56,6 +56,7 @@ import { VerificationModule } from './verification/verification.module';
     PrescriptionsModule,
     ConsentTermsModule,
     VerificationModule,
+    TutorPlatformModule,
   ],
   controllers: [AppController],
   providers: [AppService],
