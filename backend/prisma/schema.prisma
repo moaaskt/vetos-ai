@@ -81,7 +81,12 @@ model Client {
   city             String?
   state            String?
 
+  // Relação opcional com a Identidade Digital do Tutor
+  tutorIdentityId  String?
+  tutorIdentity    TutorIdentity?    @relation(fields: [tutorIdentityId], references: [id], onDelete: SetNull)
+
   @@unique([clinicId, cpf])
+  @@index([tutorIdentityId])
 }
 
 model Pet {
@@ -393,6 +398,7 @@ model ClinicalAttachment {
   storagePath      String
   uploadedById     String?
   notes            String?
+  visibleToTutor   Boolean         @default(false)
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
@@ -494,3 +500,54 @@ model ConsentTerm {
   @@index([appointmentId])
   @@index([consentTemplateId])
 }
+
+model TutorIdentity {
+  id               String            @id @default(uuid())
+  publicId         String            @unique
+  name             String
+  primaryEmail     String?           @unique
+  primaryWhatsapp  String?           @unique
+  cpf              String?           @unique
+  preferredChannel PreferredChannel  @default(EMAIL)
+  locale           String            @default("pt-BR")
+  timezone         String            @default("America/Sao_Paulo")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  clients          Client[]
+  tokens           TutorPortalToken[]
+  sessions         TutorSession[]
+
+  @@index([primaryWhatsapp])
+}
+
+model TutorPortalToken {
+  id              String         @id @default(uuid())
+  tokenHash       String         @unique
+  tutorIdentityId String
+  expiresAt       DateTime
+  usedAt          DateTime?
+  requestedBy     String         @default("EMAIL")
+  createdAt       DateTime       @default(now())
+
+  tutorIdentity   TutorIdentity  @relation(fields: [tutorIdentityId], references: [id], onDelete: Cascade)
+}
+
+model TutorSession {
+  id               String        @id @default(uuid())
+  tutorIdentityId  String
+  refreshTokenHash String        @unique
+  expiresAt        DateTime
+  lastUsedAt       DateTime      @default(now())
+  createdAt        DateTime      @default(now())
+  revokedAt        DateTime?
+
+  tutorIdentity    TutorIdentity @relation(fields: [tutorIdentityId], references: [id], onDelete: Cascade)
+}
+
+enum PreferredChannel {
+  EMAIL
+  WHATSAPP
+  BOTH
+}
+
