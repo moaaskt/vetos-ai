@@ -60,9 +60,9 @@ export class TutorAuthService {
       });
     }
 
-    // 3. Vincular Clients sem tutorIdentityId associada
+    // 3. Vincular todos os Clients encontrados à TutorIdentity correspondente
     for (const client of clients) {
-      if (!client.tutorIdentityId) {
+      if (client.tutorIdentityId !== tutorIdentity.id) {
         await this.prisma.client.update({
           where: { id: client.id },
           data: { tutorIdentityId: tutorIdentity.id },
