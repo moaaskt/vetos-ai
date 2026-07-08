@@ -9,6 +9,7 @@ export interface SmtpSendInput {
   to: string;
   subject?: string;
   body: string;
+  htmlBody?: string;
 }
 
 export interface SmtpTestEmailInput {
@@ -41,7 +42,7 @@ export class SmtpProvider {
         to: input.to,
         subject: input.subject ?? 'VetOS AI',
         text: input.body,
-        html: input.body,
+        html: input.htmlBody ?? input.body,
       }),
     );
 

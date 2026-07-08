@@ -16,25 +16,29 @@
 
 ---
 
-## Wave 2: Backend — Autenticação do Tutor
+## Wave 2: Backend — Autenticação do Tutor ✅
 
-- [ ] Criar módulo NestJS `tutor-auth`.
-- [ ] Implementar `TutorPortalAuthGuard`.
-- [ ] Implementar decorator `@CurrentTutor()`.
-- [ ] Endpoint `POST /tutor/auth/request-link` (solicitar Magic Link por e-mail).
-- [ ] Endpoint `POST /tutor/auth/verify` (validar token, criar sessão, retornar JWT).
-- [ ] Endpoint `POST /tutor/auth/refresh` (renovar sessão via Refresh Token).
-- [ ] Lógica de vínculo: buscar `Client.email`/`emailAlt` → criar/reusar `TutorIdentity` → vincular `tutorIdentityId`.
+- [x] Criar módulo NestJS `tutor-platform` (bounded context).
+- [x] Implementar `TutorPortalAuthGuard` (com validação exclusiva para Tutor).
+- [x] Implementar decorator `@CurrentTutor()`.
+- [x] Endpoint `POST /tutor/auth/request-link` (solicitar Magic Link por e-mail).
+- [x] Endpoint `POST /tutor/auth/verify` (validar token, criar sessão, retornar JWT e dados básicos do tutor).
+- [x] Endpoint `POST /tutor/auth/refresh` (renovar sessão via Refresh Token).
+- [x] Lógica de vínculo: buscar `Client.email`/`emailAlt` → criar/reusar `TutorIdentity` → vincular `tutorIdentityId`.
+  - *Pendência Obrigatória Pré-Produção:* Definir `TUTOR_JWT_SECRET` e remover hardcoded fallbacks de dev no guard e serviço.
+  - *Pendência Obrigatória Pré-Produção:* Implementar testes automatizados de integração do ciclo de auth do tutor (magic link, tokens, sessões).
 
 ---
 
-## Wave 3: Frontend — /tutor/* Layout & Login
+## Wave 3: Frontend — /tutor/* Layout & Login ✅
 
-- [ ] Configurar rotas `/tutor/*` no React Router.
-- [ ] Criar tela de login do tutor (solicitar e-mail para Magic Link).
-- [ ] Criar tela de validação de token (`/tutor/auth/verify?token=...`).
-- [ ] Criar layout mobile-first isolado do painel administrativo.
-- [ ] Configurar gerenciamento de tokens separado do admin.
+- [x] Configurar rotas `/tutor/*` no React Router.
+- [x] Criar tela de login do tutor (solicitar e-mail para Magic Link).
+- [x] Criar tela de validação de token (`/tutor/auth/verify?token=...`).
+- [x] Criar layout mobile-first isolado do painel administrativo.
+- [x] Configurar gerenciamento de tokens separado do admin (`TutorAuthContext`).
+- [x] Redirecionamento para dashboard `/tutor` pós-verificação.
+- [x] Compilação do Frontend (`npm run build`) validada.
 
 ---
 
@@ -47,9 +51,14 @@
 
 ---
 
-## Wave 5: Seed, Testes & Walkthrough
+## Wave 5: Setup, Seed & Finalização
 
-- [ ] Atualizar `seed.ts` com `TutorIdentity` vinculadas aos clientes demo.
-- [ ] Testes de integração do ciclo de autenticação.
-- [ ] Validar isolamento de dados entre tutores distintos.
-- [ ] Executar UAT e escrever walkthrough de finalização.
+- [ ] Atualizar script de seed (`seed.ts`) para injetar dados mock do Tutor.
+- [ ] Rodar testes de integração se aplicável.
+- [ ] Registrar documentação / walkthrough final (walkthrough.md).
+- [ ] **Obrigatório:** Criar migration formal versionada para a Tutor Platform (a Wave 1 usou `db push`).
+
+## Pendências Pós-MVP / Deferred
+
+- [ ] **Ambiental:** Subir Evolution API local ou ajustar URL base (localhost:8080) antes de validar WhatsApp real.
+- [ ] **Funcionalidade:** Adicionar seleção explícita de clínica no Portal do Tutor quando este possuir vínculos em múltiplas clínicas, de modo a permitir um disparo transacional específico. Atualmente, utiliza a clínica vinculada mais antiga para rotear o envio de e-mails.

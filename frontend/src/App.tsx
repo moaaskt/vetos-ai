@@ -1,5 +1,6 @@
 import { Navigate, Outlet, RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { TutorAuthProvider, useTutorAuth } from './context/TutorAuthContext'
 import { Layout } from './components/Layout'
 import { Appointments } from './pages/Appointments'
 import { Clients } from './pages/Clients'
@@ -19,6 +20,10 @@ import { NotificationLogsPage } from './pages/messaging/NotificationLogsPage'
 import { SettingsPage } from './pages/settings/SettingsPage'
 import { VaccineProtocolsPage } from './pages/settings/VaccineProtocolsPage'
 import { PublicDocumentView } from './pages/PublicDocumentView'
+import { TutorLogin } from './pages/tutor/TutorLogin'
+import { TutorVerify } from './pages/tutor/TutorVerify'
+import { TutorDashboard } from './pages/tutor/TutorDashboard'
+import { TutorPetDetails } from './pages/tutor/TutorPetDetails'
 
 
 function defaultAuthenticatedRoute(role?: string) {
@@ -72,7 +77,65 @@ function RootRedirect() {
   return <Navigate to={defaultAuthenticatedRoute(user?.role)} replace />
 }
 
+function TutorPlatformLayout() {
+  return (
+    <TutorAuthProvider>
+      <Outlet />
+    </TutorAuthProvider>
+  )
+}
+
+function TutorProtectedRoute() {
+  const { isAuthenticated, isLoading } = useTutorAuth()
+  
+  if (isLoading) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">Carregando...</div>
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/tutor/login" replace />
+  }
+
+  return <Outlet />
+}
+
+function TutorPublicRoute() {
+  const { isAuthenticated, isLoading } = useTutorAuth()
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">Carregando...</div>
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/tutor" replace />
+  }
+
+  return <Outlet />
+}
+
 const router = createBrowserRouter([
+  // Tutor Platform Routes
+  {
+    element: <TutorPlatformLayout />,
+    children: [
+      {
+        element: <TutorPublicRoute />,
+        children: [
+          { path: '/tutor/login', element: <TutorLogin /> },
+          { path: '/tutor/auth/verify', element: <TutorVerify /> },
+        ],
+      },
+      {
+        element: <TutorProtectedRoute />,
+        children: [
+          { path: '/tutor', element: <TutorDashboard /> },
+          { path: '/tutor/pets/:id', element: <TutorPetDetails /> },
+        ],
+      },
+    ],
+  },
+  
+  // Admin Routes
   {
     element: <PublicOnlyRoute />,
     children: [

@@ -5,7 +5,10 @@ export const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('vetos_token')
+  const isTutorRequest = config.url?.startsWith('/tutor');
+  const token = isTutorRequest
+    ? localStorage.getItem('tutor_access_token')
+    : localStorage.getItem('vetos_token');
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
