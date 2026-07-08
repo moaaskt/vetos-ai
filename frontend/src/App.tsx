@@ -77,6 +77,14 @@ function RootRedirect() {
   return <Navigate to={defaultAuthenticatedRoute(user?.role)} replace />
 }
 
+function TutorPlatformLayout() {
+  return (
+    <TutorAuthProvider>
+      <Outlet />
+    </TutorAuthProvider>
+  )
+}
+
 function TutorProtectedRoute() {
   const { isAuthenticated, isLoading } = useTutorAuth()
   
@@ -108,17 +116,22 @@ function TutorPublicRoute() {
 const router = createBrowserRouter([
   // Tutor Platform Routes
   {
-    element: <TutorPublicRoute />,
+    element: <TutorPlatformLayout />,
     children: [
-      { path: '/tutor/login', element: <TutorLogin /> },
-      { path: '/tutor/auth/verify', element: <TutorVerify /> },
-    ],
-  },
-  {
-    element: <TutorProtectedRoute />,
-    children: [
-      { path: '/tutor', element: <TutorDashboard /> },
-      { path: '/tutor/pets/:id', element: <TutorPetDetails /> },
+      {
+        element: <TutorPublicRoute />,
+        children: [
+          { path: '/tutor/login', element: <TutorLogin /> },
+          { path: '/tutor/auth/verify', element: <TutorVerify /> },
+        ],
+      },
+      {
+        element: <TutorProtectedRoute />,
+        children: [
+          { path: '/tutor', element: <TutorDashboard /> },
+          { path: '/tutor/pets/:id', element: <TutorPetDetails /> },
+        ],
+      },
     ],
   },
   
@@ -165,11 +178,9 @@ import { ThemeProvider } from './context/ThemeContext'
 export default function App() {
   return (
     <ThemeProvider>
-      <TutorAuthProvider>
-        <AuthProvider>
-          <RouterProvider router={router} />
-        </AuthProvider>
-      </TutorAuthProvider>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </ThemeProvider>
   )
 }
