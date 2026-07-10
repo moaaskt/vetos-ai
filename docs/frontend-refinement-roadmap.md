@@ -24,35 +24,29 @@ graph TD
 ### Objetivos
 - Refinar a área dedicada aos tutores de pets para criar uma experiência B2C de alto nível (premium).
 - Transmitir acolhimento, cuidado e clareza nas informações de saúde e agendamento de consultas.
-
-### Critérios de Aceitação
-- [x] O tutor consegue visualizar informações do pet de forma clara e organizada (card de perfil com espécie, raça, idade e clínica).
+- [x] O tutor consegue visualizar o status das vacinas de seus animais de forma clara e amigável.
 - [ ] O fluxo de agendamento e remarcação de consultas é simples e empático.
-- [x] Uso balanceado da marca com tons que geram tranquilidade e confiança (badges WCAG AA, semantic tokens).
+- [x] Uso balanceado da marca com tons que geram tranquilidade e confiança (badges WCAG AA, chips e tons amigáveis).
 
-### Checklist de Tarefas — TutorPetDetails.tsx (Fase 1)
-- [x] **Skeleton de carregamento** — substitui texto puro por skeleton animado com card de perfil + 3 eventos fantasmas.
-- [x] **Estado de erro com recuperação** — mensagem clara + link de retorno para `/tutor` (substitui div vazia com `text-red-500`).
-- [x] **Estado vazio contextualizado** — ícone 🐾, título e copy explicativo com nome do pet.
-- [x] **Card de perfil do pet** — avatar emoji por espécie, nome, raça, idade e clínica. Botão de voltar acessível com `aria-label`.
-- [x] **Badges de tone WCAG AA** — refatorado de `bg-blue-100 text-blue-600` para `bg-blue-50 text-blue-700 ring-1` (ratio ≥ 4.5:1).
-- [x] **Ícones de timeline acessíveis** — adicionado `role="img"` e `aria-label` descritivo composto por categoria + título.
-- [x] **Indicador de link externo** — sufixo `↗` nos botões de ação com `aria-label` explicitando "abre em nova aba".
-- [x] **`classNames` centralizado** — substituído por `cn()` importado de `../../lib/utils`.
-- [x] **`<time>` semântico** — data do evento usa elemento `<time>` com atributo `dateTime` em ISO 8601.
-- [ ] Implementar a timeline de vacinação histórica e filtros por categoria.
-- [ ] Desenvolver o formulário simples de solicitação ou remarcação de consulta.
+### Checklist de Tarefas — TutorPetDetails.tsx (Fase 1 - Refinamento Completo Híbrido)
+- [x] **Layout em 2 Áreas** — Hero/Resumo de Saúde (coluna lateral) e Diário de Saúde/Timeline (coluna principal), preservando bastante espaço em branco.
+- [x] **PetHeroCard Reutilizável** — Apresenta avatar de placeholder redondo grande, nome, espécie, raça, sexo (símbolos ♂/♀), idade, tutor e clínica, preparado para futuras imagens.
+- [x] **Painel de Resumo de Saúde** — Exibição elegante em grid de 5 cards rápidos (Vacinas, Peso, Alergias, Tratamentos ativos e Próxima Consulta). Usa dados do backend ou placeholders elegantes sem criar dados fictícios.
+- [x] **Filtros com Chips e Ícones** — Chips de filtro de categorias interativas (📋 Tudo, 💉 Vacinas, 🩺 Consultas, 💊 Receitas, 🧪 Exames) com contadores integrados de ocorrências.
+- [x] **Agrupamento Cronológico de Timeline** — Timeline dividida e ordenada de maneira fluida em seções por Mês e Ano (ex: "Maio de 2026").
+- [x] **Estrutura de Eventos Padronizada** — Cada item da timeline segue rigorosamente a estrutura: Ícone, Título, Data localizada, Subtítulo opcional, Descrição e Ação (com indicador `↗` se aplicável).
+- [x] **Tratamento de Estados** — Padronização de skeletons animados para a página inteira (Loading), tratamento claro de erros com botão de retorno (Error), e ilustração amigável caso não haja eventos sob o filtro selecionado (Empty).
+- [x] **`classNames` centralizado** — substituído por `cn()` de `../../lib/utils`.
 
 ### Registro de Decisões & Validações
-**[2026-07-09] Fase 1 — TutorPetDetails.tsx implementada e build validada.**
+**[2026-07-10] Implementação da Experiência Híbrida Premium concluída e build homologada.**
 
 | Decisão | Racional |
 |---|---|
-| Avatar por espécie via emoji | Evita dependency de assets externos; funciona offline e é culturalmente neutro. |
-| Skeleton com 3 itens fantasma | Quantidade típica de eventos visíveis acima do fold; evita CLS. |
-| `ring-1` nos badges de tone | Adiciona separação visual entre badge e fundo sem exigir sombra; alinha ao "Flat-By-Default Rule" do DESIGN.md. |
-| Indicador `↗` com `aria-label` | Atende WCAG 2.4.4 (Link Purpose) sem depender de biblioteca de ícones. |
-| `<time dateTime>` | Semântica correta para datas de eventos históricos; compatível com parsers de acessibilidade. |
+| Grid Responsivo de 2 Colunas (`lg:grid-cols-12`) | Permite visualização fluida com bastante espaço em branco no desktop (5/12 para Hero e 7/12 para Timeline) e empilhamento natural no mobile. |
+| Agrupamento por Mês/Ano com Separadores | Aumenta a legibilidade da linha do tempo reduzindo a carga cognitiva ao segmentar os eventos no tempo. |
+| Contadores nas Categorias | Evita cliques desnecessários ao indicar previamente quantos registros existem em cada aba/chip de filtro. |
+| Tratamento de dados sem mock fictício | O resumo de saúde extrai dados do banco de dados (ex: `pet.allergies`, `pet.weightRecords`) e exibe "Não registrado" ou "Nenhuma alergia" caso vazio, respeitando a integridade das informações reais da API. |
 
 ---
 
