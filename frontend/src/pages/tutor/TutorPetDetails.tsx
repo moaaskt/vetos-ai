@@ -372,10 +372,10 @@ export function TutorPetDetails() {
     ? timeline.filter(t => t.type === 'PRESCRIPTION')[0].subtitle || 'Tratamento em curso'
     : 'Sem tratamentos ativos';
 
-  // Next scheduled appointment
-  const nextApptEvent = timeline.find(t => t.type === 'APPOINTMENT' && new Date(t.occurredAt) > new Date());
-  const nextAppointmentSummary = nextApptEvent
-    ? `${new Date(nextApptEvent.occurredAt).toLocaleDateString('pt-BR')} - ${nextApptEvent.title}`
+  // Next scheduled appointment (consumed directly from pet details state)
+  const nextAppt = pet.appointments && pet.appointments[0];
+  const nextAppointmentSummary = nextAppt
+    ? `${new Date(nextAppt.date).toLocaleDateString('pt-BR')} às ${new Date(nextAppt.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} - ${nextAppt.reason || 'Consulta de rotina'}`
     : 'Sem consultas agendadas';
 
   // ─── Filter & Group Timeline ────────────────────────────────────────────────
