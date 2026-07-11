@@ -146,9 +146,17 @@ export function TutorPetDetails() {
       : 'Sem tratamentos ativos';
 
     const nextAppt = pet.appointments && pet.appointments[0];
-    const nextApptVal = nextAppt
-      ? `${new Date(nextAppt.date).toLocaleDateString('pt-BR')} às ${new Date(nextAppt.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} - ${nextAppt.reason || 'Consulta de rotina'}`
-      : 'Sem consultas agendadas';
+    let nextApptVal = 'Sem consultas agendadas';
+    if (nextAppt) {
+      const d = new Date(nextAppt.date);
+      const day = d.getDate().toString().padStart(2, '0');
+      const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+      const month = months[d.getMonth()];
+      const year = d.getFullYear();
+      const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      const reason = nextAppt.reason || 'Consulta de rotina';
+      nextApptVal = `${day} ${month} ${year} • ${time} - ${reason}`;
+    }
 
     return {
       vaccinesSummary: vaccinesVal,
@@ -313,10 +321,13 @@ export function TutorPetDetails() {
                                     dateTime={event.occurredAt}
                                     className="text-xs text-muted-foreground font-medium tabular-nums"
                                   >
-                                    {new Date(event.occurredAt).toLocaleDateString('pt-BR', {
-                                      day: '2-digit',
-                                      month: 'short',
-                                    })}
+                                    {(() => {
+                                      const d = new Date(event.occurredAt);
+                                      const datePart = d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+                                      const timePart = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                                      const cleanDate = datePart.replace(/\s*de\s*/gi, ' ');
+                                      return `${cleanDate} • ${timePart}`;
+                                    })()}
                                   </time>
                                 </div>
 
