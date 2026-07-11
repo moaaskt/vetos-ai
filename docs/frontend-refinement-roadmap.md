@@ -30,13 +30,14 @@ graph TD
 
 ### Checklist de Tarefas — TutorPetDetails.tsx (Fase 1 - Refinamento Completo Híbrido)
 - [x] **Layout em 2 Áreas** — Hero/Resumo de Saúde (coluna lateral) e Diário de Saúde/Timeline (coluna principal), preservando bastante espaço em branco.
-- [x] **PetHeroCard Reutilizável** — Apresenta avatar de placeholder redondo grande, nome, espécie, raça, sexo (símbolos ♂/♀), idade, tutor e clínica, preparado para futuras imagens.
-- [x] **Painel de Resumo de Saúde** — Exibição elegante em grid de 5 cards rápidos (Vacinas, Peso, Alergias, Tratamentos ativos e Próxima Consulta). Usa dados do backend ou placeholders elegantes sem criar dados fictícios.
-- [x] **Filtros com Chips e Ícones** — Chips de filtro de categorias interativas (📋 Tudo, 💉 Vacinas, 🩺 Consultas, 💊 Receitas, 🧪 Exames) com contadores integrados de ocorrências.
+- [x] **PetHeroCard Reutilizável** — Extraído para um componente modular isolado ([PetHeroCard.tsx](file:///home/moa-dev/projetos/vetos-ai/frontend/src/components/tutor/PetHeroCard.tsx)) apresentando avatar de placeholder redondo grande, nome, espécie, raça, sexo (símbolos ♂/♀), idade, tutor e clínica, preparado para futuras imagens.
+- [x] **Painel de Resumo de Saúde** — Extraído para ([HealthSummary.tsx](file:///home/moa-dev/projetos/vetos-ai/frontend/src/components/tutor/HealthSummary.tsx)) com exibição em grid de 5 cards rápidos (Vacinas, Peso, Alergias, Tratamentos ativos e Próxima Consulta). Usa dados do backend ou placeholders elegantes sem criar dados fictícios.
+- [x] **Filtros com Chips e Ícones** — Extraído para ([FilterChips.tsx](file:///home/moa-dev/projetos/vetos-ai/frontend/src/components/tutor/FilterChips.tsx)) com chips de filtro de categorias interativas (📋 Tudo, 💉 Vacinas, 🩺 Consultas, 💊 Receitas, 🧪 Exames) com contadores integrados de ocorrências.
 - [x] **Agrupamento Cronológico de Timeline** — Timeline dividida e ordenada de maneira fluida em seções por Mês e Ano (ex: "Maio de 2026").
 - [x] **Estrutura de Eventos Padronizada** — Cada item da timeline segue rigorosamente a estrutura: Ícone, Título, Data localizada, Subtítulo opcional, Descrição e Ação (com indicador `↗` se aplicável).
 - [x] **Tratamento de Estados** — Padronização de skeletons animados para a página inteira (Loading), tratamento claro de erros com botão de retorno (Error), e ilustração amigável caso não haja eventos sob o filtro selecionado (Empty).
 - [x] **`classNames` centralizado** — substituído por `cn()` de `../../lib/utils`.
+- [x] **Refatoração e Modularização** — A tela principal do tutor apenas orquestra os subcomponentes extraídos, reduzindo significativamente a complexidade cognitiva do arquivo principal.
 
 ### Registro de Decisões & Validações
 **[2026-07-10] Implementação da Experiência Híbrida Premium concluída e build homologada.**
@@ -47,6 +48,7 @@ graph TD
 | Agrupamento por Mês/Ano com Separadores | Aumenta a legibilidade da linha do tempo reduzindo a carga cognitiva ao segmentar os eventos no tempo. |
 | Contadores nas Categorias | Evita cliques desnecessários ao indicar previamente quantos registros existem em cada aba/chip de filtro. |
 | Tratamento de dados sem mock fictício | O resumo de saúde extrai dados do banco de dados (ex: `pet.allergies`, `pet.weightRecords`) e exibe "Não registrado" ou "Nenhuma alergia" caso vazio, respeitando a integridade das informações reais da API. |
+| Extração de Subcomponentes da Ficha | Reduz a responsabilidade direta de renderização e estado do `TutorPetDetails.tsx` movendo a lógica para `PetHeroCard`, `HealthSummary` e `FilterChips`, tornando a arquitetura mais limpa e testável. |
 
 ---
 
