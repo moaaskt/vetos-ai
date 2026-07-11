@@ -200,17 +200,22 @@ export function WhatsappSettingsPage() {
     e.preventDefault()
     setIsSavingConfig(true)
     try {
+      const sanitizedUrl = whatsappInstanceUrl.trim().replace(/\/+$/, '')
+      const sanitizedName = whatsappInstanceName.trim()
+
       const payload: any = {
         whatsappEnabled,
-        whatsappInstanceUrl,
-        whatsappInstanceName,
+        whatsappInstanceUrl: sanitizedUrl,
+        whatsappInstanceName: sanitizedName,
       }
       if (whatsappApiKey) {
         payload.whatsappApiKey = whatsappApiKey
       }
       const data = await notificationsApi.updateConfig(payload)
       setConfig(data)
-      setWhatsappApiKey('') // Clear input
+      setWhatsappInstanceUrl(sanitizedUrl)
+      setWhatsappInstanceName(sanitizedName)
+      setWhatsappApiKey('')
       setIsEditing(false)
       showAlert('Configurações do WhatsApp salvas localmente!')
       await fetchStatus(data)
@@ -275,12 +280,56 @@ export function WhatsappSettingsPage() {
 
   const hasSavedConfig = !!(config?.whatsappInstanceUrl && config?.whatsappInstanceName && config?.hasWhatsappApiKey)
 
-  // Determinar o status visual geral
+  // Auto-polling do status da conexão enquanto um QR Code ou código estiver sendo exibido
+  useEffect(() => {
+    let intervalId: any = null
+
+    const shouldPoll =
+      hasSavedConfig &&
+      connectionStatus !== 'open' &&
+      (!!qrCodeBase64 || !!pairingCode || !!qrCodeText)
+
+    if (shouldPoll) {
+      intervalId = setInterval(async () => {
+        try {
+          const result = await notificationsApi.getWhatsappStatus()
+          if (result.success && result.state === 'open') {
+            setConnectionStatus('open')
+            setQrCodeBase64(null)
+            setPairingCode(null)
+            setQrCodeText(null)
+            showAlert('WhatsApp conectado e pareado com sucesso!')
+            clearInterval(intervalId)
+          }
+        } catch (err) {
+          console.error('Polling connection status failed:', err)
+        }
+      }, 5000)
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId)
+      }
+    }
+  }, [hasSavedConfig, connectionStatus, qrCodeBase64, pairingCode, qrCodeText])
+
+  // Qualquer operação global em andamento
+  const isAnyOperationPending =
+    isSavingConfig ||
+    isCreatingInstance ||
+    isLoadingQr ||
+    isTestingConnection ||
+    isSendingTest ||
+    isDeletingConfig ||
+    isLoadingStatus
+
+  // Determinar o status visual geral (4 estados: Desconectado, Aguardando pareamento, Conectando, Conectado)
   const getStatusBadge = () => {
     if (isLoadingConfig || isLoadingStatus) {
       return (
         <span className="inline-flex items-center gap-1.5 bg-muted text-muted-foreground px-3 py-1 rounded-full text-xs font-semibold">
-          <Loader2 className="h-3 w-3 animate-spin" />
+          <Loader2 className="h-3 w-3 animate-spin text-primary" />
           Verificando...
         </span>
       )
@@ -303,33 +352,27 @@ export function WhatsappSettingsPage() {
       )
     }
 
-    if (connectionStatus === 'close' || connectionStatus === 'disconnected') {
-      if (qrCodeBase64 || pairingCode || qrCodeText) {
-        return (
-          <span className="inline-flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 px-3 py-1 rounded-full text-xs font-semibold">
-            Aguardando QR
-          </span>
-        )
-      }
+    if (connectionStatus === 'connecting') {
       return (
-        <span className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 px-3 py-1 rounded-full text-xs font-semibold">
-          Desconectado
+        <span className="inline-flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-semibold">
+          <Loader2 className="h-3 w-3 animate-spin text-blue-500" />
+          Conectando
         </span>
       )
     }
 
-    if (connectionStatus === 'connecting') {
+    if (qrCodeBase64 || pairingCode || qrCodeText) {
       return (
-        <span className="inline-flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-semibold">
-          <Loader2 className="h-3 w-3 animate-spin" />
-          Conectando
+        <span className="inline-flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 px-3 py-1 rounded-full text-xs font-semibold">
+          <Loader2 className="h-3 w-3 animate-spin text-amber-500" />
+          Aguardando pareamento
         </span>
       )
     }
 
     return (
       <span className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 px-3 py-1 rounded-full text-xs font-semibold">
-        Erro
+        Desconectado
       </span>
     )
   }
@@ -354,7 +397,7 @@ export function WhatsappSettingsPage() {
               : 'bg-destructive/10 border-destructive/20 text-destructive'
           }`}
         >
-          {alert.type === 'success' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+          {alert.type === 'success' ? <CheckCircle className="h-5 w-5 animate-bounce" /> : <XCircle className="h-5 w-5 animate-pulse" />}
           <span className="text-sm font-semibold">{alert.message}</span>
         </div>
       )}
@@ -594,11 +637,17 @@ export function WhatsappSettingsPage() {
                       </p>
                       <button
                         onClick={handleCreateInstanceOnAPI}
-                        disabled={isCreatingInstance}
+                        disabled={isAnyOperationPending}
                         className="px-5 py-2.5 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/95 rounded-xl inline-flex items-center gap-1.5 disabled:opacity-50 transition-colors cursor-pointer shadow-sm"
                       >
-                        {isCreatingInstance && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                        Criar Instância na Evolution API
+                        {isCreatingInstance ? (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            Criando instância...
+                          </>
+                        ) : (
+                          'Criar Instância na Evolution API'
+                        )}
                       </button>
                     </div>
                   )}
@@ -632,15 +681,15 @@ export function WhatsappSettingsPage() {
                   </div>
                 </div>
 
-                {step2Completed && (
+                {step2Completed && !step4Completed && (
                   <button
                     onClick={() => fetchStatus()}
-                    disabled={isLoadingStatus}
-                    className="p-1.5 rounded-lg border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
+                    disabled={isAnyOperationPending}
+                    className="p-1.5 rounded-lg border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold disabled:opacity-50"
                     title="Atualizar status"
                   >
                     <RefreshCw className={`h-3.5 w-3.5 ${isLoadingStatus ? 'animate-spin' : ''}`} />
-                    Atualizar Status
+                    {isLoadingStatus ? 'Verificando...' : 'Atualizar Status'}
                   </button>
                 )}
               </div>
@@ -663,11 +712,20 @@ export function WhatsappSettingsPage() {
                         <div className="flex flex-col gap-2">
                           <button
                             onClick={handleGetQrCode}
-                            disabled={isLoadingQr}
+                            disabled={isAnyOperationPending}
                             className="w-full py-2.5 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/95 rounded-xl inline-flex items-center justify-center gap-1.5 disabled:opacity-50 transition-colors cursor-pointer"
                           >
-                            {isLoadingQr ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <QrCode className="h-3.5 w-3.5" />}
-                            {qrCodeBase64 || pairingCode || qrCodeText ? 'Gerar Novo Código' : 'Gerar QR Code / Pareamento'}
+                            {isLoadingQr ? (
+                              <>
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                Buscando QR Code...
+                              </>
+                            ) : (
+                              <>
+                                <QrCode className="h-3.5 w-3.5" />
+                                {qrCodeBase64 || pairingCode || qrCodeText ? 'Gerar Novo Código' : 'Gerar QR Code / Pareamento'}
+                              </>
+                            )}
                           </button>
                         </div>
                       </div>
@@ -675,9 +733,12 @@ export function WhatsappSettingsPage() {
                       {/* Display QR / Pairing */}
                       <div className="flex flex-col items-center justify-center p-5 bg-muted/30 border border-border/80 rounded-2xl min-h-[220px]">
                         {qrCodeBase64 ? (
-                          <div className="flex flex-col items-center justify-center space-y-3 bg-white p-3 rounded-xl border border-border shadow-inner">
-                            <img src={qrCodeBase64} alt="Evolution QR Code" className="w-44 h-44 border border-slate-100" />
-                            <span className="text-[10px] text-slate-500 font-bold tracking-wide uppercase">Aponte a Câmera</span>
+                          <div className="flex flex-col items-center justify-center space-y-3 bg-white p-3 rounded-xl border border-border shadow-inner w-full max-w-[200px]">
+                            <img src={qrCodeBase64} alt="Evolution QR Code" className="w-44 h-44 border border-slate-100 animate-pulse" />
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-500 font-bold tracking-wide uppercase flex items-center gap-1.5 animate-pulse">
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              Aguardando conexão...
+                            </span>
                           </div>
                         ) : pairingCode ? (
                           <div className="text-center space-y-3 w-full max-w-[280px]">
@@ -692,9 +753,10 @@ export function WhatsappSettingsPage() {
                                 <Copy className="h-4 w-4" />
                               </button>
                             </div>
-                            <p className="text-[10px] text-muted-foreground leading-normal">
-                              Digite este código na seção "Conectar com código" do WhatsApp no seu telefone.
-                            </p>
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-500 font-bold tracking-wide uppercase flex items-center justify-center gap-1.5 animate-pulse mt-2">
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              Aguardando conexão...
+                            </span>
                           </div>
                         ) : qrCodeText ? (
                           <div className="text-center space-y-3 w-full max-w-[280px]">
@@ -709,9 +771,10 @@ export function WhatsappSettingsPage() {
                                 <Copy className="h-4 w-4" />
                               </button>
                             </div>
-                            <p className="text-[10px] text-muted-foreground leading-normal">
-                              Código bruto do QR code. Use em leitores compatíveis se a imagem não renderizar.
-                            </p>
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-500 font-bold tracking-wide uppercase flex items-center justify-center gap-1.5 animate-pulse mt-2">
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              Aguardando conexão...
+                            </span>
                           </div>
                         ) : (
                           <div className="text-center space-y-2 text-muted-foreground p-6">
@@ -756,7 +819,7 @@ export function WhatsappSettingsPage() {
                 <p className="text-xs text-muted-foreground mt-4 italic">Conclua o pareamento do WhatsApp na Etapa 3 para liberar os testes.</p>
               ) : (
                 <div className="mt-5 space-y-6">
-                  <div className="p-4 bg-emerald-500/5 border border-emerald-500/15 rounded-xl flex gap-3 text-xs text-emerald-600 dark:text-emerald-400">
+                  <div className="p-4 bg-emerald-500/5 border border-emerald-500/15 rounded-xl flex gap-3 text-xs text-emerald-600 dark:text-emerald-400 animate-in zoom-in-95 duration-300">
                     <Check className="h-4 w-4 shrink-0 text-emerald-500 mt-0.5" />
                     <p className="leading-relaxed">
                       <strong>Conexão ativa e integrada com sucesso!</strong><br />
@@ -768,15 +831,22 @@ export function WhatsappSettingsPage() {
                     <div className="flex flex-wrap items-center gap-3">
                       <button
                         onClick={handleTestConnection}
-                        disabled={isTestingConnection}
+                        disabled={isAnyOperationPending}
                         className="px-4 py-2 text-xs font-bold border border-border hover:bg-muted/80 rounded-xl text-foreground inline-flex items-center gap-1.5 disabled:opacity-50 transition-colors cursor-pointer"
                       >
-                        {isTestingConnection && <Loader2 className="h-3 w-3 animate-spin" />}
-                        Testar Conexão
+                        {isTestingConnection ? (
+                          <>
+                            <Loader2 className="h-3 w-3 animate-spin animate-infinite" />
+                            Testando conexão...
+                          </>
+                        ) : (
+                          'Testar Conexão'
+                        )}
                       </button>
                       <button
                         onClick={() => setShowTestModal(true)}
-                        className="px-4 py-2 text-xs font-bold border border-border hover:bg-muted/80 rounded-xl text-foreground inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                        disabled={isAnyOperationPending}
+                        className="px-4 py-2 text-xs font-bold border border-border hover:bg-muted/80 rounded-xl text-foreground inline-flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                       >
                         <Send className="h-3.5 w-3.5" />
                         Enviar WhatsApp de Teste
@@ -785,11 +855,20 @@ export function WhatsappSettingsPage() {
 
                     <button
                       onClick={handleDeleteConfig}
-                      disabled={isDeletingConfig}
-                      className="px-4 py-2 text-xs font-bold border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 rounded-xl inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                      disabled={isAnyOperationPending}
+                      className="px-4 py-2 text-xs font-bold border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 rounded-xl inline-flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                     >
-                      {isDeletingConfig ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                      Excluir Instância & Credenciais
+                      {isDeletingConfig ? (
+                        <>
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          Removendo...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Excluir Instância & Credenciais
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
