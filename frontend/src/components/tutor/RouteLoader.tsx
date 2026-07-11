@@ -33,7 +33,7 @@ export function RouteLoader() {
               <div className="h-6 w-20 rounded-full bg-muted/60" />
             </div>
             <div className="space-y-6">
-              {[1, 2, 2].map((i, idx) => (
+              {[1, 2, 2].map((_, idx) => (
                 <div 
                   key={idx} 
                   className="flex gap-4 items-start bg-white/40 border border-border/40 rounded-2xl p-4 shadow-sm animate-pulse"
