@@ -40,6 +40,35 @@ export class TutorPetsService {
             address: true,
           },
         },
+        client: {
+          select: {
+            name: true,
+          },
+        },
+        allergies: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        weightRecords: {
+          orderBy: {
+            date: 'desc',
+          },
+          take: 1,
+        },
+        appointments: {
+          where: {
+            status: 'SCHEDULED',
+            date: {
+              gte: new Date(),
+            },
+          },
+          orderBy: {
+            date: 'asc',
+          },
+          take: 1,
+        },
       },
     });
 
