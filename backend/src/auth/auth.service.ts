@@ -53,6 +53,11 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
+    // SECURITY NOTE: Interactive Transactions ($transaction) bypass standard model-level query
+    // interception in some Prisma Extension setups if the transaction context is not correctly propagated
+    // or if the operations are executed via the transaction client (prisma parameter) rather than the main
+    // client. Every new transaction in the codebase must undergo rigorous architectural review to ensure
+    // it does not introduce multi-tenant isolation leaks.
     const result = await this.prisma.$transaction(async (prisma) => {
       const clinic = await prisma.clinic.create({
         data: {

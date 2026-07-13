@@ -95,22 +95,30 @@ export function Login() {
             {/* Acesso Rápido (Demo) */}
             <div className="pt-2 border-t border-border/50">
               <span className="block text-[10px] font-bold text-muted-foreground/80 uppercase tracking-wider mb-2 text-center">Acesso Rápido (Demo)</span>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   disabled={isSubmitting}
                   onClick={() => handleQuickLogin('superadmin@vetos.ai')}
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-xs font-bold text-foreground hover:bg-muted/80 transition shadow-sm active:scale-95 disabled:opacity-50"
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-muted/40 px-2.5 py-2.5 text-xs font-bold text-foreground hover:bg-muted/80 transition shadow-sm active:scale-95 disabled:opacity-50"
                 >
-                  <span>🔑 Super Admin</span>
+                  <span>🔑 Super</span>
                 </button>
                 <button
                   type="button"
                   disabled={isSubmitting}
                   onClick={() => handleQuickLogin('admin@alfa.com')}
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-xs font-bold text-foreground hover:bg-muted/80 transition shadow-sm active:scale-95 disabled:opacity-50"
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-muted/40 px-2.5 py-2.5 text-xs font-bold text-foreground hover:bg-muted/80 transition shadow-sm active:scale-95 disabled:opacity-50"
                 >
-                  <span>🏥 Admin Alfa</span>
+                  <span>🏥 Alfa</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickLogin('admin@beta.com')}
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-muted/40 px-2.5 py-2.5 text-xs font-bold text-foreground hover:bg-muted/80 transition shadow-sm active:scale-95 disabled:opacity-50"
+                >
+                  <span>🏥 Beta</span>
                 </button>
               </div>
             </div>
