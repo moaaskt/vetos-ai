@@ -38,7 +38,7 @@ import { CreateConsentTermModal } from '../components/CreateConsentTermModal'
 import { PrintPreviewModal } from '../components/PrintPreviewModal'
 import { ShareDocumentModal } from '../components/ShareDocumentModal'
 import { Input } from '../components/ui/input'
-import { getSpeciesLabel } from './Pets'
+import { getSpeciesLabel, normalizeSpecies } from './Pets'
 
 type TimelineItem = {
   id: string
@@ -315,8 +315,11 @@ export function PetDetails() {
   async function loadProtocolsForApply() {
     try {
       const response = await api.get('/vaccines/protocols')
-      const petSpeciesUpper = pet?.species?.toUpperCase() || ''
-      const filtered = response.data.filter((p: any) => p.species.toUpperCase() === petSpeciesUpper || p.species === 'OTHER')
+      const normalizedPetSpecies = normalizeSpecies(pet?.species)
+      const filtered = response.data.filter((p: any) => {
+        const normalizedProtoSpecies = normalizeSpecies(p.species)
+        return normalizedProtoSpecies === normalizedPetSpecies || normalizedProtoSpecies === 'OTHER'
+      })
       setProtocols(filtered)
       if (filtered.length > 0) {
         setSelectedProtocolId(filtered[0].id)

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
+import { normalizeSpecies } from '../Pets'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Card, CardContent } from '../../components/ui/card'
@@ -222,13 +223,13 @@ export function VaccineProtocolsPage() {
                       {protocol.name}
                     </h3>
                     <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border shrink-0 ${
-                      protocol.species === 'DOG'
+                      normalizeSpecies(protocol.species) === 'DOG'
                         ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                        : protocol.species === 'CAT'
+                        : normalizeSpecies(protocol.species) === 'CAT'
                         ? 'bg-pink-500/10 text-pink-400 border-pink-500/20'
                         : 'bg-muted text-muted-foreground border-border/80'
                     }`}>
-                      {protocol.species === 'DOG' ? 'CÃO' : protocol.species === 'CAT' ? 'GATO' : 'OUTRO'}
+                      {normalizeSpecies(protocol.species) === 'DOG' ? 'CÃO' : normalizeSpecies(protocol.species) === 'CAT' ? 'GATO' : 'OUTRO'}
                     </span>
                   </div>
 

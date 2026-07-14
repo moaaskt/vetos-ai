@@ -23,6 +23,29 @@ export function getSpeciesLabel(species?: string): string {
   }
 }
 
+export function normalizeSpecies(species?: string): 'DOG' | 'CAT' | 'OTHER' {
+  if (!species) return 'OTHER';
+  const clean = species.trim().toLowerCase();
+  
+  if (
+    ['cão', 'cao', 'canina', 'canino', 'dog', 'cachorro', 'cadela', 'cadelas', 'cachorros'].some(
+      (term) => clean.includes(term),
+    )
+  ) {
+    return 'DOG';
+  }
+  
+  if (
+    ['gato', 'gata', 'felino', 'felina', 'cat', 'gatos', 'gatas'].some((term) =>
+      clean.includes(term),
+    )
+  ) {
+    return 'CAT';
+  }
+  
+  return 'OTHER';
+}
+
 export function Pets() {
   const [pets, setPets] = useState<Pet[]>([])
   const [clients, setClients] = useState<Client[]>([])
