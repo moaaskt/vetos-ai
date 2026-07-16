@@ -7,6 +7,26 @@ import { ApplyScheduledDoseDto } from './dto/apply-scheduled-dose.dto';
 import PDFDocument from 'pdfkit';
 import { PassThrough } from 'stream';
 
+export function normalizeSpecies(species?: string): 'DOG' | 'CAT' | 'OTHER' {
+  if (!species) return 'OTHER';
+  const clean = species.trim().toLowerCase();
+  if (
+    ['cão', 'cao', 'canina', 'canino', 'dog', 'cachorro', 'cadela', 'cadelas', 'cachorros'].some(
+      (term) => clean.includes(term),
+    )
+  ) {
+    return 'DOG';
+  }
+  if (
+    ['gato', 'gata', 'felino', 'felina', 'cat', 'gatos', 'gatas'].some((term) =>
+      clean.includes(term),
+    )
+  ) {
+    return 'CAT';
+  }
+  return 'OTHER';
+}
+
 @Injectable()
 export class VaccinesService {
   constructor(private prisma: PrismaService) {}
@@ -215,7 +235,7 @@ export class VaccinesService {
     return this.prisma.vaccineProtocol.create({
       data: {
         name: data.name,
-        species: data.species,
+        species: normalizeSpecies(data.species),
         clinicId,
         doses: {
           create: data.doses.map((dose: CreateVaccineProtocolDoseDto) => ({
@@ -232,11 +252,14 @@ export class VaccinesService {
           },
         },
       },
-    });
+    }).then(p => ({
+      ...p,
+      species: normalizeSpecies(p.species),
+    }));
   }
 
   async findAllProtocols(clinicId: string) {
-    return this.prisma.vaccineProtocol.findMany({
+    const protocols = await this.prisma.vaccineProtocol.findMany({
       where: {
         clinicId,
       },
@@ -251,6 +274,11 @@ export class VaccinesService {
         name: 'asc',
       },
     });
+
+    return protocols.map(p => ({
+      ...p,
+      species: normalizeSpecies(p.species),
+    }));
   }
 
   async findOneProtocol(clinicId: string, id: string) {
@@ -272,7 +300,10 @@ export class VaccinesService {
       throw new NotFoundException('Protocolo vacinal não encontrado.');
     }
 
-    return protocol;
+    return {
+      ...protocol,
+      species: normalizeSpecies(protocol.species),
+    };
   }
 
   async updateProtocol(clinicId: string, id: string, data: CreateVaccineProtocolDto) {
@@ -292,7 +323,7 @@ export class VaccinesService {
       },
       data: {
         name: data.name,
-        species: data.species,
+        species: normalizeSpecies(data.species),
         doses: {
           create: data.doses.map((dose: CreateVaccineProtocolDoseDto) => ({
             vaccineName: dose.vaccineName,
@@ -308,7 +339,10 @@ export class VaccinesService {
           },
         },
       },
-    });
+    }).then(p => ({
+      ...p,
+      species: normalizeSpecies(p.species),
+    }));
   }
 
   async removeProtocol(clinicId: string, id: string) {

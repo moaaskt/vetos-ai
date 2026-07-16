@@ -42,8 +42,9 @@ export class NotificationsProcessor extends WorkerHost {
       const resolved = await this.resolveSubjectAndBody(job.data);
       compiledSubject = resolved.subject;
       compiledBody = resolved.body;
+      const htmlBody = resolved.htmlBody;
 
-      const result = await this.send(job.data, compiledSubject, compiledBody);
+      const result = await this.send(job.data, compiledSubject, compiledBody, htmlBody);
       await this.createNotificationLog(
         job.data,
         compiledSubject,
@@ -173,9 +174,9 @@ export class NotificationsProcessor extends WorkerHost {
 
   private async resolveSubjectAndBody(
     jobData: EnqueueNotificationInput,
-  ): Promise<{ subject?: string; body: string }> {
+  ): Promise<{ subject?: string; body: string; htmlBody?: string }> {
     if (!jobData.clinicId) {
-      return { subject: jobData.subject, body: jobData.body };
+      return { subject: jobData.subject, body: jobData.body, htmlBody: jobData.htmlBody };
     }
 
     const template = await this.prisma.notificationTemplate.findUnique({
@@ -207,16 +208,17 @@ export class NotificationsProcessor extends WorkerHost {
         ? this.templateService.compile(template.subject, compilePayload)
         : undefined;
 
-      return { subject, body };
+      return { subject, body, htmlBody: jobData.htmlBody };
     }
 
-    return { subject: jobData.subject, body: jobData.body };
+    return { subject: jobData.subject, body: jobData.body, htmlBody: jobData.htmlBody };
   }
 
   private async send(
     payload: EnqueueNotificationInput,
     subject: string | undefined,
     body: string,
+    htmlBody?: string,
   ) {
     if (payload.channel === 'EMAIL') {
       if (!payload.clinicId) {
@@ -228,6 +230,7 @@ export class NotificationsProcessor extends WorkerHost {
         to: payload.to,
         subject: subject,
         body: body,
+        htmlBody: htmlBody,
       });
     }
 

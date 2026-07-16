@@ -5,7 +5,10 @@ export const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('vetos_token')
+  const isTutorRequest = config.url?.startsWith('/tutor');
+  const token = isTutorRequest
+    ? localStorage.getItem('tutor_access_token')
+    : localStorage.getItem('vetos_token');
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
@@ -26,6 +29,22 @@ export type Client = {
   email?: string | null
   phone?: string | null
   createdAt?: string
+
+  // Novos campos estruturados
+  cpf?: string | null
+  rg?: string | null
+  birthDate?: string | null
+  whatsapp?: string | null
+  emailAlt?: string | null
+  emergencyName?: string | null
+  emergencyPhone?: string | null
+  postalCode?: string | null
+  street?: string | null
+  number?: string | null
+  complement?: string | null
+  neighborhood?: string | null
+  city?: string | null
+  state?: string | null
 }
 
 export type Allergy = {

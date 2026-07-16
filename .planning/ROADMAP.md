@@ -71,6 +71,7 @@ gantt
 - **Plans:** 0/2 plans complete
 
 ### Phase 16B.1.1: Aceite e Assinatura Digital do Tutor (INSERTED)
+
 - **Goal:** Aceite eletrônico e assinatura digital de Termos de Consentimento pelo tutor do pet a partir da rota pública do documento.
 - **Funcionalidades**:
   - Formulário com máscara de CPF e validação algorítmica rigorosa (11 dígitos).
@@ -81,7 +82,28 @@ gantt
 - **Status:** COMPLETED
 
 Plans:
+
 - [x] Aceite e Assinatura Digital do Tutor (npx prisma db push, backend validation, frontend form & mask, timeline status) [completed]
+
+### Phase 16B.1.2: Cadastro Completo do Tutor (INSERTED)
+
+- **Goal:** Habilitar um formulário público ou fluxo inteligente de captação de dados cadastrais completos do Tutor (Cliente) no fluxo pós-assinatura ou via link dedicado.
+- **Funcionalidades**:
+  - Tela pública para atualização cadastral com endereço, telefone adicional, e-mail e dados de contato de emergência.
+  - Validação rigorosa dos campos e sincronização direta no banco de dados para evitar cadastros incompletos no prontuário.
+  - Integração visual com o status cadastral na ficha de detalhes do Pet.
+- **Depends on:** Phase 16B.1.1
+
+### Phase 16B.1.2.1: Portal do Tutor (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 16B.1.2
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 16B.1.2.1 to break down)
 
 ### Phase 17: IA Assistente (AI Copilot) & Otimizador de Consultas
 

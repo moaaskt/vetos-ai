@@ -19,6 +19,7 @@ export interface EnqueueNotificationInput {
   channel: NotificationChannel;
   to: string;
   body: string;
+  htmlBody?: string;
   subject?: string;
   event: NotificationEvent;
   scheduledFor?: Date;
