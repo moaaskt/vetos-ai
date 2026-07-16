@@ -1,47 +1,33 @@
-# Roadmap do Projeto - VetOS AI
+# Roadmap Macro - VetOS AI
 
-Este é o roadmap oficial de desenvolvimento do VetOS AI, englobando as fases técnicas de infraestrutura e melhorias visuais do sistema.
+Este documento descreve as grandes fases e marcos estratégicos de evolução do ecossistema do VetOS AI.
 
-## Fases Técnicas e de Negócio
+## Fase 1: Setup do Projeto e Infraestrutura Core
+* **Objetivo**: Inicialização do monorepo, banco de dados isolado e ambiente Docker de desenvolvimento.
 
-### Fase 14B: Interface de Vacinas (Frontend UI)
-* **Objetivo**: Prover visualização no frontend para o motor de lembretes de imunização (fila BullMQ, disparos manuais e conversões).
+## Fase 2: Modelagem, Segurança & Multi-tenancy
+* **Objetivo**: Estrutura das entidades clínicas principais, controle de acesso RBAC e isolamento transparente de inquilinos na camada do ORM.
 
-### Fase 15: SaaS Billing & Limites
-* **Objetivo**: Checkout com Stripe/Asaas, controle de cotas (staff seats, notificações, storage) e bloqueio por inadimplência.
+## Fase 3: Operações Básicas de Clínicas
+* **Objetivo**: Cadastro e listagem (CRUD) de tutores, pacientes e agendamentos no backend.
 
-### Fase 16A: Uploads de Exames no Prontuário
-* **Objetivo**: Laudos e imagens integradas ao prontuário médico de forma segura.
+## Fase 4: Motor de Automações & Notificações
+* **Objetivo**: Fila em background de notificações para tutores integrando canais de E-mail (SMTP) e WhatsApp.
 
-### Fase 16B: Prontuário Avançado & Assinatura Digital
-* **Objetivo**: Layout de impressão e assinatura eletrônica qualificada (ICP-Brasil) de receitas e termos.
+## Fase 5: Portal Administrativo (Web)
+* **Objetivo**: Interface administrativa para controle operacional diário das clínicas.
 
-### Fase 16B.1: Compartilhamento com Tutor
-* **Objetivo**: Envio de Receitas e Termos assinados via Email e WhatsApp do tutor.
+## Fase 6: Prontuário Clínico Digital & Timeline de Pacientes
+* **Objetivo**: Linha do tempo unificada do paciente trazendo registros de evolução, curva de peso, vacinação aplicada e alertas de alergias.
 
-### Fase 16B.1.1: Aceite Eletrônico do Tutor
-* **Objetivo**: Rota pública para assinatura e aceite de termos de consentimento pelo tutor. (Concluído)
+## Fase 7: Emissão de Documentos e Assinaturas Digitais
+* **Objetivo**: Emissão de receitas médicas digitais e termos de consentimento cirúrgico/clínico com aceite eletrônico auditado do tutor.
 
-### Fase 16B.1.2: Cadastro Completo do Tutor
-* **Objetivo**: Tela pública para captação cadastral completa do tutor e sincronismo em tempo real.
+## Fase 8: SaaS Billing & Monetização
+* **Objetivo**: Cobrança automática recorrente das clínicas (Stripe/Asaas) e travas automáticas por limites do plano e inadimplência.
 
-### Fase 16B.1.2.1: Portal do Tutor
-* **Objetivo**: Área logada para o tutor visualizar dados de saúde, peso, e vacinas de seus animais.
+## Fase 9: Portal de Acesso do Tutor (B2C)
+* **Objetivo**: Canal exclusivo para tutores de animais acompanharem o histórico médico e vacinas de seus pets.
 
-### Fase 17: IA Assistente (AI Copilot)
-* **Objetivo**: Copilot de anamnese com sugestão de diagnóstico, reengajamento de tutores inativos e predição de no-show.
-
-### Fase 18: Segurança e e2e
-* **Objetivo**: Redis wrapper, Rate Limiting (Throttler), divisão de componentes complexos do frontend e testes e2e de fluxo.
-
----
-
-## Roadmap de Refinamento de UI/UX (Frontend)
-
-* **Sprint 1: Portal do Tutor B2C** (Curva de peso, timeline agrupada, cards modularizados). (Concluído)
-* **Sprint 2: Sistema de Design mínimo** (Consolidação de TailwindCSS v4 tokens e componentes básicos).
-* **Sprint 3: Portal Admin - Eficiência** (Alta densidade, alertas destacados de alergias).
-* **Sprint 4: Responsividade** (Uso em tablets e smartphones nos consultórios).
-* **Sprint 5: Acessibilidade** (Nível WCAG AA, focus-visible contrastado).
-* **Sprint 6: Motion** (Animações funcionais sob 200ms).
-* **Sprint 7: Performance & Resiliência** (Bundling otimizado e tratamento de erro de rede).
+## Fase 10: Inteligência Artificial (AI Copilot)
+* **Objetivo**: Diagnósticos sugeridos por IA na anamnese, alertas de no-show e reengajamento inteligente de clientes ausentes.
