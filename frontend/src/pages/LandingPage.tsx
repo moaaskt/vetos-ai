@@ -247,18 +247,17 @@ export function LandingPage() {
       </motion.header>
 
       {/* ─── 2. HERO IMERSIVO (CINEMATIC FULL BANNER INTEGRATION) ─────────── */}
-      <section className="relative min-h-[85vh] lg:min-h-[760px] flex items-center justify-start overflow-hidden pt-8 pb-16 lg:py-24">
+      <section className="relative min-h-[85vh] lg:min-h-[720px] flex items-center justify-start overflow-hidden pt-8 pb-16 lg:py-24">
         {/* Camada Unificada de Fundo */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
           <img
             src="/hero-vetos.png"
             alt="Atendimento Veterinário VetOS"
-            className="w-full h-full object-cover object-[82%_center] opacity-95 dark:opacity-85"
+            className="w-full h-full object-cover object-[82%_center] lg:object-[85%_top] opacity-95 dark:opacity-85"
           />
 
-          {/* Máscara Desktop: lateral esquerda */}
-          <div className="hidden lg:block absolute inset-y-0 left-0 w-[42%] bg-background" />
-          <div className="hidden lg:block absolute inset-y-0 left-[38%] w-80 bg-gradient-to-r from-background via-background/70 to-transparent" />
+          {/* Gradiente suave contínuo no Desktop para contraste sem cortar a imagem */}
+          <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-background/90 via-background/45 to-transparent w-full lg:w-4/5" />
 
           {/* Máscara Mobile: superior para dar leitura ao título e botões */}
           <div className="block lg:hidden absolute inset-0 bg-gradient-to-b from-background via-background/85 via-45% to-transparent" />
