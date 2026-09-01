@@ -363,21 +363,8 @@ export function LandingPage() {
             </motion.div>
           </motion.div>
 
-          {/* ─── 3. MOCKUP DO SISTEMA COM COMPOSIÇÃO ORGÂNICA SVG & IMAGEM AFETIVA ─ */}
+          {/* ─── 3. MOCKUP DO SISTEMA COM COMPOSIÇÃO EDITORIAL & IMAGEM AFETIVA ─── */}
           <div id="mockup-3d" className="relative mx-auto max-w-6xl text-left [perspective:1200px] mb-8">
-            {/* SVG Background Curve Accent (Linha de Batimento / Pulso Clínico Sutil) */}
-            <div className="absolute -top-12 -left-12 w-96 h-48 opacity-20 pointer-events-none -z-10 text-primary">
-              <svg viewBox="0 0 400 150" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                <path
-                  d="M0 75 Q100 75 140 75 L160 30 L180 120 L200 60 L215 90 L225 75 Q280 75 400 75"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-
             <motion.div
               initial={{ rotateX: 8, y: 30, opacity: 0 }}
               whileInView={{ rotateX: 0, y: 0, opacity: 1 }}
