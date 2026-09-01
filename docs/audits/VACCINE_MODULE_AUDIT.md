@@ -6,7 +6,7 @@ Esta auditoria analisa a modelagem de dados, fluxos de execução e lacunas téc
 
 ## 1. Modelo de Dados de Vacinas Atual
 
-Atualmente, o modelo é centrado na tabela `VaccineRecord` definida no [schema.prisma](file:///home/moadev/projetos/vetOSAI/backend/prisma/schema.prisma):
+Atualmente, o modelo é centrado na tabela `VaccineRecord` definida no [schema.prisma](file:///home/moa-dev/projetos/vetos-ai/backend/prisma/schema.prisma):
 
 ```prisma
 model VaccineRecord {

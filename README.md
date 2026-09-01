@@ -1,154 +1,179 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/status-em%20desenvolvimento-yellow?style=for-the-badge" />
-<img src="https://img.shields.io/badge/versão-0.1.0-blue?style=for-the-badge" />
-<img src="https://img.shields.io/badge/licença-MIT-green?style=for-the-badge" />
-
-<br />
-<br />
-
 # 🐾 VetOS AI
+### Sistema Operacional & SaaS Multi-tenant para Clínicas Veterinárias
 
-### Sistema Operacional Inteligente para Clínicas Veterinárias
+Plataforma completa de gestão clínica e hospitalar veterinária com isolamento lógico multi-tenant, prontuário eletrônico avançado, motor de automações/filas assíncronas e aceite digital de termos com trilha de auditoria.
 
-*Gestão clínica assistida por IA — prontuários, agendamentos e operações em tempo real.*
+---
+
+[![Node.js](https://img.shields.io/badge/Node.js-22.x-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+[![NestJS](https://img.shields.io/badge/NestJS-11.x-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![React](https://img.shields.io/badge/React-19.x-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org)
+[![Redis](https://img.shields.io/badge/Redis-7.x%20%2F%20BullMQ-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
+[![SSL](https://img.shields.io/badge/SSL-Let's%20Encrypt-003A70?style=for-the-badge&logo=letsencrypt&logoColor=white)](https://letsencrypt.org)
+
+<br />
+
+🌐 **Ambiente de Produção (Live Demo):** **[vetos.moadev.com.br](https://vetos.moadev.com.br)**
 
 </div>
 
 ---
 
-## 📋 Sumário
+### 🔑 Credenciais de Demonstração Rápida (Ambiente Demo)
 
-- [Sobre o Projeto](#sobre-o-projeto)
-- [Funcionalidades](#funcionalidades)
-- [Tecnologias](#tecnologias)
-- [Arquitetura](#arquitetura)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Roadmap](#roadmap)
-- [Autor](#autor)
-
----
-
-## 💡 Sobre o Projeto
-
-O **VetOS AI** é uma plataforma SaaS voltada para clínicas veterinárias e petshops, com o objetivo de centralizar toda a gestão operacional em um único lugar. O sistema oferece controle de pacientes, histórico clínico unificado, agenda de consultas, cadastro de tutores e métricas em tempo real — com integração planejada ao WhatsApp e assistência via IA.
-
-O projeto nasceu da ideia de modernizar a gestão veterinária, substituindo planilhas e sistemas legados por uma solução moderna, responsiva e inteligente.
-
-> ⚠️ **Projeto em desenvolvimento ativo.** Algumas features ainda estão sendo implementadas.
+| Perfil / Papel | E-mail de Acesso | Senha Padrão | Escopo & Permissões |
+| :--- | :--- | :--- | :--- |
+| **Super Admin** | `superadmin@vetos.ai` | `Senha123!` | Visão global da plataforma, governança de tenants e impersonação. |
+| **Admin da Clínica** | `admin@alfa.com` | `Senha123!` | Gestão completa da Clínica Alfa (Prontuários, Agenda, Equipe, Configurações). |
+| **Equipe / Staff** | `staff@alfa.com` | `Senha123!` | Acesso operacional da Clínica Alfa (Atendimentos, Vacinas e Consultas). |
+| **Clínica Isolada (Beta)**| `admin@beta.com` | `Senha123!` | Gestão do Hospital Veterinário Beta (Demonstração do isolamento de dados). |
 
 ---
 
-## ✨ Funcionalidades
+## 🌟 Visão Geral & Destaques Arquiteturais
 
-### ✅ Implementadas
+O **VetOS AI** foi projetado seguindo rigorosos padrões de engenharia de software corporativa, garantindo confiabilidade clínica, segurança de dados e alta performance sob condições de uso intenso:
 
-- **Painel Central** — visão geral da clínica com métricas de clientes, pacientes e consultas em tempo real
-- **Agenda de Consultas** — visualização diária e semanal, busca por paciente/tutor/motivo, status (agendado, concluído, cancelado)
-- **Fichas de Pacientes** — histórico clínico unificado com linha do tempo de consultas, alergias/alertas, vacinas aplicadas e histórico de peso
-- **Cadastro de Clientes e Tutores** — vínculo entre tutor e animal, contatos e dados completos
-- **Atividade Recente da Clínica** — feed de eventos com auditoria da equipe médica
-- **Resumo Operacional** — status de backup, latência do gateway e integridade do sistema
-
-### 🚧 Em Desenvolvimento
-
-- Integração com WhatsApp Cloud API para notificações automáticas
-- Assistente IA para sugestões clínicas e triagem
-- Multi-tenancy (isolamento de dados por clínica)
-- Sistema de filas com Redis para processamento assíncrono
-- Módulo financeiro
-
----
-
-## 🛠️ Tecnologias
-
-### Frontend
-![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
-![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
-
-### Backend
-![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=flat-square&logo=nestjs&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white)
-
-### Banco de Dados e Infra
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
-
-### Integrações Planejadas
-![WhatsApp](https://img.shields.io/badge/WhatsApp_Cloud_API-25D366?style=flat-square&logo=whatsapp&logoColor=white)
-![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=flat-square&logo=openai&logoColor=white)
+* 🏢 **Arquitetura SaaS Multi-Tenant Nativa:**
+  * Isolamento lógico rigoroso por `clinicId` em todas as camadas de persistência.
+  * Injeção de contexto transparente via `AsyncLocalStorage` (`TenantContextService`).
+  * Extensão Prisma customizada (`TenantPrismaExtension`) com modos configuráveis (`OFF`, `LOG`, `ENFORCE`) prevenindo vazamento acidental de dados entre clínicas.
+* ⚡ **Motor de Filas & Automações em Background (BullMQ + Redis):**
+  * Processamento assíncrono e resiliente para disparos de lembretes vacinais nas janelas estratégicas (**D0**, **D-1**, **D-7**).
+  * Agendamento dinâmico de avisos prévios de consultas com suporte a cancelamento/remarcação atômica de jobs.
+  * Proteção anti-spam e rastreabilidade através de `NotificationLog`.
+* 🩺 **Prontuário Eletrônico & Gestão Clínica Avançada:**
+  * Linha do tempo unificada de atendimentos, exames, vacinas, histórico de peso e alertas vitais (alergias graves).
+  * Emissão de prescrições médicas estruturadas e termos de consentimento com QR Code de validação pública.
+* ✍️ **Aceite & Assinatura Digital do Tutor:**
+  * Fluxo público e responsivo para visualização, validação de CPF e assinatura eletrônica de termos pelo tutor.
+  * Trilha de auditoria jurídica completa: captura de endereço IP, User-Agent do navegador, timestamp UTC e hash de integridade do documento.
+* 🎨 **Design System *"The Clinical Sanctuary"*:**
+  * Interface ergonomicamente planejada para reduzir a fadiga cognitiva sob iluminação hospitalar.
+  * Suporte nativo a **Light / Dark Mode** com paletas em espaço de cor moderno **OKLCH** e conformidade **WCAG AA**.
 
 ---
 
-## 🏗️ Arquitetura
-
-O projeto segue uma arquitetura **monorepo** com separação clara entre frontend e backend:
+## 🏗️ Diagrama de Arquitetura & Topologia de Infraestrutura
 
 ```
+                                  [ Internet / Usuários ]
+                                             │
+                                     ( HTTPS / Port 443 )
+                                             ▼
+                        ┌────────────────────────────────────────┐
+                        │    Nginx Proxy Manager (VPS Oracle)    │
+                        │    Certificados SSL Let's Encrypt      │
+                        └────────────────────┬───────────────────┘
+                                             │
+                    ┌────────────────────────┴────────────────────────┐
+                    │                                                 │
+            ( Proxy / :80 )                                   ( Proxy /api :3000 )
+                    ▼                                                 ▼
+        ┌───────────────────────┐                         ┌───────────────────────┐
+        │  Nginx SPA (Frontend) │                         │  NestJS API (Backend) │
+        │  React 19 + Vite      │                         │  Node.js 22 + Prisma  │
+        │  Tailwind CSS v4      │                         │  Tenant Guard / Auth  │
+        └───────────────────────┘                         └───────────┬───────────┘
+                                                                      │
+                                                ┌─────────────────────┴─────────────────────┐
+                                                │                                           │
+                                                ▼                                           ▼
+                                    ┌───────────────────────┐                   ┌───────────────────────┐
+                                    │     PostgreSQL 15     │                   │        Redis 7        │
+                                    │   Schemas & Tenants   │                   │   BullMQ Job Queue    │
+                                    │    Volume Persistente │                   │   Cache & Schedulers  │
+                                    └───────────────────────┘                   └───────────────────────┘
+```
+
+### 🚀 Pipeline de CI/CD Automatizado (GitHub Actions)
+* A cada `push` ou `merge` na branch `main`, o workflow [deploy.yml](file:///.github/workflows/deploy.yml) é disparado.
+* Conexão segura via SSH com a VPS Oracle Cloud Ubuntu Server.
+* Execução automatizada de `git pull`, reconstrução otimizada dos containers Docker via Compose e aplicação idempotente de migrações (`npx prisma migrate deploy`).
+
+---
+
+## 📂 Estrutura do Repositório
+
+```text
 vetos-ai/
-├── frontend/          # React + Vite + TailwindCSS
-├── backend/           # NestJS API (REST)
-├── docker-compose.yml # PostgreSQL + Redis local
-└── .planning/         # Documentação de planejamento (GSD Workflow)
+├── backend/                  # API NestJS (TypeScript, Prisma, BullMQ, Auth, Multi-tenancy)
+├── frontend/                 # SPA React 19 (Vite, Tailwind CSS, Lucide Icons, Contexts)
+├── docs/                     # Repositório oficial de documentação e governança
+│   ├── architecture/         # Decisões arquiteturais, DESIGN.md e AGENTS.md
+│   ├── audits/               # Relatórios de auditoria clínica e técnica
+│   ├── features/             # Especificações de produto e planos funcionais (PRODUCT.md)
+│   └── decisions/            # Architecture Decision Records (ADRs)
+├── .github/workflows/        # Pipelines de Integração e Deploy Contínuo (CI/CD)
+├── docker-compose.yml        # Orquestração local e de produção dos serviços
+└── README.md                 # Documento de apresentação do projeto
 ```
 
-**Decisões de arquitetura:**
-
-- **NestJS com módulos** — inspirado em DDD (Domain-Driven Design), cada domínio (consultas, pacientes, clientes) tem seu próprio módulo
-- **Multi-tenant** — estrutura planejada para isolar dados por clínica/petshop
-- **Filas com Redis** — processamento assíncrono para mensagens WhatsApp e chamadas à IA
-- **Prisma ORM** — migrations versionadas e tipagem end-to-end com TypeScript
+### 📚 Documentação Técnica de Governança
+* 🎨 [DESIGN.md](file:///home/moa-dev/projetos/vetos-ai/docs/architecture/DESIGN.md) — Sistema de Design, tokens de cor OKLCH e princípios ergonômicos clínicos.
+* 📦 [PRODUCT.md](file:///home/moa-dev/projetos/vetos-ai/docs/features/PRODUCT.md) — Visão do produto, personas, propósito e acessibilidade (WCAG AA).
+* 📄 [CERTIFICATE_PDF_PLAN.md](file:///home/moa-dev/projetos/vetos-ai/docs/features/CERTIFICATE_PDF_PLAN.md) — Arquitetura para emissão de certificados vacinais em PDF com `pdfkit`.
+* 💉 [VACCINE_MODULE_AUDIT.md](file:///home/moa-dev/projetos/vetos-ai/docs/audits/VACCINE_MODULE_AUDIT.md) — Auditoria técnica de conformidade para imunização e controle de lotes.
 
 ---
 
+## 🛠️ Guia Rápido de Execução Local
 
-## 📁 Estrutura do Projeto
+### Pré-requisitos
+* [Node.js](https://nodejs.org/) (v20 ou v22 recomendado)
+* [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/)
+* [Git](https://git-scm.com/)
 
-```
-frontend/
-├── src/
-│   ├── components/     # Componentes reutilizáveis
-│   ├── pages/          # Painel, Clientes, Pacientes, Consultas
-│   ├── hooks/          # Custom hooks
-│   └── services/       # Chamadas à API
+---
 
-backend/
-├── src/
-│   ├── modules/        # consultas, pacientes, clientes, auth
-│   ├── common/         # guards, pipes, interceptors
-│   └── main.ts
+### Passo a Passo
+
+#### 1. Clonar o repositório
+```bash
+git clone https://github.com/moaaskt/vetos-ai.git
+cd vetos-ai
 ```
 
+#### 2. Configurar as variáveis de ambiente
+Copie os modelos de configuração para criar o seu `.env`:
+```bash
+cp .env.example .env
+```
+
+#### 3. Subir a stack completa com Docker Compose
+```bash
+docker compose up -d --build
+```
+> O Docker iniciará os serviços:
+> * **PostgreSQL**: `localhost:5432`
+> * **Redis**: `localhost:6379`
+> * **Backend NestJS**: `http://localhost:3000`
+> * **Frontend SPA**: `http://localhost:5173` (ou porta configurada)
+
+#### 4. Executar Migrações e Seeds do Banco de Dados
+Para popular o banco com os dados de demonstração (Clínica Alfa, Beta, Tutores, Pacientes, Vacinas e Consultas):
+
+```bash
+# Executando o seed dentro do container backend
+docker exec -it vetos_backend npm run seed:demo
+
+# Ou alternativamente, em ambiente de desenvolvimento local na pasta backend:
+cd backend
+npx prisma migrate dev
+npm run seed:demo
+```
+
 ---
 
-## 🗺️ Roadmap
+## 👨‍💻 Autor e Licença
 
-- [x] Painel Central com métricas
-- [x] Agenda de Consultas (visualização diária)
-- [x] Fichas de Pacientes com histórico clínico
-- [x] Cadastro de Clientes e Tutores
-- [ ] Autenticação JWT com controle de perfis
-- [ ] Integração WhatsApp Cloud API
-- [ ] Assistente IA (triagem e sugestões clínicas)
-- [ ] Multi-tenancy completo
-- [ ] Módulo financeiro
-- [ ] Deploy em produção (Railway / Vercel)
+Desenvolvido com foco em excelência arquitetural por **[moaaskt](https://github.com/moaaskt)**.
 
----
-
-## 👨‍💻 Autor
-
-Feito com dedicação por **[moaaskt](https://github.com/moaaskt)**
-
-[![GitHub](https://img.shields.io/badge/GitHub-moaaskt-181717?style=flat-square&logo=github)](https://github.com/moaaskt)
-
----
-
-<div align="center">
-  <sub>⭐ Se esse projeto te inspirou, deixa uma estrela no repositório!</sub>
-</div>
+Distribuído sob a licença **MIT**. Consulte o arquivo de licença para mais informações.
