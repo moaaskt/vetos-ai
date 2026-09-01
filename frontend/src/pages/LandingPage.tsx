@@ -14,11 +14,8 @@ import {
   Lock,
   Moon,
   Sun,
-  Users,
   Syringe,
   FileSignature,
-  Calendar,
-  Clock,
   Sparkles,
   ChevronRight,
   Menu,
@@ -32,7 +29,6 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
-import { HeroCanvas } from '../components/HeroCanvas'
 
 // ─── FRAMER MOTION VARIANTS ──────────────────────────────────────────────────
 const fadeIn: Variants = {
@@ -42,17 +38,6 @@ const fadeIn: Variants = {
     y: 0,
     transition: { duration: 0.6, delay: i * 0.1, ease: 'easeOut' },
   }),
-}
-
-const staggerContainer: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.1,
-    },
-  },
 }
 
 export function LandingPage() {
@@ -71,14 +56,12 @@ export function LandingPage() {
 
   return (
     <div className="relative min-h-screen bg-background text-foreground selection:bg-primary/25 selection:text-primary transition-colors duration-300 overflow-x-hidden font-sans">
-      <HeroCanvas />
-
-      {/* ─── 1. NAVBAR (ACETERNITY GLASSMORPHISM) ───────────────────────────── */}
+      {/* ─── 1. NAVBAR (GLASSMORPHISM) ──────────────────────────────────────── */}
       <motion.header
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/70 backdrop-blur-xl transition-all duration-300"
+        className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/75 backdrop-blur-xl transition-all duration-300"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo */}
@@ -105,7 +88,7 @@ export function LandingPage() {
               Recursos
             </a>
             <a href="#mockup-3d" className="hover:text-foreground hover:text-primary transition-colors">
-              Interface 3D
+              Interface Clínica
             </a>
             <a href="#arquitetura" className="hover:text-foreground hover:text-primary transition-colors">
               Arquitetura
@@ -123,7 +106,6 @@ export function LandingPage() {
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            {/* Theme Toggle Button */}
             <motion.button
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.92 }}
@@ -210,7 +192,7 @@ export function LandingPage() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="px-2 py-2 rounded-lg hover:bg-secondary hover:text-foreground"
                 >
-                  Interface 3D
+                  Interface Clínica
                 </a>
                 <a
                   href="#arquitetura"
@@ -264,339 +246,166 @@ export function LandingPage() {
         </AnimatePresence>
       </motion.header>
 
-      {/* ─── 2. HERO SECTION RESPONSIVA COM IMAGEM OFICIAL & CANVAS ────────── */}
-      <section className="relative pt-10 pb-16 md:pt-16 md:pb-20 overflow-visible">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-            {/* Lado Esquerdo: Headline & Ações */}
-            <div className="lg:col-span-7 text-center lg:text-left space-y-6">
-              {/* Monospace Editorial Category */}
-              <p className="text-xs font-semibold tracking-widest text-primary uppercase font-mono">
-                The Clinical Operating System
-              </p>
+      {/* ─── 2. HERO IMERSIVO (CINEMATIC FULL BANNER INTEGRATION) ─────────── */}
+      <section className="relative min-h-[85vh] lg:min-h-[760px] flex items-center justify-start overflow-hidden pt-8 pb-16 lg:py-24">
+        {/* Camada do Banner de Fundo */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
+          <img
+            src="/hero-vetos.png"
+            alt="Médico veterinário VetOS em atendimento com cão"
+            className="w-full h-full object-cover object-[center_right] lg:object-right opacity-95 dark:opacity-85"
+          />
 
-              {/* Headline com Gradiente Esmeralda */}
-              <motion.h1
-                variants={fadeIn}
-                initial="hidden"
-                animate="visible"
-                custom={0}
-                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1]"
-              >
-                O Sistema Operacional Inteligente para{' '}
-                <span className="bg-gradient-to-r from-primary via-teal-400 to-emerald-400 bg-clip-text text-transparent underline decoration-primary/30 decoration-wavy decoration-from-font">
-                  Clínicas Veterinárias
-                </span>
-              </motion.h1>
+          {/* Máscara suave apenas no lado esquerdo para dar leitura nítida ao texto */}
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-transparent w-full lg:w-3/5" />
 
-              {/* Subheadline */}
-              <motion.p
-                variants={fadeIn}
-                initial="hidden"
-                animate="visible"
-                custom={2}
-                className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0"
-              >
-                Centralize prontuários eletrônicos, automações de lembretes vacinais com filas BullMQ, agendamentos e aceite
-                digital de termos pelo tutor com máxima segurança, conformidade e rastreabilidade jurídica.
-              </motion.p>
+          {/* Máscara sutil na base para fusão com a próxima seção */}
+          <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-background to-transparent" />
+        </div>
 
-              {/* Botões CTA */}
-              <motion.div
-                variants={fadeIn}
-                initial="hidden"
-                animate="visible"
-                custom={3}
-                className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2"
-              >
-                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
-                  <Link
-                    to="/login"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-gradient-to-r from-primary to-teal-600 text-primary-foreground font-bold text-base shadow-[0_0_35px_-5px_rgba(20,140,139,0.5)] hover:shadow-[0_0_50px_-5px_rgba(20,140,139,0.7)] transition-all"
-                  >
-                    Acessar Demonstração Gratuita
-                    <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
-                  </Link>
-                </motion.div>
-                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
-                  <a
-                    href="https://github.com/moaaskt/vetos-ai"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl border border-border/80 bg-card/80 backdrop-blur-md text-foreground font-semibold text-base hover:bg-secondary/80 hover:border-primary/40 transition-all shadow-sm"
-                  >
-                    <ExternalLink className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-                    Ver Código no GitHub
-                  </a>
-                </motion.div>
-              </motion.div>
-            </div>
+        {/* Content Container */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="max-w-2xl lg:max-w-3xl space-y-6 text-left">
+            {/* Categoria Monoespaçada */}
+            <p className="text-xs font-semibold tracking-widest text-primary uppercase font-mono">
+              The Clinical Operating System
+            </p>
 
-            {/* Lado Direito / Fundo: Imagem Oficial com Máscara de Gradiente */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="lg:col-span-5 relative"
+            {/* Headline Principal */}
+            <motion.h1
+              variants={fadeIn}
+              initial="hidden"
+              animate="visible"
+              custom={0}
+              className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-foreground leading-[1.12]"
             >
-              <div className="relative rounded-3xl overflow-hidden border border-border/80 bg-card/60 backdrop-blur-md shadow-2xl shadow-primary/10 group">
-                {/* Linha de Destaque Superior */}
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent z-10" />
+              O Sistema Operacional Inteligente para{' '}
+              <span className="text-primary underline decoration-primary/40 decoration-wavy underline-offset-8">
+                Clínicas Veterinárias
+              </span>
+            </motion.h1>
 
-                {/* Imagem Oficial do Hero (/hero-vetos.png) */}
-                <img
-                  src="/hero-vetos.png"
-                  alt="Médica veterinária acolhendo cão e gato em clínica tecnológica com interface holográfica"
-                  loading="eager"
-                  className="w-full h-auto object-cover object-center rounded-3xl group-hover:scale-102 transition-transform duration-700"
-                />
+            {/* Subheadline com Alta Legibilidade */}
+            <motion.p
+              variants={fadeIn}
+              initial="hidden"
+              animate="visible"
+              custom={1}
+              className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-xl"
+            >
+              Centralize prontuários eletrônicos, automações de lembretes vacinais com filas BullMQ, agendamentos e aceite
+              digital de termos pelo tutor com máxima segurança e conformidade jurídica.
+            </motion.p>
 
-                {/* Gradiente de Fusão na Base */}
-                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/10 to-transparent pointer-events-none" />
-
-                {/* Legenda Editorial Integrada */}
-                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex items-center justify-between gap-3 text-foreground backdrop-blur-md bg-background/60 border-t border-border/60">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-8 w-8 rounded-xl bg-primary/15 text-primary flex items-center justify-center border border-primary/20 shrink-0">
-                      <Heart className="h-4 w-4 text-primary" strokeWidth={1.75} />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-foreground leading-tight">
-                        Cuidado que transforma a rotina
-                      </p>
-                      <p className="text-[11px] text-muted-foreground">
-                        99.8% de acolhimento e satisfação dos tutores
-                      </p>
-                    </div>
-                  </div>
-                  <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>Live AI Engine</span>
-                  </div>
-                </div>
-              </div>
+            {/* Botões CTA com Acabamento Idêntico à Referência */}
+            <motion.div
+              variants={fadeIn}
+              initial="hidden"
+              animate="visible"
+              custom={2}
+              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2"
+            >
+              <Link
+                to="/login"
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all hover:scale-[1.02]"
+              >
+                Acessar Demonstração Gratuita
+                <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+              </Link>
+              <a
+                href="https://github.com/moaaskt/vetos-ai"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border border-border/80 bg-background/80 backdrop-blur-md text-foreground font-semibold text-sm hover:bg-secondary transition-all"
+              >
+                <ExternalLink className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+                Ver Código no GitHub
+              </a>
             </motion.div>
           </div>
 
-          {/* Social Proof / Faixa de Confiança Minimalista com Divisores Verticais */}
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto text-left border-y border-border/60 py-6 mt-14 mb-16 backdrop-blur-sm divide-y lg:divide-y-0 lg:divide-x divide-border/60"
-          >
-            <motion.div variants={fadeIn} className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
-              <ShieldCheck className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
-              <div>
-                <p className="text-sm font-bold text-foreground">Multi-tenant Lógico</p>
-                <p className="text-xs text-muted-foreground">Isolamento estrito por thread</p>
-              </div>
-            </motion.div>
-
-            <motion.div variants={fadeIn} className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
-              <Zap className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
-              <div>
-                <p className="text-sm font-bold text-foreground">Filas Assíncronas</p>
-                <p className="text-xs text-muted-foreground">BullMQ & Redis 7 persistido</p>
-              </div>
-            </motion.div>
-
-            <motion.div variants={fadeIn} className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
-              <FileSignature className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
-              <div>
-                <p className="text-sm font-bold text-foreground">Aceite do Tutor</p>
-                <p className="text-xs text-muted-foreground">Trilha de auditoria IP & hash</p>
-              </div>
-            </motion.div>
-
-            <motion.div variants={fadeIn} className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
-              <Server className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
-              <div>
-                <p className="text-sm font-bold text-foreground">Cloud Architecture</p>
-                <p className="text-xs text-muted-foreground">Oracle VPS + CI/CD contínuo</p>
-              </div>
-            </motion.div>
-          </motion.div>
-
-          {/* ─── 3. MOCKUP DO SISTEMA COM COMPOSIÇÃO EDITORIAL & IMAGEM AFETIVA ─── */}
-          <div id="mockup-3d" className="relative mx-auto max-w-6xl text-left [perspective:1200px] mb-8">
+          {/* ─── 3. MOCKUP CLÍNICO FLUTUANTE (BOTTOM-LEFT FLOAT) ───────────── */}
+          <div id="mockup-3d" className="mt-12 lg:mt-16 max-w-2xl lg:max-w-3xl">
             <motion.div
-              initial={{ rotateX: 8, y: 30, opacity: 0 }}
-              whileInView={{ rotateX: 0, y: 0, opacity: 1 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-              className="rounded-3xl border border-border/80 bg-card/90 backdrop-blur-2xl p-4 sm:p-7 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.3)] dark:shadow-[0_30px_100px_-20px_rgba(20,140,139,0.12)] relative overflow-hidden"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+              className="rounded-3xl border border-border/80 bg-card/90 backdrop-blur-2xl p-5 sm:p-6 shadow-2xl shadow-black/10 dark:shadow-primary/5 relative overflow-hidden"
             >
-              {/* Top Glass Glow Border */}
+              {/* Top Glass Highlight */}
               <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
-              {/* Application Top Bar */}
-              <div className="flex items-center justify-between border-b border-border/80 pb-4 mb-6">
+              {/* Top Bar da Janela do Sistema */}
+              <div className="flex items-center justify-between border-b border-border/60 pb-3.5 mb-4">
                 <div className="flex items-center gap-2">
-                  <span className="h-3 w-3 rounded-full bg-rose-500/70" />
-                  <span className="h-3 w-3 rounded-full bg-amber-500/70" />
-                  <span className="h-3 w-3 rounded-full bg-emerald-500/70" />
-                  <span className="ml-3 text-xs font-semibold text-muted-foreground font-mono">
+                  <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500/80" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
+                  <span className="ml-2 text-xs font-semibold text-muted-foreground font-mono">
                     vetos-ai.app • Clínica Alfa Matriz
                   </span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="inline-flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     <span>PostgreSQL & Redis Online</span>
-                  </span>
-                  <span className="text-xs font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
-                    Tenant: alfa-01
                   </span>
                 </div>
               </div>
 
-              {/* Inside Mockup Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                {/* Left Column: Patient Card */}
-                <div className="lg:col-span-5 flex flex-col gap-4">
-                  {/* Affective Card */}
-                  <div className="relative rounded-2xl overflow-hidden border border-border/80 group shadow-sm aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:h-64 bg-slate-900">
-                    <img
-                      src="https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&w=1200&q=80"
-                      alt="Médica veterinária acolhendo paciente canino com carinho"
-                      loading="lazy"
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-90"
-                    />
-                    
-                    {/* Organic Gradient Mask */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-
-                    {/* Integrated Editorial Caption */}
-                    <div className="absolute inset-x-0 bottom-0 p-4 text-white">
-                      <p className="text-xs font-semibold tracking-wide flex items-center gap-1.5 text-white/95">
-                        <Heart className="h-3.5 w-3.5 text-teal-300 shrink-0" strokeWidth={1.75} />
-                        Cuidado humanizado e acolhimento
-                      </p>
-                      <p className="text-[11px] text-white/70 mt-0.5">
-                        Prontuário completo integrado ao app do tutor
-                      </p>
+              {/* Grid Interno do Mockup */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                {/* Paciente com Foto e Status */}
+                <div className="sm:col-span-7 flex flex-col gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-2xl overflow-hidden border border-border/80 shrink-0 bg-slate-900">
+                      <img
+                        src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=200&q=80"
+                        alt="Paciente canino"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                        Larka
+                        <span className="text-xs font-normal text-muted-foreground">(Golden Retriever, 3a)</span>
+                      </h4>
+                      <p className="text-xs text-muted-foreground">Tutora: Fernanda Guimarães • 24.8 kg</p>
                     </div>
                   </div>
 
-                  {/* Patient Highlight Card */}
-                  <div className="rounded-2xl border border-border/80 bg-background/90 p-4 shadow-sm space-y-3">
-                    <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="h-9 w-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-foreground flex items-center justify-center font-bold text-base border border-border/60">
-                          🐕
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
-                            Sasha
-                            <span className="text-xs font-normal text-muted-foreground">(Golden Retriever, 4a)</span>
-                          </h3>
-                          <p className="text-[11px] text-muted-foreground">Tutora: Fernanda Guimarães • 28.5 kg</p>
-                        </div>
-                      </div>
-                      <span className="h-6 w-6 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
-                        <Heart className="h-3.5 w-3.5 fill-emerald-500 text-emerald-500" strokeWidth={1.75} />
-                      </span>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="p-2 rounded-xl border border-border/70 bg-background/80">
+                      <p className="font-semibold text-emerald-600 dark:text-emerald-400 text-[11px] flex items-center gap-1">
+                        <CheckCircle className="h-3 w-3" /> Vacinas em Dia
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">V10 + Antirrábica</p>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="p-2.5 rounded-xl border border-border/80 bg-card/60">
-                        <div className="flex items-center gap-1.5 font-semibold text-emerald-600 dark:text-emerald-400 text-[11px]">
-                          <CheckCircle className="h-3.5 w-3.5" strokeWidth={1.75} /> Vacinas em Dia
-                        </div>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">V10 + Raiva aplicadas</p>
-                      </div>
-                      <div className="p-2.5 rounded-xl border border-border/80 bg-card/60">
-                        <div className="flex items-center gap-1.5 font-semibold text-primary text-[11px]">
-                          <FileSignature className="h-3.5 w-3.5" strokeWidth={1.75} /> Termo Assinado
-                        </div>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">Auditoria IP confirmada</p>
-                      </div>
+                    <div className="p-2 rounded-xl border border-border/70 bg-background/80">
+                      <p className="font-semibold text-primary text-[11px] flex items-center gap-1">
+                        <FileSignature className="h-3 w-3" /> Termo Assinado
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">Auditoria IP e Hash</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Right Column: High-Tech Operations & Live Queue */}
-                <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
-                  {/* Metric Counter Cards */}
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="p-3.5 rounded-2xl border border-border/80 bg-background/90 shadow-sm">
-                      <div className="flex items-center justify-between text-muted-foreground mb-1">
-                        <span className="text-xs font-medium">Pacientes</span>
-                        <Users className="h-3.5 w-3.5 text-primary" strokeWidth={1.75} />
-                      </div>
-                      <p className="text-2xl font-black text-foreground">1.248</p>
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">+12% este mês</span>
-                    </div>
-
-                    <div className="p-3.5 rounded-2xl border border-border/80 bg-background/90 shadow-sm">
-                      <div className="flex items-center justify-between text-muted-foreground mb-1">
-                        <span className="text-xs font-medium">Vacinas D-7</span>
-                        <Syringe className="h-3.5 w-3.5 text-teal-500" strokeWidth={1.75} />
-                      </div>
-                      <p className="text-2xl font-black text-foreground">342</p>
-                      <span className="text-[10px] text-primary font-semibold">BullMQ no ar</span>
-                    </div>
-
-                    <div className="p-3.5 rounded-2xl border border-border/80 bg-background/90 shadow-sm">
-                      <div className="flex items-center justify-between text-muted-foreground mb-1">
-                        <span className="text-xs font-medium">Consultas</span>
-                        <Calendar className="h-3.5 w-3.5 text-emerald-500" strokeWidth={1.75} />
-                      </div>
-                      <p className="text-2xl font-black text-foreground">28</p>
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">4 agora</span>
-                    </div>
+                {/* Métricas Rápidas ao Lado */}
+                <div className="sm:col-span-5 p-3.5 rounded-2xl border border-border/70 bg-background/80 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Eficácia do atendimento:</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">98,7%</span>
                   </div>
-
-                  {/* Scheduled Appointments Preview */}
-                  <div className="p-4 rounded-2xl border border-border/80 bg-background/90 shadow-sm space-y-2.5">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5 text-primary" strokeWidth={1.75} />
-                        Fila de Consultas do Dia
-                      </span>
-                      <span className="text-[11px] text-muted-foreground">31 de Agosto</span>
-                    </div>
-
-                    <div className="flex items-center justify-between p-2.5 rounded-xl border border-border/70 bg-card">
-                      <div className="flex items-center gap-2.5">
-                        <div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-primary border border-border/60 flex items-center justify-center font-bold text-xs">
-                          TH
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-foreground">Thor (Labrador Retriever)</p>
-                          <p className="text-[10px] text-muted-foreground">Dr. Rodrigo • Consulta Geral</p>
-                        </div>
-                      </div>
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded bg-muted text-foreground border border-border">
-                        14:30
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between p-2.5 rounded-xl border border-border/70 bg-card">
-                      <div className="flex items-center gap-2.5">
-                        <div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-teal-500 border border-border/60 flex items-center justify-center font-bold text-xs">
-                          MI
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-foreground">Mia (Gato Siamês)</p>
-                          <p className="text-[10px] text-muted-foreground">Dra. Camila • Imunização V4</p>
-                        </div>
-                      </div>
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded bg-muted text-foreground border border-border">
-                        15:15
-                      </span>
-                    </div>
+                  <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-emerald-500 h-full rounded-full w-[98.7%]" />
                   </div>
-
-                  {/* Real-time Event Feed */}
-                  <div className="p-3 rounded-xl border border-border/80 bg-background/90 text-xs flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="text-muted-foreground">Último evento:</span>
-                      <span className="font-semibold text-foreground">Termo de Internação Assinado via IP</span>
-                    </div>
-                    <span className="text-[10px] text-primary font-mono font-semibold">audit: verified</span>
+                  <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
+                    <span className="flex items-center gap-1">
+                      <Syringe className="h-3 w-3 text-teal-500" />
+                      Status de vacinação:
+                    </span>
+                    <span className="font-semibold text-foreground">OK</span>
                   </div>
                 </div>
               </div>
@@ -605,8 +414,47 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ─── 4. RECURSOS & CAPACIDADES (DESIGN EDITORIAL CORPORATIVO) ──────── */}
-      <section id="recursos" className="py-24 border-t border-border/60 bg-secondary/20 relative">
+      {/* ─── 4. SOCIAL PROOF / FAIXA DE CONFIANÇA MINIMALISTA ───────────────── */}
+      <section className="border-y border-border/60 bg-secondary/30 backdrop-blur-sm py-6 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-border/60">
+            <div className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
+              <ShieldCheck className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
+              <div>
+                <p className="text-sm font-bold text-foreground">Multi-tenant Lógico</p>
+                <p className="text-xs text-muted-foreground">Isolamento estrito por thread</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
+              <Zap className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
+              <div>
+                <p className="text-sm font-bold text-foreground">Filas Assíncronas</p>
+                <p className="text-xs text-muted-foreground">BullMQ & Redis 7 persistido</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
+              <FileSignature className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
+              <div>
+                <p className="text-sm font-bold text-foreground">Aceite do Tutor</p>
+                <p className="text-xs text-muted-foreground">Trilha de auditoria IP & hash</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
+              <Server className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
+              <div>
+                <p className="text-sm font-bold text-foreground">Cloud Architecture</p>
+                <p className="text-xs text-muted-foreground">Oracle VPS + CI/CD contínuo</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 5. RECURSOS & CAPACIDADES (DESIGN EDITORIAL CORPORATIVO) ──────── */}
+      <section id="recursos" className="py-24 border-t border-border/60 bg-secondary/15 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <p className="text-xs font-semibold tracking-widest text-primary uppercase font-mono mb-3">
@@ -772,7 +620,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ─── 5. ARQUITETURA & TOPOLOGIA DE ENGENHARIA ───────────────────────── */}
+      {/* ─── 6. ARQUITETURA & TOPOLOGIA DE ENGENHARIA ───────────────────────── */}
       <section id="arquitetura" className="py-24 border-t border-border/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -902,7 +750,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ─── 6. TABELA DE PLANOS (DESIGN EDITORIAL) ─────────────────────────── */}
+      {/* ─── 7. TABELA DE PLANOS (DESIGN EDITORIAL) ─────────────────────────── */}
       <section id="planos" className="py-24 border-t border-border/60 bg-secondary/15 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -1080,7 +928,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ─── 7. CALLOUT DE DEMONSTRAÇÃO RÁPIDA (PORTFÓLIO) ─────────────────── */}
+      {/* ─── 8. CALLOUT DE DEMONSTRAÇÃO RÁPIDA (PORTFÓLIO) ─────────────────── */}
       <section className="py-20 border-t border-border/60 bg-background relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -1143,7 +991,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ─── 8. FOOTER ESTILO ACETERNITY (SIMPLE FOOTER WITH FOUR GRIDS) ──── */}
+      {/* ─── 9. FOOTER ESTILO ACETERNITY (SIMPLE FOOTER WITH FOUR GRIDS) ──── */}
       <footer className="border-t border-border/80 bg-background text-muted-foreground pt-16 pb-0 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Top Row: Brand on Left + Four Grids on Right */}
