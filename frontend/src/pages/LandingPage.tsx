@@ -32,6 +32,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
+import { HeroBackground } from '../components/HeroBackground'
 
 // ─── FRAMER MOTION VARIANTS ──────────────────────────────────────────────────
 const fadeIn: Variants = {
@@ -54,27 +55,6 @@ const staggerContainer: Variants = {
   },
 }
 
-// ─── ACETERNITY SPOTLIGHT & GRID BACKGROUND ──────────────────────────────────
-function SpotlightBackground() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-      {/* Grid Pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.04] dark:opacity-[0.08]"
-        style={{
-          backgroundImage: `radial-gradient(currentColor 1px, transparent 1px)`,
-          backgroundSize: '24px 24px',
-        }}
-      />
-
-      {/* Radial Top Glow (Spotlight) */}
-      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-primary/35 via-teal-400/15 to-transparent blur-[120px] rounded-full" />
-      <div className="absolute top-96 left-1/4 w-[450px] h-[350px] bg-emerald-500/10 blur-[100px] rounded-full" />
-      <div className="absolute top-80 right-1/4 w-[400px] h-[300px] bg-cyan-500/10 blur-[100px] rounded-full" />
-    </div>
-  )
-}
-
 export function LandingPage() {
   const { isAuthenticated, user } = useAuth()
   const { theme, toggleTheme } = useTheme()
@@ -91,7 +71,7 @@ export function LandingPage() {
 
   return (
     <div className="relative min-h-screen bg-background text-foreground selection:bg-primary/25 selection:text-primary transition-colors duration-300 overflow-x-hidden font-sans">
-      <SpotlightBackground />
+      <HeroBackground />
 
       {/* ─── 1. NAVBAR (ACETERNITY GLASSMORPHISM) ───────────────────────────── */}
       <motion.header
@@ -104,12 +84,12 @@ export function LandingPage() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
             <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-primary to-teal-400 text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/25 group-hover:scale-105 transition-transform duration-300">
-              <PawPrint className="h-6 w-6" />
+              <PawPrint className="h-6 w-6" strokeWidth={1.5} />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-bold text-xl tracking-tight text-foreground">VetOS</span>
-                <span className="font-semibold text-xs px-1.5 py-0.5 rounded-md bg-primary/15 text-primary border border-primary/25 shadow-sm">
+                <span className="font-semibold text-xs text-primary font-mono">
                   AI
                 </span>
               </div>
@@ -135,9 +115,9 @@ export function LandingPage() {
             </a>
             <Link
               to="/tutor/login"
-              className="hover:text-primary transition-colors flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary/80 text-foreground border border-border"
+              className="hover:text-foreground hover:text-primary transition-colors"
             >
-              Portal do Tutor <span className="text-primary font-bold">B2C</span>
+              Portal do Tutor
             </Link>
           </nav>
 
@@ -249,9 +229,9 @@ export function LandingPage() {
                 <Link
                   to="/tutor/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-2 py-2 rounded-lg hover:bg-secondary text-primary font-semibold"
+                  className="px-2 py-2 rounded-lg hover:bg-secondary text-foreground font-medium"
                 >
-                  Portal do Tutor (B2C)
+                  Portal do Tutor
                 </Link>
               </nav>
               <div className="pt-3 border-t border-border flex flex-col gap-2">
@@ -327,7 +307,7 @@ export function LandingPage() {
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-gradient-to-r from-primary to-teal-600 text-primary-foreground font-bold text-base shadow-[0_0_35px_-5px_rgba(20,140,139,0.5)] hover:shadow-[0_0_50px_-5px_rgba(20,140,139,0.7)] transition-all"
               >
                 Acessar Demonstração Gratuita
-                <ArrowRight className="h-5 w-5" />
+                <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.98 }}>
@@ -337,7 +317,7 @@ export function LandingPage() {
                 rel="noreferrer"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl border border-border/80 bg-card/80 backdrop-blur-md text-foreground font-semibold text-base hover:bg-secondary/80 hover:border-primary/40 transition-all shadow-sm"
               >
-                <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                <ExternalLink className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
                 Ver Código no GitHub
               </a>
             </motion.div>
@@ -351,9 +331,7 @@ export function LandingPage() {
             className="grid grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto text-left border-y border-border/60 py-6 mb-16 backdrop-blur-sm divide-y lg:divide-y-0 lg:divide-x divide-border/60"
           >
             <motion.div variants={fadeIn} className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
-              <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/50 text-primary shrink-0">
-                <ShieldCheck className="h-5 w-5" strokeWidth={1.75} />
-              </div>
+              <ShieldCheck className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
               <div>
                 <p className="text-sm font-bold text-foreground">Multi-tenant Lógico</p>
                 <p className="text-xs text-muted-foreground">Isolamento estrito por thread</p>
@@ -361,9 +339,7 @@ export function LandingPage() {
             </motion.div>
 
             <motion.div variants={fadeIn} className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
-              <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/50 text-primary shrink-0">
-                <Zap className="h-5 w-5" strokeWidth={1.75} />
-              </div>
+              <Zap className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
               <div>
                 <p className="text-sm font-bold text-foreground">Filas Assíncronas</p>
                 <p className="text-xs text-muted-foreground">BullMQ & Redis 7 persistido</p>
@@ -371,9 +347,7 @@ export function LandingPage() {
             </motion.div>
 
             <motion.div variants={fadeIn} className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
-              <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/50 text-primary shrink-0">
-                <FileSignature className="h-5 w-5" strokeWidth={1.75} />
-              </div>
+              <FileSignature className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
               <div>
                 <p className="text-sm font-bold text-foreground">Aceite do Tutor</p>
                 <p className="text-xs text-muted-foreground">Trilha de auditoria IP & hash</p>
@@ -381,9 +355,7 @@ export function LandingPage() {
             </motion.div>
 
             <motion.div variants={fadeIn} className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
-              <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/50 text-primary shrink-0">
-                <Server className="h-5 w-5" strokeWidth={1.75} />
-              </div>
+              <Server className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
               <div>
                 <p className="text-sm font-bold text-foreground">Cloud Architecture</p>
                 <p className="text-xs text-muted-foreground">Oracle VPS + CI/CD contínuo</p>
@@ -1147,11 +1119,12 @@ export function LandingPage() {
                 © copyright VetOS AI {new Date().getFullYear()}. All rights reserved.
               </p>
 
-              <div className="pt-1">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Todos os sistemas operacionais</span>
-                </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span>Sistemas operacionais</span>
               </div>
             </div>
 
@@ -1182,8 +1155,8 @@ export function LandingPage() {
                     </a>
                   </li>
                   <li>
-                    <Link to="/tutor/login" className="hover:text-primary transition-colors font-medium">
-                      Portal do Tutor (B2C)
+                    <Link to="/tutor/login" className="hover:text-foreground hover:text-primary transition-colors">
+                      Portal do Tutor
                     </Link>
                   </li>
                 </ul>
