@@ -10,7 +10,7 @@ interface Particle {
   baseAlpha: number
 }
 
-export function HeroBackground() {
+export function HeroCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const mouseRef = useRef<{ x: number | null; y: number | null }>({ x: null, y: null })
 
@@ -25,7 +25,6 @@ export function HeroBackground() {
     let width = (canvas.width = canvas.offsetWidth)
     let height = (canvas.height = canvas.offsetHeight)
 
-    // Ajuste de DPI para telas Retina
     const handleResize = () => {
       if (!canvas) return
       width = canvas.width = canvas.offsetWidth
@@ -34,18 +33,18 @@ export function HeroBackground() {
 
     window.addEventListener('resize', handleResize)
 
-    // Configuração das Partículas (Rede Neural Clínica)
-    const particleCount = Math.min(Math.floor((width * height) / 18000), 55)
+    // Configuração das Partículas (Rede Neural / Constelação Clínica)
+    const particleCount = Math.min(Math.floor((width * height) / 16000), 60)
     const particles: Particle[] = []
 
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.45,
-        vy: (Math.random() - 0.5) * 0.45,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
         radius: Math.random() * 1.5 + 1,
-        baseAlpha: Math.random() * 0.4 + 0.2,
+        baseAlpha: Math.random() * 0.45 + 0.2,
       })
     }
 
@@ -64,9 +63,8 @@ export function HeroBackground() {
     window.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseleave', handleMouseLeave)
 
-    const maxDistance = 125
+    const maxDistance = 120
 
-    // Loop de renderização
     const render = () => {
       ctx.clearRect(0, 0, width, height)
 
@@ -77,31 +75,31 @@ export function HeroBackground() {
         p.x += p.vx
         p.y += p.vy
 
-        // Rebater nas bordas suavemente
+        // Bordas suaves
         if (p.x < 0) p.x = width
         if (p.x > width) p.x = 0
         if (p.y < 0) p.y = height
         if (p.y > height) p.y = 0
 
-        // Interação com o Mouse (Repulsão / Atração Sutil)
+        // Interação com Mouse
         if (mouseRef.current.x !== null && mouseRef.current.y !== null) {
           const dx = mouseRef.current.x - p.x
           const dy = mouseRef.current.y - p.y
           const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 140 && dist > 0) {
-            const force = (140 - dist) / 140
-            p.x -= (dx / dist) * force * 0.6
-            p.y -= (dy / dist) * force * 0.6
+          if (dist < 130 && dist > 0) {
+            const force = (130 - dist) / 130
+            p.x -= (dx / dist) * force * 0.5
+            p.y -= (dy / dist) * force * 0.5
           }
         }
 
-        // Desenhar Ponto
+        // Ponto
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(20, 184, 166, ${p.baseAlpha})` // Teal
+        ctx.fillStyle = `rgba(20, 184, 166, ${p.baseAlpha})`
         ctx.fill()
 
-        // Linhas entre partículas
+        // Linhas de Proximidade
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j]
           const dx = p.x - p2.x
@@ -109,28 +107,28 @@ export function HeroBackground() {
           const dist = Math.sqrt(dx * dx + dy * dy)
 
           if (dist < maxDistance) {
-            const alpha = (1 - dist / maxDistance) * 0.18
+            const alpha = (1 - dist / maxDistance) * 0.2
             ctx.beginPath()
             ctx.moveTo(p.x, p.y)
             ctx.lineTo(p2.x, p2.y)
-            ctx.strokeStyle = `rgba(13, 148, 136, ${alpha})` // Emerald suave
+            ctx.strokeStyle = `rgba(13, 148, 136, ${alpha})`
             ctx.lineWidth = 0.8
             ctx.stroke()
           }
         }
 
-        // Linha conectando com o cursor do mouse se próximo
+        // Conexão com o cursor
         if (mouseRef.current.x !== null && mouseRef.current.y !== null) {
           const dx = mouseRef.current.x - p.x
           const dy = mouseRef.current.y - p.y
           const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 100) {
-            const alpha = (1 - dist / 100) * 0.25
+          if (dist < 90) {
+            const alpha = (1 - dist / 90) * 0.3
             ctx.beginPath()
             ctx.moveTo(p.x, p.y)
             ctx.lineTo(mouseRef.current.x, mouseRef.current.y)
             ctx.strokeStyle = `rgba(20, 184, 166, ${alpha})`
-            ctx.lineWidth = 0.9
+            ctx.lineWidth = 1
             ctx.stroke()
           }
         }
@@ -151,62 +149,59 @@ export function HeroBackground() {
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 select-none">
-      {/* ─── 1. Padrão de Pontos / Grid Tecnológico ───────────────────────── */}
+      {/* Grid Pattern Sutil */}
       <div
-        className="absolute inset-0 opacity-[0.035] dark:opacity-[0.07]"
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.06]"
         style={{
           backgroundImage: `radial-gradient(currentColor 1px, transparent 1px)`,
           backgroundSize: '28px 28px',
         }}
       />
 
-      {/* ─── 2. Orbs de Luz Fluida com Framer Motion (Transição Contínua) ─── */}
-      {/* Orb 1: Clinical Teal (Centro / Topo) */}
+      {/* Orbs de Gradiente Fluido (Framer Motion Loop Infinito) */}
       <motion.div
         animate={{
-          x: [0, 45, -35, 0],
-          y: [0, -35, 25, 0],
-          scale: [1, 1.15, 0.9, 1],
+          x: [0, 40, -30, 0],
+          y: [0, -30, 20, 0],
+          scale: [1, 1.15, 0.95, 1],
         }}
         transition={{
           duration: 18,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
-        className="absolute -top-32 left-1/2 -translate-x-1/2 w-[650px] h-[480px] bg-gradient-to-b from-teal-500/25 via-primary/20 to-transparent blur-[120px] rounded-full"
+        className="absolute -top-32 left-1/2 -translate-x-1/2 w-[680px] h-[500px] bg-gradient-to-b from-teal-500/25 via-primary/20 to-transparent blur-[120px] rounded-full"
       />
 
-      {/* Orb 2: Emerald Glow (Lado Esquerdo) */}
       <motion.div
         animate={{
-          x: [0, -40, 40, 0],
-          y: [0, 30, -30, 0],
-          scale: [0.95, 1.1, 1, 0.95],
+          x: [0, -40, 35, 0],
+          y: [0, 25, -25, 0],
+          scale: [0.95, 1.1, 0.9, 0.95],
         }}
         transition={{
           duration: 22,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
-        className="absolute top-72 -left-20 w-[450px] h-[400px] bg-emerald-500/15 blur-[130px] rounded-full"
+        className="absolute top-72 -left-24 w-[480px] h-[420px] bg-emerald-500/15 blur-[130px] rounded-full"
       />
 
-      {/* Orb 3: Cyan / Sky Light (Lado Direito) */}
       <motion.div
         animate={{
-          x: [0, 30, -25, 0],
-          y: [0, -40, 35, 0],
-          scale: [1, 0.9, 1.12, 1],
+          x: [0, 35, -20, 0],
+          y: [0, -35, 30, 0],
+          scale: [1, 0.9, 1.1, 1],
         }}
         transition={{
           duration: 20,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
-        className="absolute top-64 -right-16 w-[420px] h-[360px] bg-cyan-500/15 blur-[120px] rounded-full"
+        className="absolute top-64 -right-20 w-[450px] h-[380px] bg-cyan-500/15 blur-[120px] rounded-full"
       />
 
-      {/* ─── 3. Canvas Interativo de Partículas ────────────────────────────── */}
+      {/* Canvas */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
     </div>
   )

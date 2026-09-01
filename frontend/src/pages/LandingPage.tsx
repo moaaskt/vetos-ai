@@ -32,7 +32,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
-import { HeroBackground } from '../components/HeroBackground'
+import { HeroCanvas } from '../components/HeroCanvas'
 
 // ─── FRAMER MOTION VARIANTS ──────────────────────────────────────────────────
 const fadeIn: Variants = {
@@ -71,7 +71,7 @@ export function LandingPage() {
 
   return (
     <div className="relative min-h-screen bg-background text-foreground selection:bg-primary/25 selection:text-primary transition-colors duration-300 overflow-x-hidden font-sans">
-      <HeroBackground />
+      <HeroCanvas />
 
       {/* ─── 1. NAVBAR (ACETERNITY GLASSMORPHISM) ───────────────────────────── */}
       <motion.header
@@ -143,7 +143,7 @@ export function LandingPage() {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-teal-500 text-primary-foreground text-sm font-semibold shadow-md shadow-primary/20 hover:shadow-primary/35 transition-all"
                 >
                   Acessar Dashboard
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
                 </Link>
               </motion.div>
             ) : (
@@ -160,7 +160,7 @@ export function LandingPage() {
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-md shadow-primary/20 hover:bg-primary/90 transition-all"
                   >
                     Criar Conta
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
                   </Link>
                 </motion.div>
               </>
@@ -264,71 +264,126 @@ export function LandingPage() {
         </AnimatePresence>
       </motion.header>
 
-      {/* ─── 2. HERO SECTION COM GLOW ────────────────────────────────────── */}
-      <section className="relative pt-12 pb-16 md:pt-20 md:pb-24 overflow-visible">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          {/* Headline com Gradiente Estilo Aceternity */}
-          <motion.h1
-            variants={fadeIn}
-            initial="hidden"
-            animate="visible"
-            custom={0}
-            className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground max-w-5xl mx-auto leading-[1.1] mb-6"
-          >
-            O Sistema Operacional Inteligente para{' '}
-            <span className="bg-gradient-to-r from-primary via-teal-400 to-emerald-400 bg-clip-text text-transparent underline decoration-primary/30 decoration-wavy decoration-from-font">
-              Clínicas Veterinárias
-            </span>
-          </motion.h1>
+      {/* ─── 2. HERO SECTION RESPONSIVA COM IMAGEM OFICIAL & CANVAS ────────── */}
+      <section className="relative pt-10 pb-16 md:pt-16 md:pb-20 overflow-visible">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            {/* Lado Esquerdo: Headline & Ações */}
+            <div className="lg:col-span-7 text-center lg:text-left space-y-6">
+              {/* Monospace Editorial Category */}
+              <p className="text-xs font-semibold tracking-widest text-primary uppercase font-mono">
+                The Clinical Operating System
+              </p>
 
-          {/* Subheadline com Alta Legibilidade */}
-          <motion.p
-            variants={fadeIn}
-            initial="hidden"
-            animate="visible"
-            custom={2}
-            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10"
-          >
-            Centralize prontuários eletrônicos, automações de lembretes vacinais com filas BullMQ, agendamentos e aceite
-            digital de termos pelo tutor com máxima segurança e rastreabilidade jurídica.
-          </motion.p>
+              {/* Headline com Gradiente Esmeralda */}
+              <motion.h1
+                variants={fadeIn}
+                initial="hidden"
+                animate="visible"
+                custom={0}
+                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1]"
+              >
+                O Sistema Operacional Inteligente para{' '}
+                <span className="bg-gradient-to-r from-primary via-teal-400 to-emerald-400 bg-clip-text text-transparent underline decoration-primary/30 decoration-wavy decoration-from-font">
+                  Clínicas Veterinárias
+                </span>
+              </motion.h1>
 
-          {/* Botões CTA com Efeito Magnético e Glow */}
-          <motion.div
-            variants={fadeIn}
-            initial="hidden"
-            animate="visible"
-            custom={3}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
-          >
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.98 }}>
-              <Link
-                to="/login"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-gradient-to-r from-primary to-teal-600 text-primary-foreground font-bold text-base shadow-[0_0_35px_-5px_rgba(20,140,139,0.5)] hover:shadow-[0_0_50px_-5px_rgba(20,140,139,0.7)] transition-all"
+              {/* Subheadline */}
+              <motion.p
+                variants={fadeIn}
+                initial="hidden"
+                animate="visible"
+                custom={2}
+                className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0"
               >
-                Acessar Demonstração Gratuita
-                <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.98 }}>
-              <a
-                href="https://github.com/moaaskt/vetos-ai"
-                target="_blank"
-                rel="noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl border border-border/80 bg-card/80 backdrop-blur-md text-foreground font-semibold text-base hover:bg-secondary/80 hover:border-primary/40 transition-all shadow-sm"
+                Centralize prontuários eletrônicos, automações de lembretes vacinais com filas BullMQ, agendamentos e aceite
+                digital de termos pelo tutor com máxima segurança, conformidade e rastreabilidade jurídica.
+              </motion.p>
+
+              {/* Botões CTA */}
+              <motion.div
+                variants={fadeIn}
+                initial="hidden"
+                animate="visible"
+                custom={3}
+                className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2"
               >
-                <ExternalLink className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-                Ver Código no GitHub
-              </a>
+                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
+                  <Link
+                    to="/login"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-gradient-to-r from-primary to-teal-600 text-primary-foreground font-bold text-base shadow-[0_0_35px_-5px_rgba(20,140,139,0.5)] hover:shadow-[0_0_50px_-5px_rgba(20,140,139,0.7)] transition-all"
+                  >
+                    Acessar Demonstração Gratuita
+                    <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
+                  </Link>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
+                  <a
+                    href="https://github.com/moaaskt/vetos-ai"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl border border-border/80 bg-card/80 backdrop-blur-md text-foreground font-semibold text-base hover:bg-secondary/80 hover:border-primary/40 transition-all shadow-sm"
+                  >
+                    <ExternalLink className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+                    Ver Código no GitHub
+                  </a>
+                </motion.div>
+              </motion.div>
+            </div>
+
+            {/* Lado Direito / Fundo: Imagem Oficial com Máscara de Gradiente */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+              className="lg:col-span-5 relative"
+            >
+              <div className="relative rounded-3xl overflow-hidden border border-border/80 bg-card/60 backdrop-blur-md shadow-2xl shadow-primary/10 group">
+                {/* Linha de Destaque Superior */}
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent z-10" />
+
+                {/* Imagem Oficial do Hero (/hero-vetos.png) */}
+                <img
+                  src="/hero-vetos.png"
+                  alt="Médica veterinária acolhendo cão e gato em clínica tecnológica com interface holográfica"
+                  loading="eager"
+                  className="w-full h-auto object-cover object-center rounded-3xl group-hover:scale-102 transition-transform duration-700"
+                />
+
+                {/* Gradiente de Fusão na Base */}
+                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/10 to-transparent pointer-events-none" />
+
+                {/* Legenda Editorial Integrada */}
+                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex items-center justify-between gap-3 text-foreground backdrop-blur-md bg-background/60 border-t border-border/60">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-8 w-8 rounded-xl bg-primary/15 text-primary flex items-center justify-center border border-primary/20 shrink-0">
+                      <Heart className="h-4 w-4 text-primary" strokeWidth={1.75} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-foreground leading-tight">
+                        Cuidado que transforma a rotina
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        99.8% de acolhimento e satisfação dos tutores
+                      </p>
+                    </div>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Live AI Engine</span>
+                  </div>
+                </div>
+              </div>
             </motion.div>
-          </motion.div>
+          </div>
 
           {/* Social Proof / Faixa de Confiança Minimalista com Divisores Verticais */}
           <motion.div
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto text-left border-y border-border/60 py-6 mb-16 backdrop-blur-sm divide-y lg:divide-y-0 lg:divide-x divide-border/60"
+            className="grid grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto text-left border-y border-border/60 py-6 mt-14 mb-16 backdrop-blur-sm divide-y lg:divide-y-0 lg:divide-x divide-border/60"
           >
             <motion.div variants={fadeIn} className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
               <ShieldCheck className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
@@ -396,11 +451,11 @@ export function LandingPage() {
                 </div>
               </div>
 
-              {/* Inside Mockup Grid: Human Affective Touch + High-tech Operations */}
+              {/* Inside Mockup Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                {/* Left Column: Human Touch (Affective Photo & Patient Card) */}
+                {/* Left Column: Patient Card */}
                 <div className="lg:col-span-5 flex flex-col gap-4">
-                  {/* Affective Photo with Organic Fusion & Integrated Caption */}
+                  {/* Affective Card */}
                   <div className="relative rounded-2xl overflow-hidden border border-border/80 group shadow-sm aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:h-64 bg-slate-900">
                     <img
                       src="https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&w=1200&q=80"
@@ -416,10 +471,10 @@ export function LandingPage() {
                     <div className="absolute inset-x-0 bottom-0 p-4 text-white">
                       <p className="text-xs font-semibold tracking-wide flex items-center gap-1.5 text-white/95">
                         <Heart className="h-3.5 w-3.5 text-teal-300 shrink-0" strokeWidth={1.75} />
-                        Cuidado que transforma a rotina clínica
+                        Cuidado humanizado e acolhimento
                       </p>
                       <p className="text-[11px] text-white/70 mt-0.5">
-                        99.8% de satisfação e acolhimento humano aos tutores
+                        Prontuário completo integrado ao app do tutor
                       </p>
                     </div>
                   </div>
@@ -779,56 +834,66 @@ export function LandingPage() {
                     <h4 className="font-bold text-sm text-foreground">Segurança Criptográfica</h4>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    AES-256-GCM para credenciais SMTP e JWT assinado por papel de usuário.
+                    Bcrypt com 12 salt rounds, JWT assimétrico e HTTPS forçado.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Visual Topology Terminal à Direita */}
+            {/* Diagrama Direito */}
             <div className="lg:col-span-6">
-              <div className="rounded-3xl border border-border bg-card/95 backdrop-blur-xl p-6 shadow-2xl font-mono text-xs text-muted-foreground space-y-4">
-                <div className="flex items-center justify-between border-b border-border/80 pb-3">
-                  <span className="text-foreground font-semibold flex items-center gap-2">
-                    <Server className="h-4 w-4 text-primary" strokeWidth={1.75} />
-                    Topologia de Produção • Oracle Cloud VPS
+              <div className="rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-xl relative overflow-hidden">
+                <div className="flex items-center justify-between border-b border-border/60 pb-4 mb-6">
+                  <span className="text-xs font-mono font-semibold text-muted-foreground">
+                    Topology: production-vps-oracle
                   </span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                     <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                    TLS 1.3 Active
+                    Cluster Ativo
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-background border border-border/80 space-y-1">
-                  <div className="text-primary font-bold flex items-center justify-between">
-                    <span>1. Ingress & Edge Proxy</span>
-                    <span className="text-[10px] text-muted-foreground">Port 443 / 80</span>
+                <div className="space-y-4">
+                  {/* Camada 1 */}
+                  <div className="p-4 rounded-2xl border border-border/70 bg-background flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-wider">
+                        Camada 1 • Gateway & Proxy
+                      </span>
+                      <h4 className="text-sm font-bold text-foreground mt-0.5">Nginx Reverse Proxy</h4>
+                      <p className="text-xs text-muted-foreground">SSL Let's Encrypt • HTTP/2 • Gzip</p>
+                    </div>
+                    <span className="text-xs font-mono px-2.5 py-1 rounded bg-muted text-muted-foreground border border-border">
+                      Port 80/443
+                    </span>
                   </div>
-                  <div className="text-foreground">Nginx Proxy Manager ➔ Certificados SSL Let's Encrypt</div>
-                  <div className="text-[11px] text-muted-foreground">
-                    Roteamento SPA (:80) e Proxy reverso para API (:3000)
-                  </div>
-                </div>
 
-                <div className="p-3.5 rounded-xl bg-background border border-border/80 space-y-1">
-                  <div className="text-teal-500 font-bold flex items-center justify-between">
-                    <span>2. Backend Application Core</span>
-                    <span className="text-[10px] text-muted-foreground">Node.js 22</span>
+                  {/* Camada 2 */}
+                  <div className="p-4 rounded-2xl border border-border/70 bg-background flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-mono font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider">
+                        Camada 2 • Aplicação Backend & Worker
+                      </span>
+                      <h4 className="text-sm font-bold text-foreground mt-0.5">NestJS Node 22 API</h4>
+                      <p className="text-xs text-muted-foreground">Prisma ORM • BullMQ Processors • JWT Auth</p>
+                    </div>
+                    <span className="text-xs font-mono px-2.5 py-1 rounded bg-muted text-muted-foreground border border-border">
+                      Port 3000
+                    </span>
                   </div>
-                  <div className="text-foreground">NestJS API ➔ AsyncLocalStorage TenantContext</div>
-                  <div className="text-[11px] text-muted-foreground">
-                    TenantPrismaExtension (ENFORCE) + Worker de Filas BullMQ
-                  </div>
-                </div>
 
-                <div className="p-3.5 rounded-xl bg-background border border-border/80 space-y-1">
-                  <div className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-between">
-                    <span>3. Stateful Storage Layer</span>
-                    <span className="text-[10px] text-muted-foreground">Volumes Docker</span>
-                  </div>
-                  <div className="text-foreground">PostgreSQL 15 (Relational) + Redis 7 (Queues & Cache)</div>
-                  <div className="text-[11px] text-muted-foreground">
-                    Persistência em disco e backups automatizados
+                  {/* Camada 3 */}
+                  <div className="p-4 rounded-2xl border border-border/70 bg-background flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                        Camada 3 • Dados & Persistência
+                      </span>
+                      <h4 className="text-sm font-bold text-foreground mt-0.5">PostgreSQL 15 & Redis 7</h4>
+                      <p className="text-xs text-muted-foreground">Volumes Docker persistidos com backup diário</p>
+                    </div>
+                    <span className="text-xs font-mono px-2.5 py-1 rounded bg-muted text-muted-foreground border border-border">
+                      Port 5432 / 6379
+                    </span>
                   </div>
                 </div>
               </div>
@@ -837,8 +902,8 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ─── 6. TABELA DE PLANOS (SAAS PRICING) ─────────────────────────────── */}
-      <section id="planos" className="py-24 border-t border-border/60 bg-secondary/20 relative">
+      {/* ─── 6. TABELA DE PLANOS (DESIGN EDITORIAL) ─────────────────────────── */}
+      <section id="planos" className="py-24 border-t border-border/60 bg-secondary/15 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <p className="text-xs font-semibold tracking-widest text-primary uppercase font-mono mb-3">
@@ -848,7 +913,7 @@ export function LandingPage() {
               Preços transparentes, escalabilidade contínua
             </h2>
             <p className="text-muted-foreground text-base sm:text-lg">
-              Escolha a modalidade ideal para o momento da sua clínica, sem fidelidade ou taxas ocultas.
+              Escolha o plano ideal para a fase da sua clínica. Migração simples sem perda de dados históricos.
             </p>
           </div>
 
@@ -903,7 +968,7 @@ export function LandingPage() {
               </Link>
             </motion.div>
 
-            {/* Professional Card (Com Borda Superior Elegante) */}
+            {/* Professional Card */}
             <motion.div
               whileHover={{ y: -8 }}
               transition={{ duration: 0.2 }}
@@ -1025,7 +1090,7 @@ export function LandingPage() {
             className="rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card/80 to-background p-8 sm:p-10 text-center relative overflow-hidden shadow-xl"
           >
             <p className="text-xs font-semibold tracking-widest text-primary uppercase font-mono mb-3 flex items-center justify-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} />
+              <Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} />
               Ambiente de Demonstração Interativo
             </p>
 
@@ -1072,7 +1137,7 @@ export function LandingPage() {
               className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 shadow-lg shadow-primary/25 transition-all hover:scale-[1.02]"
             >
               Entrar no Ambiente de Teste
-              <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+              <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
             </Link>
           </motion.div>
         </div>
@@ -1087,11 +1152,11 @@ export function LandingPage() {
             <div className="space-y-4 max-w-sm">
               <div className="flex items-center gap-2.5">
                 <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-primary to-teal-400 text-primary-foreground flex items-center justify-center font-bold shadow-md shadow-primary/20">
-                  <PawPrint className="h-5 w-5" />
+                  <PawPrint className="h-5 w-5" strokeWidth={1.5} />
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="font-extrabold text-xl text-foreground tracking-tight">VetOS</span>
-                  <span className="font-semibold text-xs px-1.5 py-0.5 rounded-md bg-primary/15 text-primary border border-primary/25">
+                  <span className="font-semibold text-xs text-primary font-mono">
                     AI
                   </span>
                 </div>
