@@ -1,6 +1,6 @@
 # 🗺️ Roadmap de Refinamento de Frontend - VetOS AI
 
-Este documento serve como o guia oficial para a evolução e refinamento da interface do usuário (UI) e experiência do usuário (UX) do **VetOS AI**. Ele traduz a visão estratégica descrita no [PRODUCT.md](file:///home/moa-dev/projetos/vetos-ai/PRODUCT.md) e as diretrizes visuais do [DESIGN.md](file:///home/moa-dev/projetos/vetos-ai/DESIGN.md) em metas práticas divididas em sprints incrementais.
+Este documento serve como o guia oficial para a evolução e refinamento da interface do usuário (UI) e experiência do usuário (UX) do **VetOS AI**. Ele traduz a visão estratégica descrita no [PRODUCT.md](file:///home/moa-dev/projetos/vetos-ai/docs/features/PRODUCT.md) e as diretrizes visuais do [DESIGN.md](file:///home/moa-dev/projetos/vetos-ai/docs/architecture/DESIGN.md) em metas práticas divididas em sprints incrementais.
 
 ---
 
@@ -56,7 +56,7 @@ graph TD
 **Prioridade:** Alto
 
 ### Objetivos
-- Consolidar e padronizar os tokens de design do [DESIGN.md](file:///home/moa-dev/projetos/vetos-ai/DESIGN.md) no TailwindCSS v4.
+- Consolidar e padronizar os tokens de design do [DESIGN.md](file:///home/moa-dev/projetos/vetos-ai/docs/architecture/DESIGN.md) no TailwindCSS v4.
 - Criar componentes primitivos consistentes e reutilizáveis (botões, inputs, badges) que sirvam de base para os portais.
 
 ### Critérios de Aceitação
