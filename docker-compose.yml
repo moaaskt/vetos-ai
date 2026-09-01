@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15
@@ -9,20 +7,53 @@ services:
       POSTGRES_USER: vetos
       POSTGRES_PASSWORD: vetospassword
       POSTGRES_DB: vetos
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - vetos_internal
 
   redis:
     image: redis:7
     container_name: vetos_redis
     restart: always
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - vetos_internal
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vetos_backend
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - vetos_internal
+      - nginx-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vetos_frontend
+    restart: always
+    depends_on:
+      - backend
+    networks:
+      - vetos_internal
+      - nginx-net
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  vetos_internal:
+    driver: bridge
+  nginx-net:
+    external: true
