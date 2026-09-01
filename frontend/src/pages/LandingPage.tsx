@@ -248,24 +248,28 @@ export function LandingPage() {
 
       {/* ─── 2. HERO IMERSIVO (CINEMATIC FULL BANNER INTEGRATION) ─────────── */}
       <section className="relative min-h-[85vh] lg:min-h-[760px] flex items-center justify-start overflow-hidden pt-8 pb-16 lg:py-24">
-        {/* Camada do Banner de Fundo */}
+        {/* Camada Unificada de Fundo */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
           <img
             src="/hero-vetos.png"
             alt="Atendimento Veterinário VetOS"
-            className="w-full h-full object-cover object-right opacity-95 dark:opacity-85"
+            className="w-full h-full object-cover object-[82%_center] opacity-95 dark:opacity-85"
           />
 
-          {/* Máscara de gradiente suave para contraste e leitura dos textos */}
-          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-transparent w-full lg:w-3/5 z-0" />
+          {/* Máscara Desktop: lateral esquerda */}
+          <div className="hidden lg:block absolute inset-y-0 left-0 w-[42%] bg-background" />
+          <div className="hidden lg:block absolute inset-y-0 left-[38%] w-80 bg-gradient-to-r from-background via-background/70 to-transparent" />
 
-          {/* Máscara sutil na base para fusão com a próxima seção */}
-          <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-background to-transparent z-0" />
+          {/* Máscara Mobile: superior para dar leitura ao título e botões */}
+          <div className="block lg:hidden absolute inset-0 bg-gradient-to-b from-background via-background/85 via-45% to-transparent" />
+
+          {/* Máscara de fusão na base */}
+          <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-background to-transparent" />
         </div>
 
         {/* Content Container */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="max-w-2xl lg:max-w-3xl space-y-6 text-left">
+          <div className="max-w-2xl lg:max-w-3xl space-y-4 sm:space-y-6 text-left">
             {/* Categoria Monoespaçada */}
             <p className="text-xs font-semibold tracking-widest text-primary uppercase font-mono">
               The Clinical Operating System
@@ -277,7 +281,7 @@ export function LandingPage() {
               initial="hidden"
               animate="visible"
               custom={0}
-              className="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-tight"
+              className="font-heading text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-tight"
             >
               O Sistema Operacional Inteligente para{' '}
               <span className="text-primary underline decoration-primary/40 decoration-wavy underline-offset-8">
@@ -291,7 +295,7 @@ export function LandingPage() {
               initial="hidden"
               animate="visible"
               custom={1}
-              className="font-sans text-base sm:text-lg text-slate-600 dark:text-slate-400 font-normal leading-relaxed max-w-xl"
+              className="font-sans text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-400 font-normal leading-relaxed max-w-xl"
             >
               Centralize prontuários eletrônicos, automações de lembretes vacinais com filas BullMQ, agendamentos e aceite
               digital de termos pelo tutor com máxima segurança e conformidade jurídica.
@@ -324,8 +328,8 @@ export function LandingPage() {
             </motion.div>
           </div>
 
-          {/* ─── 3. MOCKUP CLÍNICO FLUTUANTE (BOTTOM-LEFT FLOAT) ───────────── */}
-          <div id="mockup-3d" className="mt-12 lg:mt-16 max-w-2xl lg:max-w-3xl">
+          {/* ─── 3. MOCKUP CLÍNICO FLUTUANTE ───────────────────────────────── */}
+          <div id="mockup-3d" className="mt-8 lg:mt-16 max-w-2xl lg:max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
