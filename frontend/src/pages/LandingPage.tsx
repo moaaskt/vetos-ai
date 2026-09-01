@@ -71,8 +71,8 @@ export function LandingPage() {
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-xl tracking-tight text-foreground">VetOS</span>
-                <span className="font-semibold text-xs text-primary font-mono">
+                <span className="font-heading font-extrabold text-xl tracking-tight text-foreground">VetOS</span>
+                <span className="font-mono font-semibold text-xs text-primary">
                   AI
                 </span>
               </div>
@@ -247,37 +247,40 @@ export function LandingPage() {
       </motion.header>
 
       {/* ─── 2. HERO IMERSIVO (CINEMATIC FULL BANNER INTEGRATION) ─────────── */}
-      <section className="relative min-h-[85vh] lg:min-h-[760px] flex items-center justify-start overflow-hidden pt-8 pb-16 lg:py-24">
-        {/* Camada do Banner de Fundo */}
+      <section className="relative min-h-[85vh] lg:min-h-[720px] flex items-center justify-start overflow-hidden pt-8 pb-16 lg:py-24">
+        {/* Camada Unificada de Fundo */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
           <img
             src="/hero-vetos.png"
             alt="Atendimento Veterinário VetOS"
-            className="w-full h-full object-cover object-right opacity-95 dark:opacity-85"
+            className="w-full h-full object-cover object-[82%_center] lg:object-[85%_top] opacity-95 dark:opacity-85"
           />
 
-          {/* Máscara de gradiente suave para contraste e leitura dos textos */}
-          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-transparent w-full lg:w-3/5 z-0" />
+          {/* Gradiente suave contínuo no Desktop para contraste sem cortar a imagem */}
+          <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-background/90 via-background/45 to-transparent w-full lg:w-4/5" />
 
-          {/* Máscara sutil na base para fusão com a próxima seção */}
-          <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-background to-transparent z-0" />
+          {/* Máscara Mobile: superior para dar leitura ao título e botões */}
+          <div className="block lg:hidden absolute inset-0 bg-gradient-to-b from-background via-background/85 via-45% to-transparent" />
+
+          {/* Máscara de fusão na base */}
+          <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-background to-transparent" />
         </div>
 
         {/* Content Container */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="max-w-2xl lg:max-w-3xl space-y-6 text-left">
+          <div className="max-w-2xl lg:max-w-3xl space-y-4 sm:space-y-6 text-left">
             {/* Categoria Monoespaçada */}
             <p className="text-xs font-semibold tracking-widest text-primary uppercase font-mono">
               The Clinical Operating System
             </p>
 
-            {/* Headline Principal */}
+            {/* Headline Principal com Plus Jakarta Sans e tracking-tight */}
             <motion.h1
               variants={fadeIn}
               initial="hidden"
               animate="visible"
               custom={0}
-              className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-foreground leading-[1.12]"
+              className="font-heading text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-tight"
             >
               O Sistema Operacional Inteligente para{' '}
               <span className="text-primary underline decoration-primary/40 decoration-wavy underline-offset-8">
@@ -291,7 +294,7 @@ export function LandingPage() {
               initial="hidden"
               animate="visible"
               custom={1}
-              className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-xl"
+              className="font-sans text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-400 font-normal leading-relaxed max-w-xl"
             >
               Centralize prontuários eletrônicos, automações de lembretes vacinais com filas BullMQ, agendamentos e aceite
               digital de termos pelo tutor com máxima segurança e conformidade jurídica.
@@ -324,8 +327,8 @@ export function LandingPage() {
             </motion.div>
           </div>
 
-          {/* ─── 3. MOCKUP CLÍNICO FLUTUANTE (BOTTOM-LEFT FLOAT) ───────────── */}
-          <div id="mockup-3d" className="mt-12 lg:mt-16 max-w-2xl lg:max-w-3xl">
+          {/* ─── 3. MOCKUP CLÍNICO FLUTUANTE ───────────────────────────────── */}
+          <div id="mockup-3d" className="mt-8 lg:mt-16 max-w-2xl lg:max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -347,9 +350,9 @@ export function LandingPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="inline-flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400">
+                  <span className="inline-flex items-center gap-1.5 font-mono font-medium text-emerald-600 dark:text-emerald-400">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>PostgreSQL & Redis Online</span>
+                    <span>PostgreSQL 15 & Redis 7 Online</span>
                   </span>
                 </div>
               </div>
@@ -367,7 +370,7 @@ export function LandingPage() {
                       />
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                      <h4 className="font-heading font-bold text-sm text-foreground flex items-center gap-1.5 tracking-tight">
                         Pipoca
                         <span className="text-xs font-normal text-muted-foreground">(Vira-lata SRD, 3a)</span>
                       </h4>
@@ -395,7 +398,7 @@ export function LandingPage() {
                 <div className="sm:col-span-5 p-3.5 rounded-2xl border border-border/70 bg-background/80 space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground">Eficácia do atendimento:</span>
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400">98,7%</span>
+                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">98,7%</span>
                   </div>
                   <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
                     <div className="bg-emerald-500 h-full rounded-full w-[98.7%]" />
@@ -405,7 +408,7 @@ export function LandingPage() {
                       <Syringe className="h-3 w-3 text-teal-500" />
                       Status de vacinação:
                     </span>
-                    <span className="font-semibold text-foreground">OK</span>
+                    <span className="font-mono font-semibold text-foreground">OK</span>
                   </div>
                 </div>
               </div>
@@ -421,7 +424,7 @@ export function LandingPage() {
             <div className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
               <ShieldCheck className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
               <div>
-                <p className="text-sm font-bold text-foreground">Multi-tenant Lógico</p>
+                <p className="font-heading text-sm font-bold text-foreground tracking-tight">Multi-tenant Lógico</p>
                 <p className="text-xs text-muted-foreground">Isolamento estrito por thread</p>
               </div>
             </div>
@@ -429,15 +432,17 @@ export function LandingPage() {
             <div className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
               <Zap className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
               <div>
-                <p className="text-sm font-bold text-foreground">Filas Assíncronas</p>
-                <p className="text-xs text-muted-foreground">BullMQ & Redis 7 persistido</p>
+                <p className="font-heading text-sm font-bold text-foreground tracking-tight">Filas Assíncronas</p>
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-mono">BullMQ & Redis 7</span> persistido
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
               <FileSignature className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
               <div>
-                <p className="text-sm font-bold text-foreground">Aceite do Tutor</p>
+                <p className="font-heading text-sm font-bold text-foreground tracking-tight">Aceite do Tutor</p>
                 <p className="text-xs text-muted-foreground">Trilha de auditoria IP & hash</p>
               </div>
             </div>
@@ -445,7 +450,7 @@ export function LandingPage() {
             <div className="flex items-center gap-3.5 px-4 py-3 lg:py-0">
               <Server className="h-6 w-6 text-primary shrink-0" strokeWidth={1.5} />
               <div>
-                <p className="text-sm font-bold text-foreground">Cloud Architecture</p>
+                <p className="font-heading text-sm font-bold text-foreground tracking-tight">Cloud Architecture</p>
                 <p className="text-xs text-muted-foreground">Oracle VPS + CI/CD contínuo</p>
               </div>
             </div>
@@ -460,10 +465,10 @@ export function LandingPage() {
             <p className="text-xs font-semibold tracking-widest text-primary uppercase font-mono mb-3">
               Recursos & Capacidades
             </p>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-foreground tracking-tight mb-4">
+            <h2 className="font-heading text-3xl sm:text-5xl font-extrabold text-foreground tracking-tight mb-4">
               Cada detalhe projetado para alta performance clínica
             </h2>
-            <p className="text-muted-foreground text-base sm:text-lg">
+            <p className="font-sans text-slate-600 dark:text-slate-400 text-base sm:text-lg leading-relaxed">
               Solução arquitetural completa que atende desde o atendimento cirúrgico até a régua de notificações
               automáticas.
             </p>
@@ -481,8 +486,10 @@ export function LandingPage() {
                 <div className="h-11 w-11 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 text-primary flex items-center justify-center mb-6 shadow-sm">
                   <ShieldCheck className="h-5 w-5" strokeWidth={1.75} />
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-3">Multi-tenant Lógico com Zero Vazamento</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-xl">
+                <h3 className="font-heading text-2xl font-bold text-foreground tracking-tight mb-3">
+                  Multi-tenant Lógico com Zero Vazamento
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 max-w-xl">
                   O motor <code className="text-xs font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded">TenantContextService</code>{' '}
                   utiliza <code className="text-xs font-mono text-foreground">AsyncLocalStorage</code> no Node.js para
                   propagar o identificador da clínica de forma isolada por thread lógica, aplicando filtros automáticos em
@@ -525,8 +532,10 @@ export function LandingPage() {
                 <div className="h-11 w-11 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 text-primary flex items-center justify-center mb-6 shadow-sm">
                   <FileSignature className="h-5 w-5" strokeWidth={1.75} />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-2">Aceite Digital do Tutor</h3>
-                <p className="text-muted-foreground text-xs leading-relaxed mb-6">
+                <h3 className="font-heading text-xl font-bold text-foreground tracking-tight mb-2">
+                  Aceite Digital do Tutor
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed mb-6">
                   Página pública com máscara de CPF e validação algorítmica para assinatura de termos de consentimento e
                   internação.
                 </p>
@@ -555,9 +564,11 @@ export function LandingPage() {
                 <div className="h-11 w-11 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 text-primary flex items-center justify-center mb-6 shadow-sm">
                   <Zap className="h-5 w-5" strokeWidth={1.75} />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-2">Automações & Filas BullMQ</h3>
-                <p className="text-muted-foreground text-xs leading-relaxed mb-6">
-                  Motor distribuído com Redis 7 para lembretes de vacinas nas janelas <strong>D0, D-1 e D-7</strong> com
+                <h3 className="font-heading text-xl font-bold text-foreground tracking-tight mb-2">
+                  Automações & Filas BullMQ
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed mb-6">
+                  Motor distribuído com <span className="font-mono text-primary">Redis 7</span> para lembretes de vacinas nas janelas <strong>D0, D-1 e D-7</strong> com
                   anti-spam persistido.
                 </p>
               </div>
@@ -585,8 +596,10 @@ export function LandingPage() {
                 <div className="h-11 w-11 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 text-primary flex items-center justify-center mb-6 shadow-sm">
                   <Activity className="h-5 w-5" strokeWidth={1.75} />
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-3">Prontuário Veterinário Unificado</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-xl">
+                <h3 className="font-heading text-2xl font-bold text-foreground tracking-tight mb-3">
+                  Prontuário Veterinário Unificado
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 max-w-xl">
                   Linha do tempo médica com histórico de consultas, histórico de peso, procedimentos cirúrgicos, alertas
                   críticos de alergias do paciente e geração instantânea de prescrições médicas com QR Code.
                 </p>
@@ -629,10 +642,10 @@ export function LandingPage() {
               <p className="text-xs font-semibold tracking-widest text-primary uppercase font-mono">
                 Engenharia de Infraestrutura
               </p>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
+              <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
                 Topologia em Nuvem & Padrões Corporativos
               </h2>
-              <p className="text-muted-foreground text-base leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-400 text-base leading-relaxed">
                 Projetado com separação estrita de camadas, tipagem estrita de ponta a ponta e entrega contínua
                 automatizada via GitHub Actions para VPS Oracle Cloud com SSL Let's Encrypt.
               </p>
@@ -643,7 +656,7 @@ export function LandingPage() {
                     <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800/80 text-primary border border-border/60">
                       <Cpu className="h-4 w-4" strokeWidth={1.75} />
                     </div>
-                    <h4 className="font-bold text-sm text-foreground">NestJS 11 & React 19</h4>
+                    <h4 className="font-heading font-bold text-sm text-foreground tracking-tight">NestJS 11 & React 19</h4>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     TypeScript estrito, guards de segurança e React Server/Client otimizado.
@@ -655,7 +668,7 @@ export function LandingPage() {
                     <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800/80 text-primary border border-border/60">
                       <Database className="h-4 w-4" strokeWidth={1.75} />
                     </div>
-                    <h4 className="font-bold text-sm text-foreground">PostgreSQL & Redis 7</h4>
+                    <h4 className="font-heading font-bold text-sm text-foreground tracking-tight">PostgreSQL 15 & Redis 7</h4>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     Persistência relacional transacional e filas BullMQ assíncronas.
@@ -667,7 +680,7 @@ export function LandingPage() {
                     <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800/80 text-primary border border-border/60">
                       <Workflow className="h-4 w-4" strokeWidth={1.75} />
                     </div>
-                    <h4 className="font-bold text-sm text-foreground">CI/CD GitHub Actions</h4>
+                    <h4 className="font-heading font-bold text-sm text-foreground tracking-tight">CI/CD GitHub Actions</h4>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     Deploy contínuo por SSH com migrações automáticas do Prisma.
@@ -679,7 +692,7 @@ export function LandingPage() {
                     <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800/80 text-primary border border-border/60">
                       <Lock className="h-4 w-4" strokeWidth={1.75} />
                     </div>
-                    <h4 className="font-bold text-sm text-foreground">Segurança Criptográfica</h4>
+                    <h4 className="font-heading font-bold text-sm text-foreground tracking-tight">Segurança Criptográfica</h4>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     Bcrypt com 12 salt rounds, JWT assimétrico e HTTPS forçado.
@@ -708,7 +721,7 @@ export function LandingPage() {
                       <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-wider">
                         Camada 1 • Gateway & Proxy
                       </span>
-                      <h4 className="text-sm font-bold text-foreground mt-0.5">Nginx Reverse Proxy</h4>
+                      <h4 className="font-heading text-sm font-bold text-foreground mt-0.5 tracking-tight">Nginx Reverse Proxy</h4>
                       <p className="text-xs text-muted-foreground">SSL Let's Encrypt • HTTP/2 • Gzip</p>
                     </div>
                     <span className="text-xs font-mono px-2.5 py-1 rounded bg-muted text-muted-foreground border border-border">
@@ -722,7 +735,7 @@ export function LandingPage() {
                       <span className="text-[10px] font-mono font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider">
                         Camada 2 • Aplicação Backend & Worker
                       </span>
-                      <h4 className="text-sm font-bold text-foreground mt-0.5">NestJS Node 22 API</h4>
+                      <h4 className="font-heading text-sm font-bold text-foreground mt-0.5 tracking-tight">NestJS Node 22 API</h4>
                       <p className="text-xs text-muted-foreground">Prisma ORM • BullMQ Processors • JWT Auth</p>
                     </div>
                     <span className="text-xs font-mono px-2.5 py-1 rounded bg-muted text-muted-foreground border border-border">
@@ -736,7 +749,7 @@ export function LandingPage() {
                       <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                         Camada 3 • Dados & Persistência
                       </span>
-                      <h4 className="text-sm font-bold text-foreground mt-0.5">PostgreSQL 15 & Redis 7</h4>
+                      <h4 className="font-heading text-sm font-bold text-foreground mt-0.5 tracking-tight">PostgreSQL 15 & Redis 7</h4>
                       <p className="text-xs text-muted-foreground">Volumes Docker persistidos com backup diário</p>
                     </div>
                     <span className="text-xs font-mono px-2.5 py-1 rounded bg-muted text-muted-foreground border border-border">
@@ -757,10 +770,10 @@ export function LandingPage() {
             <p className="text-xs font-semibold tracking-widest text-primary uppercase font-mono mb-3">
               Investimento & Planos
             </p>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-foreground tracking-tight mb-4">
+            <h2 className="font-heading text-3xl sm:text-5xl font-extrabold text-foreground tracking-tight mb-4">
               Preços transparentes, escalabilidade contínua
             </h2>
-            <p className="text-muted-foreground text-base sm:text-lg">
+            <p className="font-sans text-slate-600 dark:text-slate-400 text-base sm:text-lg leading-relaxed">
               Escolha o plano ideal para a fase da sua clínica. Migração simples sem perda de dados históricos.
             </p>
           </div>
@@ -774,13 +787,13 @@ export function LandingPage() {
             >
               <div>
                 <div className="mb-4">
-                  <h3 className="text-xl font-bold text-foreground">Starter</h3>
+                  <h3 className="font-heading text-xl font-bold text-foreground tracking-tight">Starter</h3>
                   <p className="text-xs text-muted-foreground mt-1">
                     Para consultórios veterinários autônomos e atendimentos individuais.
                   </p>
                 </div>
                 <div className="flex items-baseline gap-1 mb-8">
-                  <span className="text-4xl font-extrabold text-foreground">R$ 99</span>
+                  <span className="font-heading text-4xl font-extrabold text-foreground tracking-tight">R$ 99</span>
                   <span className="text-sm text-muted-foreground">/mês</span>
                 </div>
 
@@ -830,13 +843,13 @@ export function LandingPage() {
                 </div>
 
                 <div className="mb-4">
-                  <h3 className="text-xl font-bold text-foreground">Professional</h3>
+                  <h3 className="font-heading text-xl font-bold text-foreground tracking-tight">Professional</h3>
                   <p className="text-xs text-muted-foreground mt-1">
                     Para clínicas com equipe médica estruturada e alto fluxo diário.
                   </p>
                 </div>
                 <div className="flex items-baseline gap-1 mb-8">
-                  <span className="text-4xl font-extrabold text-foreground">R$ 199</span>
+                  <span className="font-heading text-4xl font-extrabold text-foreground tracking-tight">R$ 199</span>
                   <span className="text-sm text-muted-foreground">/mês</span>
                 </div>
 
@@ -884,13 +897,13 @@ export function LandingPage() {
             >
               <div>
                 <div className="mb-4">
-                  <h3 className="text-xl font-bold text-foreground">Enterprise</h3>
+                  <h3 className="font-heading text-xl font-bold text-foreground tracking-tight">Enterprise</h3>
                   <p className="text-xs text-muted-foreground mt-1">
                     Para redes hospitalares 24h e operações com múltiplas unidades.
                   </p>
                 </div>
                 <div className="flex items-baseline gap-1 mb-8">
-                  <span className="text-4xl font-extrabold text-foreground">Personalizado</span>
+                  <span className="font-heading text-4xl font-extrabold text-foreground tracking-tight">Personalizado</span>
                 </div>
 
                 <ul className="space-y-3.5 text-sm text-muted-foreground mb-8">
@@ -942,10 +955,10 @@ export function LandingPage() {
               Ambiente de Demonstração Interativo
             </p>
 
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-3">
+            <h3 className="font-heading text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight mb-3">
               Experimente a plataforma em tempo real
             </h3>
-            <p className="text-sm text-muted-foreground max-w-xl mx-auto mb-8">
+            <p className="font-sans text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto mb-8 leading-relaxed">
               Acesse diretamente com as credenciais de teste pré-configuradas para explorar os módulos de SuperAdmin e
               Administrador da Clínica.
             </p>
@@ -1003,14 +1016,14 @@ export function LandingPage() {
                   <PawPrint className="h-5 w-5" strokeWidth={1.5} />
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-extrabold text-xl text-foreground tracking-tight">VetOS</span>
-                  <span className="font-semibold text-xs text-primary font-mono">
+                  <span className="font-heading font-extrabold text-xl text-foreground tracking-tight">VetOS</span>
+                  <span className="font-mono font-semibold text-xs text-primary">
                     AI
                   </span>
                 </div>
               </div>
 
-              <p className="text-xs text-muted-foreground leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 Tecnologia e cuidado animal em perfeita harmonia. Sistema Operacional inteligente e SaaS Multi-tenant
                 para clínicas veterinárias.
               </p>
@@ -1032,7 +1045,7 @@ export function LandingPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 lg:gap-12 flex-1">
               {/* Grid 1: Pages / Produto */}
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-foreground">Produto</h4>
+                <h4 className="font-heading text-sm font-semibold text-foreground tracking-tight">Produto</h4>
                 <ul className="space-y-2.5 text-xs text-muted-foreground">
                   <li>
                     <a href="#recursos" className="hover:text-foreground transition-colors">
@@ -1064,8 +1077,8 @@ export function LandingPage() {
 
               {/* Grid 2: Arquitetura */}
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-foreground">Arquitetura</h4>
-                <ul className="space-y-2.5 text-xs text-muted-foreground">
+                <h4 className="font-heading text-sm font-semibold text-foreground tracking-tight">Arquitetura</h4>
+                <ul className="space-y-2.5 text-xs text-muted-foreground font-mono">
                   <li>
                     <a href="#arquitetura" className="hover:text-foreground transition-colors">
                       NestJS 11 & Node 22
@@ -1096,7 +1109,7 @@ export function LandingPage() {
 
               {/* Grid 3: Portfólio */}
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-foreground">Portfólio</h4>
+                <h4 className="font-heading text-sm font-semibold text-foreground tracking-tight">Portfólio</h4>
                 <ul className="space-y-2.5 text-xs text-muted-foreground">
                   <li>
                     <a
@@ -1139,7 +1152,7 @@ export function LandingPage() {
 
               {/* Grid 4: Acesso */}
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-foreground">Acesso</h4>
+                <h4 className="font-heading text-sm font-semibold text-foreground tracking-tight">Acesso</h4>
                 <ul className="space-y-2.5 text-xs text-muted-foreground">
                   <li>
                     <Link to="/login" className="hover:text-foreground transition-colors">
@@ -1168,7 +1181,7 @@ export function LandingPage() {
 
           {/* Giant Degrade Text (Aceternity Signature) */}
           <div className="mt-14 sm:mt-20 select-none pointer-events-none text-center overflow-hidden">
-            <h2 className="text-[17vw] sm:text-[18vw] font-bold tracking-tight bg-gradient-to-b from-neutral-400/70 via-neutral-600/20 to-transparent dark:from-neutral-700/80 dark:via-neutral-800/25 dark:to-transparent bg-clip-text text-transparent leading-[0.8] translate-y-3 sm:translate-y-6">
+            <h2 className="font-heading text-[17vw] sm:text-[18vw] font-bold tracking-tight bg-gradient-to-b from-neutral-400/70 via-neutral-600/20 to-transparent dark:from-neutral-700/80 dark:via-neutral-800/25 dark:to-transparent bg-clip-text text-transparent leading-[0.8] translate-y-3 sm:translate-y-6">
               VetOS
             </h2>
           </div>
