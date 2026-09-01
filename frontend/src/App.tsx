@@ -8,6 +8,7 @@ import { RouteLoader } from './components/tutor/RouteLoader'
 import { AdminRouteLoader } from './components/AdminRouteLoader'
 
 // ─── Lazy-loaded Admin Pages ──────────────────────────────────────────────────
+const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })))
 const Login = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })))
 const Register = lazy(() => import('./pages/Register').then(m => ({ default: m.Register })))
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })))
@@ -89,8 +90,11 @@ function PublicOnlyRoute() {
 }
 
 function RootRedirect() {
-  const { user } = useAuth()
-  return <Navigate to={defaultAuthenticatedRoute(user?.role)} replace />
+  const { user, isAuthenticated } = useAuth()
+  if (isAuthenticated) {
+    return <Navigate to={defaultAuthenticatedRoute(user?.role)} replace />
+  }
+  return <Navigate to="/" replace />
 }
 
 function TutorPlatformLayout() {
@@ -132,6 +136,16 @@ function TutorPublicRoute() {
 }
 
 const router = createBrowserRouter([
+  // Institutional Landing Page
+  {
+    path: '/',
+    element: (
+      <Suspense fallback={<AdminRouteLoader />}>
+        <LandingPage />
+      </Suspense>
+    ),
+  },
+
   // Tutor Platform Routes
   {
     element: <TutorPlatformLayout />,
@@ -153,7 +167,7 @@ const router = createBrowserRouter([
     ],
   },
   
-  // Admin Routes
+  // Admin Public Routes
   {
     element: <PublicOnlyRoute />,
     children: [
@@ -161,10 +175,11 @@ const router = createBrowserRouter([
       { path: '/register', element: <Register /> },
     ],
   },
+
+  // Admin Protected Routes
   {
     element: <ProtectedRoute />,
     children: [
-      { path: '/', element: <RootRedirect /> },
       { path: '/dashboard', element: <Dashboard /> },
       { path: '/clients', element: <Clients /> },
       { path: '/pets', element: <Pets /> },
