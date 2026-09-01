@@ -252,15 +252,15 @@ export function LandingPage() {
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
           <img
             src="/hero-vetos.png"
-            alt="Médico veterinário VetOS em atendimento com cão"
-            className="w-full h-full object-cover object-[center_right] lg:object-right opacity-95 dark:opacity-85"
+            alt="Atendimento Veterinário VetOS"
+            className="w-full h-full object-cover object-right opacity-95 dark:opacity-85"
           />
 
-          {/* Máscara suave apenas no lado esquerdo para dar leitura nítida ao texto */}
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-transparent w-full lg:w-3/5" />
+          {/* Máscara de gradiente suave para contraste e leitura dos textos */}
+          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-transparent w-full lg:w-3/5 z-0" />
 
           {/* Máscara sutil na base para fusão com a próxima seção */}
-          <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-background to-transparent" />
+          <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-background to-transparent z-0" />
         </div>
 
         {/* Content Container */}
@@ -368,10 +368,10 @@ export function LandingPage() {
                     </div>
                     <div>
                       <h4 className="font-bold text-sm text-foreground flex items-center gap-1.5">
-                        Larka
-                        <span className="text-xs font-normal text-muted-foreground">(Golden Retriever, 3a)</span>
+                        Pipoca
+                        <span className="text-xs font-normal text-muted-foreground">(Vira-lata SRD, 3a)</span>
                       </h4>
-                      <p className="text-xs text-muted-foreground">Tutora: Fernanda Guimarães • 24.8 kg</p>
+                      <p className="text-xs text-muted-foreground">Tutora: Camila Santos • 16.4 kg</p>
                     </div>
                   </div>
 
