@@ -72,6 +72,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     if (path.includes('settings/messaging/logs')) return 'Configurações / Mensageria / Histórico'
     if (path.includes('settings/messaging')) return 'Configurações / Mensageria'
     if (path.includes('settings')) return 'Configurações'
+    if (path.includes('billing')) return 'Faturamento & Assinatura'
     return 'Ambiente de Trabalho'
   }
 
