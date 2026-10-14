@@ -1,3 +1,5 @@
+import { WhatsappProvider } from '@prisma/client';
+
 export class UpdateNotificationConfigDto {
   emailEnabled?: boolean;
   smtpHost?: string;
@@ -6,8 +8,10 @@ export class UpdateNotificationConfigDto {
   smtpPassword?: string;
   smtpFromName?: string;
   smtpFromEmail?: string;
+
   whatsappEnabled?: boolean;
-  whatsappInstanceUrl?: string;
-  whatsappInstanceName?: string;
-  whatsappApiKey?: string;
+  whatsappProvider?: WhatsappProvider;
+  metaPhoneNumberId?: string;
+  metaWabaId?: string;
+  metaAccessToken?: string;
 }

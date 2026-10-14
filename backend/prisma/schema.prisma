@@ -307,36 +307,44 @@ model ClinicalRecord {
   prescriptions Prescription[]
 }
 
+enum WhatsappProvider {
+  META_CLOUD_API
+  MOCK
+}
+
 model NotificationConfig {
-  id                      String   @id @default(uuid())
-  clinicId                String   @unique
-  emailEnabled            Boolean  @default(false)
+  id                      String            @id @default(uuid())
+  clinicId                String            @unique
+  emailEnabled            Boolean           @default(false)
   smtpHost                String?
   smtpPort                Int?
   smtpUser                String?
   smtpPasswordEncrypted   String?
   smtpFromName            String?
   smtpFromEmail           String?
-  whatsappEnabled         Boolean  @default(false)
-  whatsappInstanceUrl     String?
-  whatsappInstanceName    String?
-  whatsappApiKeyEncrypted String?
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  whatsappEnabled         Boolean           @default(false)
+  whatsappProvider        WhatsappProvider  @default(META_CLOUD_API)
+  metaPhoneNumberId       String?
+  metaWabaId              String?
+  metaAccessTokenEncrypted String?
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
 
   clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 }
 
 model NotificationTemplate {
-  id        String              @id @default(uuid())
-  clinicId  String
-  event     String
-  channel   NotificationChannel
-  subject   String?
-  body      String
-  active    Boolean             @default(true)
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
+  id               String              @id @default(uuid())
+  clinicId         String
+  event            String
+  channel          NotificationChannel
+  subject          String?
+  body             String
+  metaTemplateName String?
+  metaTemplateLang String?             @default("pt_BR")
+  active           Boolean             @default(true)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
 
   clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
@@ -354,6 +362,7 @@ model NotificationLog {
   status            NotificationStatus  @default(PENDING)
   errorMessage      String?
   providerMessageId String?
+  metaMessageId     String?
   event             String
   scheduledFor      DateTime?
   sentAt            DateTime?
@@ -377,6 +386,7 @@ model NotificationLog {
   @@index([clinicId, status])
   @@index([clinicId, channel])
   @@index([clinicId, event])
+  @@index([metaMessageId])
   @@index([appointmentId])
   @@index([clientId])
   @@index([petId])

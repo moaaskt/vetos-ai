@@ -5,10 +5,11 @@ import { NotificationsProcessor } from './notifications.processor';
 import { EmailMockProvider } from './providers/email-mock.provider';
 import { SmtpProvider } from './providers/smtp.provider';
 import { WhatsAppMockProvider } from './providers/whatsapp-mock.provider';
-import { EvolutionApiProvider } from './providers/evolution-api.provider';
+import { MetaCloudApiProvider } from './providers/meta-cloud-api.provider';
 import { TemplateService } from './template.service';
 import { EncryptionModule } from '../encryption/encryption.module';
 import { NotificationsController } from './notifications.controller';
+import { MetaWebhookController } from './webhooks/meta-webhook.controller';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { NotificationsController } from './notifications.controller';
       name: 'notifications',
     }),
   ],
-  controllers: [NotificationsController],
+  controllers: [NotificationsController, MetaWebhookController],
   providers: [
     NotificationsService,
     NotificationsProcessor,
@@ -25,13 +26,13 @@ import { NotificationsController } from './notifications.controller';
     EmailMockProvider,
     SmtpProvider,
     WhatsAppMockProvider,
-    EvolutionApiProvider,
+    MetaCloudApiProvider,
   ],
   exports: [
     NotificationsService,
     TemplateService,
     SmtpProvider,
-    EvolutionApiProvider,
+    MetaCloudApiProvider,
   ],
 })
 export class NotificationsModule {}

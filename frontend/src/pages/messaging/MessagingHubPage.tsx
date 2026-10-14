@@ -19,8 +19,8 @@ export function MessagingHubPage() {
       color: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
     },
     {
-      title: 'WhatsApp (Evolution API)',
-      description: 'Gerencie instâncias de WhatsApp, pareamento por QR Code e conexões reais.',
+      title: 'WhatsApp (Meta Cloud API)',
+      description: 'API Oficial da Meta: credenciais Graph API, verificação de webhook e status.',
       icon: MessageSquare,
       href: '/settings/messaging/whatsapp',
       color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',

@@ -37,6 +37,9 @@ export interface EnqueueNotificationInput {
   clinicName?: string;
   vaccineName?: string;
   nextDoseDate?: Date | string;
+  templateName?: string;
+  templateLang?: string;
+  templateParameters?: { type: string; text?: string; [key: string]: any }[];
 }
 
 

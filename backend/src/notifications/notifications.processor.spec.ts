@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationsProcessor } from './notifications.processor';
 import { SmtpProvider } from './providers/smtp.provider';
 import { WhatsAppMockProvider } from './providers/whatsapp-mock.provider';
-import { EvolutionApiProvider } from './providers/evolution-api.provider';
+import { MetaCloudApiProvider } from './providers/meta-cloud-api.provider';
 import { PrismaService } from '../prisma/prisma.service';
 import { TemplateService } from './template.service';
 
@@ -19,6 +19,7 @@ describe('NotificationsProcessor', () => {
     },
     notificationTemplate: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
     },
     notificationConfig: {
       findUnique: jest.fn(),
@@ -30,7 +31,7 @@ describe('NotificationsProcessor', () => {
   const whatsappProvider = {
     send: jest.fn(),
   };
-  const evolutionApiProvider = {
+  const metaCloudApiProvider = {
     send: jest.fn(),
     testConnection: jest.fn(),
   };
@@ -40,13 +41,15 @@ describe('NotificationsProcessor', () => {
     prisma.notificationLog.findFirst.mockReset();
     prisma.appointment.findFirst.mockReset();
     prisma.notificationTemplate.findUnique.mockReset();
+    prisma.notificationTemplate.findFirst.mockReset();
     prisma.notificationConfig.findUnique.mockReset();
     smtpProvider.send.mockReset();
     whatsappProvider.send.mockReset();
-    evolutionApiProvider.send.mockReset();
-    evolutionApiProvider.testConnection.mockReset();
+    metaCloudApiProvider.send.mockReset();
+    metaCloudApiProvider.testConnection.mockReset();
 
     prisma.notificationTemplate.findUnique.mockResolvedValue(null);
+    prisma.notificationTemplate.findFirst.mockResolvedValue(null);
     prisma.notificationConfig.findUnique.mockResolvedValue(null);
 
     const module: TestingModule = await Test.createTestingModule({
@@ -56,7 +59,7 @@ describe('NotificationsProcessor', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: SmtpProvider, useValue: smtpProvider },
         { provide: WhatsAppMockProvider, useValue: whatsappProvider },
-        { provide: EvolutionApiProvider, useValue: evolutionApiProvider },
+        { provide: MetaCloudApiProvider, useValue: metaCloudApiProvider },
       ],
     }).compile();
 
@@ -199,7 +202,7 @@ describe('NotificationsProcessor', () => {
       reason: 'Client has no phone for WhatsApp notification',
     });
     expect(whatsappProvider.send).not.toHaveBeenCalled();
-    expect(evolutionApiProvider.send).not.toHaveBeenCalled();
+    expect(metaCloudApiProvider.send).not.toHaveBeenCalled();
     expect(prisma.notificationLog.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         clinicId: 'clinic-1',
@@ -396,17 +399,18 @@ describe('NotificationsProcessor', () => {
     });
   });
 
-  it('routes WHATSAPP jobs to EvolutionApiProvider when valid config is present', async () => {
+  it('routes WHATSAPP jobs to MetaCloudApiProvider when valid config is present', async () => {
     prisma.notificationConfig.findUnique.mockResolvedValue({
       whatsappEnabled: true,
-      whatsappInstanceUrl: 'https://api.suaevolution.com.br',
-      whatsappInstanceName: 'instancia_teste',
-      whatsappApiKeyEncrypted: 'encrypted_key',
+      whatsappProvider: 'META_CLOUD_API',
+      metaPhoneNumberId: '1234567890',
+      metaAccessTokenEncrypted: 'encrypted_token',
     });
 
-    evolutionApiProvider.send.mockResolvedValue({
+    metaCloudApiProvider.send.mockResolvedValue({
       success: true,
-      providerMessageId: 'wa-real-1',
+      metaMessageId: 'wamid.HBgLMTIzNDU2',
+      providerMessageId: 'wamid.HBgLMTIzNDU2',
     });
 
     await processor.process({
@@ -421,31 +425,33 @@ describe('NotificationsProcessor', () => {
       },
     } as any);
 
-    expect(evolutionApiProvider.send).toHaveBeenCalledWith({
-      clinicId: 'clinic-1',
-      to: '+5511999999999',
-      body: 'Mensagem Real',
-    });
+    expect(metaCloudApiProvider.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        clinicId: 'clinic-1',
+        to: '+5511999999999',
+        body: 'Mensagem Real',
+      }),
+    );
 
     expect(prisma.notificationLog.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         clinicId: 'clinic-1',
         channel: 'WHATSAPP',
         status: 'SENT',
-        providerMessageId: 'wa-real-1',
+        metaMessageId: 'wamid.HBgLMTIzNDU2',
       }),
     });
   });
 
-  it('records a FAILED log when EvolutionApiProvider throws an error', async () => {
+  it('records a FAILED log when MetaCloudApiProvider throws an error', async () => {
     prisma.notificationConfig.findUnique.mockResolvedValue({
       whatsappEnabled: true,
-      whatsappInstanceUrl: 'https://api.suaevolution.com.br',
-      whatsappInstanceName: 'instancia_teste',
-      whatsappApiKeyEncrypted: 'encrypted_key',
+      whatsappProvider: 'META_CLOUD_API',
+      metaPhoneNumberId: '1234567890',
+      metaAccessTokenEncrypted: 'encrypted_token',
     });
 
-    evolutionApiProvider.send.mockRejectedValue(new Error('Evolution API error'));
+    metaCloudApiProvider.send.mockRejectedValue(new Error('Meta API error'));
 
     await expect(
       processor.process({
@@ -459,14 +465,14 @@ describe('NotificationsProcessor', () => {
           event: 'APPOINTMENT_CREATED',
         },
       } as any)
-    ).rejects.toThrow('Evolution API error');
+    ).rejects.toThrow('Meta API error');
 
     expect(prisma.notificationLog.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         clinicId: 'clinic-1',
         channel: 'WHATSAPP',
         status: 'FAILED',
-        errorMessage: 'Evolution API error',
+        errorMessage: 'Meta API error',
       }),
     });
   });
