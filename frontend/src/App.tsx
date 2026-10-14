@@ -19,6 +19,7 @@ const Appointments = lazy(() => import('./pages/Appointments').then(m => ({ defa
 const Analytics = lazy(() => import('./pages/Analytics').then(m => ({ default: m.Analytics })))
 const SettingsPage = lazy(() => import('./pages/settings/SettingsPage').then(m => ({ default: m.SettingsPage })))
 const VaccineProtocolsPage = lazy(() => import('./pages/settings/VaccineProtocolsPage').then(m => ({ default: m.VaccineProtocolsPage })))
+const VaccinesManagementPage = lazy(() => import('./pages/VaccinesManagementPage').then(m => ({ default: m.VaccinesManagementPage })))
 const MessagingHubPage = lazy(() => import('./pages/messaging/MessagingHubPage').then(m => ({ default: m.MessagingHubPage })))
 const SmtpSettingsPage = lazy(() => import('./pages/messaging/SmtpSettingsPage').then(m => ({ default: m.SmtpSettingsPage })))
 const WhatsappSettingsPage = lazy(() => import('./pages/messaging/WhatsappSettingsPage').then(m => ({ default: m.WhatsappSettingsPage })))
@@ -185,6 +186,7 @@ const router = createBrowserRouter([
       { path: '/pets', element: <Pets /> },
       { path: '/pets/:id', element: <PetDetails /> },
       { path: '/appointments', element: <Appointments /> },
+      { path: '/vaccines', element: <VaccinesManagementPage /> },
       { path: '/analytics', element: <Analytics /> },
       { path: '/settings', element: <SettingsPage /> },
       { path: '/settings/vaccines', element: <VaccineProtocolsPage /> },

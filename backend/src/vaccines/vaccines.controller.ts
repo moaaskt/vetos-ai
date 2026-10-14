@@ -8,6 +8,7 @@ import {
   Get,
   Put,
   Res,
+  Query,
 } from '@nestjs/common';
 import { VaccinesService } from './vaccines.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -16,6 +17,7 @@ import { CreateVaccineDto } from './dto/create-vaccine.dto';
 import { CreateVaccineProtocolDto } from './dto/create-vaccine-protocol.dto';
 import { ApplyVaccineProtocolDto } from './dto/apply-vaccine-protocol.dto';
 import { ApplyScheduledDoseDto } from './dto/apply-scheduled-dose.dto';
+import { TriggerReminderDto } from './dto/trigger-reminder.dto';
 import * as express from 'express';
 
 @UseGuards(JwtAuthGuard)
@@ -119,6 +121,41 @@ export class VaccinesController {
       id,
       applyScheduledDoseDto,
     );
+  }
+
+  // --- FILA DE LEMBRETES E OPERAÇÃO VACINAL (Fase 14B) ---
+
+  @Get('reminders/upcoming')
+  getUpcomingReminders(
+    @CurrentUser() user: any,
+    @Query('window') window?: 'D0' | 'D-1' | 'D-7' | 'OVERDUE' | 'ALL',
+    @Query('search') search?: string,
+  ) {
+    return this.vaccinesService.getUpcomingReminders(user.clinicId, {
+      window,
+      search,
+    });
+  }
+
+  @Post('reminders/:id/trigger')
+  triggerManualReminder(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() body?: TriggerReminderDto,
+  ) {
+    return this.vaccinesService.triggerManualReminder(
+      user.clinicId,
+      id,
+      body?.channels,
+    );
+  }
+
+  @Get('analytics/conversion')
+  getConversionAnalytics(
+    @CurrentUser() user: any,
+    @Query('days') days?: number,
+  ) {
+    return this.vaccinesService.getConversionAnalytics(user.clinicId, days);
   }
 }
 

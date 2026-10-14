@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { VaccinesService } from './vaccines.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 describe('VaccinesService', () => {
@@ -18,6 +19,7 @@ describe('VaccinesService', () => {
       findFirst: jest.fn(),
       findMany: jest.fn(),
       update: jest.fn(),
+      count: jest.fn(),
     },
     vaccineProtocol: {
       create: jest.fn(),
@@ -30,6 +32,15 @@ describe('VaccinesService', () => {
       deleteMany: jest.fn(),
       findUnique: jest.fn(),
     },
+    notificationLog: {
+      count: jest.fn(),
+      findMany: jest.fn(),
+    },
+  };
+
+  const notificationsService = {
+    getActiveChannelsForEvent: jest.fn(),
+    enqueueNotification: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -40,6 +51,7 @@ describe('VaccinesService', () => {
     prisma.vaccineRecord.findFirst.mockReset();
     prisma.vaccineRecord.findMany.mockReset();
     prisma.vaccineRecord.update.mockReset();
+    prisma.vaccineRecord.count.mockReset();
     prisma.vaccineProtocol.create.mockReset();
     prisma.vaccineProtocol.findFirst.mockReset();
     prisma.vaccineProtocol.findMany.mockReset();
@@ -47,6 +59,10 @@ describe('VaccinesService', () => {
     prisma.vaccineProtocol.delete.mockReset();
     prisma.vaccineProtocolDose.deleteMany.mockReset();
     prisma.vaccineProtocolDose.findUnique.mockReset();
+    prisma.notificationLog.count.mockReset();
+    prisma.notificationLog.findMany.mockReset();
+    notificationsService.getActiveChannelsForEvent.mockReset();
+    notificationsService.enqueueNotification.mockReset();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -54,6 +70,10 @@ describe('VaccinesService', () => {
         {
           provide: PrismaService,
           useValue: prisma,
+        },
+        {
+          provide: NotificationsService,
+          useValue: notificationsService,
         },
       ],
     }).compile();
@@ -381,6 +401,222 @@ describe('VaccinesService', () => {
       });
 
       expect(result.status).toBe('APPLIED');
+    });
+  });
+
+  describe('getUpcomingReminders', () => {
+    it('returns and categorizes upcoming vaccine doses according to time windows', async () => {
+      const now = new Date();
+      const utcYear = now.getUTCFullYear();
+      const utcMonth = now.getUTCMonth();
+      const utcDate = now.getUTCDate();
+
+      const d0Date = new Date(Date.UTC(utcYear, utcMonth, utcDate, 12, 0, 0));
+      const d1Date = new Date(Date.UTC(utcYear, utcMonth, utcDate + 1, 12, 0, 0));
+      const overdueDate = new Date(Date.UTC(utcYear, utcMonth, utcDate - 5, 12, 0, 0));
+
+      const mockRecords = [
+        {
+          id: 'vac-d0',
+          name: 'V10',
+          status: 'SCHEDULED',
+          date: d0Date,
+          nextDoseDate: null,
+          lotNumber: 'L1',
+          manufacturer: 'Zoetis',
+          pet: {
+            id: 'pet-1',
+            name: 'Rex',
+            species: 'DOG',
+            breed: 'Labrador',
+            client: {
+              id: 'client-1',
+              name: 'Carlos',
+              email: 'carlos@example.com',
+              phone: '11999999999',
+            },
+          },
+          protocol: null,
+          protocolDose: null,
+          notificationLogs: [],
+        },
+        {
+          id: 'vac-overdue',
+          name: 'Antirrábica',
+          status: 'SCHEDULED',
+          date: overdueDate,
+          nextDoseDate: null,
+          lotNumber: null,
+          manufacturer: null,
+          pet: {
+            id: 'pet-2',
+            name: 'Mimi',
+            species: 'CAT',
+            breed: 'Siamês',
+            client: {
+              id: 'client-2',
+              name: 'Ana',
+              email: 'ana@example.com',
+              phone: '11888888888',
+            },
+          },
+          protocol: null,
+          protocolDose: null,
+          notificationLogs: [],
+        },
+        {
+          id: 'vac-d1',
+          name: 'Giárdia',
+          status: 'SCHEDULED',
+          date: d1Date,
+          nextDoseDate: null,
+          lotNumber: null,
+          manufacturer: null,
+          pet: {
+            id: 'pet-3',
+            name: 'Thor',
+            species: 'DOG',
+            breed: 'Golden',
+            client: {
+              id: 'client-3',
+              name: 'Bruna',
+              email: null,
+              phone: '11777777777',
+            },
+          },
+          protocol: null,
+          protocolDose: null,
+          notificationLogs: [],
+        },
+      ];
+
+      prisma.vaccineRecord.findMany.mockResolvedValue(mockRecords);
+
+      const all = await service.getUpcomingReminders('clinic-1');
+      expect(all.length).toBe(3);
+      // Sorted by targetDate ascending: overdue first
+      expect(all[0].id).toBe('vac-overdue');
+      expect(all[0].window).toBe('OVERDUE');
+      expect(all[1].id).toBe('vac-d0');
+      expect(all[1].window).toBe('D0');
+      expect(all[2].id).toBe('vac-d1');
+      expect(all[2].window).toBe('D-1');
+
+      // Filter by D0
+      const onlyD0 = await service.getUpcomingReminders('clinic-1', { window: 'D0' });
+      expect(onlyD0.length).toBe(1);
+      expect(onlyD0[0].id).toBe('vac-d0');
+    });
+
+    it('passes search query to prisma with insensitive matching', async () => {
+      prisma.vaccineRecord.findMany.mockResolvedValue([]);
+
+      await service.getUpcomingReminders('clinic-1', { search: 'Rex' });
+
+      expect(prisma.vaccineRecord.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            clinicId: 'clinic-1',
+            OR: expect.any(Array),
+          }),
+        }),
+      );
+    });
+  });
+
+  describe('triggerManualReminder', () => {
+    it('throws NotFoundException if vaccine does not belong to clinic', async () => {
+      prisma.vaccineRecord.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.triggerManualReminder('clinic-1', 'invalid-id'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws BadRequestException if pet has no linked client', async () => {
+      prisma.vaccineRecord.findFirst.mockResolvedValue({
+        id: 'vac-1',
+        name: 'V8',
+        pet: { client: null },
+      });
+
+      await expect(
+        service.triggerManualReminder('clinic-1', 'vac-1'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('enqueues notification to active channels and returns success', async () => {
+      const mockVaccine = {
+        id: 'vac-1',
+        name: 'Antirrábica',
+        date: new Date('2026-11-01T00:00:00.000Z'),
+        status: 'SCHEDULED',
+        petId: 'pet-1',
+        pet: {
+          name: 'Bob',
+          client: {
+            id: 'client-1',
+            name: 'Maria',
+            email: 'maria@example.com',
+            phone: '11999998888',
+          },
+        },
+        clinic: {
+          name: 'Clínica Vet Care',
+        },
+      };
+
+      prisma.vaccineRecord.findFirst.mockResolvedValue(mockVaccine);
+      notificationsService.getActiveChannelsForEvent.mockResolvedValue(['EMAIL', 'WHATSAPP']);
+
+      const result = await service.triggerManualReminder('clinic-1', 'vac-1');
+
+      expect(result.success).toBe(true);
+      expect(result.channels).toEqual(['EMAIL', 'WHATSAPP']);
+      expect(notificationsService.enqueueNotification).toHaveBeenCalledTimes(2);
+      expect(notificationsService.enqueueNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          clinicId: 'clinic-1',
+          channel: 'EMAIL',
+          to: 'maria@example.com',
+          vaccineRecordId: 'vac-1',
+        }),
+      );
+      expect(notificationsService.enqueueNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          clinicId: 'clinic-1',
+          channel: 'WHATSAPP',
+          to: '11999998888',
+          vaccineRecordId: 'vac-1',
+        }),
+      );
+    });
+  });
+
+  describe('getConversionAnalytics', () => {
+    it('calculates conversion rate and immunization KPIs correctly', async () => {
+      prisma.notificationLog.count.mockResolvedValue(15);
+      prisma.vaccineRecord.count
+        .mockResolvedValueOnce(12) // appliedDosesCount
+        .mockResolvedValueOnce(5)  // overdueCount
+        .mockResolvedValueOnce(2); // criticalOverdueCount
+
+      prisma.notificationLog.findMany.mockResolvedValue([
+        { vaccineRecordId: 'vac-1', vaccineRecord: { status: 'APPLIED' } },
+        { vaccineRecordId: 'vac-2', vaccineRecord: { status: 'SCHEDULED' } },
+        { vaccineRecordId: 'vac-1', vaccineRecord: { status: 'APPLIED' } }, // duplicate log for same vaccine
+      ]);
+
+      const stats = await service.getConversionAnalytics('clinic-1', 30);
+
+      expect(stats.days).toBe(30);
+      expect(stats.totalNotificationsSent).toBe(15);
+      expect(stats.appliedDosesCount).toBe(12);
+      expect(stats.overdueCount).toBe(5);
+      expect(stats.criticalOverdueCount).toBe(2);
+      expect(stats.notifiedVaccinesCount).toBe(2);
+      expect(stats.appliedAfterNotificationCount).toBe(1);
+      expect(stats.conversionRate).toBe(50);
     });
   });
 });
