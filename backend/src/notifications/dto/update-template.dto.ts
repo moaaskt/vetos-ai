@@ -5,5 +5,7 @@ export class UpdateNotificationTemplateDto {
   channel!: NotificationChannel;
   subject?: string;
   body!: string;
+  metaTemplateName?: string;
+  metaTemplateLang?: string;
   active!: boolean;
 }
