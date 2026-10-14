@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ClinicalAttachmentsService } from './clinical-attachments.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
+import { BillingService } from '../billing/billing.service';
 import { NotFoundException } from '@nestjs/common';
 import { Readable } from 'stream';
 
@@ -30,6 +31,10 @@ describe('ClinicalAttachmentsService', () => {
     exists: jest.fn(),
   };
 
+  const billingMock = {
+    assertCanUploadStorage: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.resetAllMocks();
 
@@ -38,6 +43,7 @@ describe('ClinicalAttachmentsService', () => {
         ClinicalAttachmentsService,
         { provide: PrismaService, useValue: prismaMock },
         { provide: StorageService, useValue: storageMock },
+        { provide: BillingService, useValue: billingMock },
       ],
     }).compile();
 

@@ -25,6 +25,7 @@ import { ConsentTermsModule } from './consent-terms/consent-terms.module';
 import { VerificationModule } from './verification/verification.module';
 import { TutorPlatformModule } from './tutor-platform/tutor-platform.module';
 import { TenantModule } from './tenant/tenant.module';
+import { BillingModule } from './billing/billing.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -59,6 +60,7 @@ import { TenantModule } from './tenant/tenant.module';
     VerificationModule,
     TutorPlatformModule,
     TenantModule,
+    BillingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,10 +7,20 @@ import {
   ArrowRight,
   Settings,
   Syringe,
+  CreditCard,
 } from 'lucide-react'
 
 export function SettingsPage() {
   const cards = [
+    {
+      to: '/billing',
+      title: 'Faturamento & Assinatura',
+      description: 'Acompanhe o consumo das cotas da clínica (equipe, disparos de mensagens e espaço em disco), veja os benefícios do plano e faça upgrades.',
+      icon: CreditCard,
+      active: true,
+      badge: 'Ativo',
+      badgeClass: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+    },
     {
       to: '/settings/messaging',
       title: 'Mensageria e Notificações',
