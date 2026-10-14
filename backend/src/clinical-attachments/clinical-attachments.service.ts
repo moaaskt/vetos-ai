@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
+import { BillingService } from '../billing/billing.service';
 import { randomUUID } from 'crypto';
 import * as path from 'path';
 import { Readable } from 'stream';
@@ -10,6 +11,7 @@ export class ClinicalAttachmentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly storageService: StorageService,
+    private readonly billingService: BillingService,
   ) {}
 
   // Auxiliar para validar se o Pet pertence à Clinic logada
@@ -51,7 +53,10 @@ export class ClinicalAttachmentsService {
       }
     }
 
-    // 2. Gerar chaves e armazenar fisicamente
+    // 2. Validar limite de armazenamento contratado da clínica
+    await this.billingService.assertCanUploadStorage(clinicId, file.size);
+
+    // 3. Gerar chaves e armazenar fisicamente
     const extension = path.extname(file.originalname);
     const storedFileName = `${randomUUID()}${extension}`;
     const storageKey = `clinics/${clinicId}/pets/${petId}/${storedFileName}`;
