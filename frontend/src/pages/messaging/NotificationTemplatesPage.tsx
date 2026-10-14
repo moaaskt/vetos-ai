@@ -20,6 +20,8 @@ export function NotificationTemplatesPage() {
   const [isSavingTemplate, setIsSavingTemplate] = useState(false)
   const [templateSubject, setTemplateSubject] = useState('')
   const [templateBody, setTemplateBody] = useState('')
+  const [metaTemplateName, setMetaTemplateName] = useState('')
+  const [metaTemplateLang, setMetaTemplateLang] = useState('pt_BR')
   const [templateActive, setTemplateActive] = useState(true)
 
   // Global Alert
@@ -51,6 +53,8 @@ export function NotificationTemplatesPage() {
     setEditingTemplate(template)
     setTemplateSubject(template.subject || '')
     setTemplateBody(template.body)
+    setMetaTemplateName(template.metaTemplateName || '')
+    setMetaTemplateLang(template.metaTemplateLang || 'pt_BR')
     setTemplateActive(template.active)
   }
 
@@ -64,6 +68,8 @@ export function NotificationTemplatesPage() {
         channel: editingTemplate.channel,
         subject: editingTemplate.channel === 'EMAIL' ? templateSubject : undefined,
         body: templateBody,
+        metaTemplateName: editingTemplate.channel === 'WHATSAPP' ? (metaTemplateName.trim() || undefined) : undefined,
+        metaTemplateLang: editingTemplate.channel === 'WHATSAPP' ? (metaTemplateLang.trim() || 'pt_BR') : undefined,
         active: templateActive,
       })
       showAlert('Modelo de mensagem atualizado com sucesso!')
@@ -220,6 +226,11 @@ export function NotificationTemplatesPage() {
                         {template.channel === 'EMAIL' && (
                           <span className="font-medium text-xs truncate">Assunto: {template.subject || '(Sem assunto)'}</span>
                         )}
+                        {template.channel === 'WHATSAPP' && template.metaTemplateName && (
+                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-semibold flex items-center gap-1 mb-0.5">
+                            Meta Template: {template.metaTemplateName} ({template.metaTemplateLang || 'pt_BR'})
+                          </span>
+                        )}
                         <span className="text-xs text-muted-foreground truncate">{template.body}</span>
                       </div>
                     </td>
@@ -294,6 +305,38 @@ export function NotificationTemplatesPage() {
                       className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                       required
                     />
+                  </div>
+                )}
+
+                {editingTemplate.channel === 'WHATSAPP' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/20 p-3 rounded-xl border border-border/50">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Nome do Modelo na Meta (Template Name)</label>
+                      <input
+                        type="text"
+                        value={metaTemplateName}
+                        onChange={(e) => setMetaTemplateName(e.target.value)}
+                        placeholder="ex: lembrete_consulta_24h"
+                        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary font-mono text-xs"
+                      />
+                      <span className="text-[10px] text-muted-foreground block">
+                        Nome exato aprovado no Gerenciador do WhatsApp Meta.
+                      </span>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Código de Idioma Meta</label>
+                      <input
+                        type="text"
+                        value={metaTemplateLang}
+                        onChange={(e) => setMetaTemplateLang(e.target.value)}
+                        placeholder="pt_BR"
+                        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary font-mono text-xs"
+                      />
+                      <span className="text-[10px] text-muted-foreground block">
+                        Padrão: <code>pt_BR</code>.
+                      </span>
+                    </div>
                   </div>
                 )}
 
