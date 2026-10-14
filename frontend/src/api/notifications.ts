@@ -13,10 +13,11 @@ export interface NotificationConfig {
   smtpFromName: string | null;
   smtpFromEmail: string | null;
   whatsappEnabled: boolean;
-  whatsappInstanceUrl: string | null;
-  whatsappInstanceName: string | null;
+  whatsappProvider: 'META_CLOUD_API' | 'MOCK';
+  metaPhoneNumberId: string | null;
+  metaWabaId: string | null;
   hasSmtpPassword: boolean;
-  hasWhatsappApiKey: boolean;
+  hasMetaAccessToken: boolean;
 }
 
 export interface UpdateNotificationConfigPayload {
@@ -28,9 +29,10 @@ export interface UpdateNotificationConfigPayload {
   smtpFromName?: string;
   smtpFromEmail?: string;
   whatsappEnabled?: boolean;
-  whatsappInstanceUrl?: string;
-  whatsappInstanceName?: string;
-  whatsappApiKey?: string;
+  whatsappProvider?: 'META_CLOUD_API' | 'MOCK';
+  metaPhoneNumberId?: string;
+  metaWabaId?: string;
+  metaAccessToken?: string;
 }
 
 export interface NotificationTemplate {
@@ -40,6 +42,8 @@ export interface NotificationTemplate {
   channel: NotificationChannel;
   subject: string | null;
   body: string;
+  metaTemplateName: string | null;
+  metaTemplateLang: string | null;
   active: boolean;
   createdAt: string;
   updatedAt: string;
@@ -50,6 +54,8 @@ export interface UpdateNotificationTemplatePayload {
   channel: NotificationChannel;
   subject?: string;
   body: string;
+  metaTemplateName?: string;
+  metaTemplateLang?: string;
   active: boolean;
 }
 
