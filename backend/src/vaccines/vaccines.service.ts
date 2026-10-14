@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateVaccineDto } from './dto/create-vaccine.dto';
 import { CreateVaccineProtocolDto, CreateVaccineProtocolDoseDto } from './dto/create-vaccine-protocol.dto';
 import { ApplyVaccineProtocolDto } from './dto/apply-vaccine-protocol.dto';
@@ -29,7 +30,10 @@ export function normalizeSpecies(species?: string): 'DOG' | 'CAT' | 'OTHER' {
 
 @Injectable()
 export class VaccinesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async create(clinicId: string, data: CreateVaccineDto) {
     // Valida se o pet pertence à clínica logada
@@ -542,6 +546,336 @@ export class VaccinesService {
     }
 
     return updatedRecord;
+  }
+
+  // --- FILA DE LEMBRETES E OPERAÇÃO VACINAL (Fase 14B) ---
+
+  async getUpcomingReminders(
+    clinicId: string,
+    filter?: { window?: 'D0' | 'D-1' | 'D-7' | 'OVERDUE' | 'ALL'; search?: string },
+  ) {
+    const searchFilter = filter?.search?.trim()
+      ? {
+          OR: [
+            { name: { contains: filter.search.trim(), mode: 'insensitive' as const } },
+            { pet: { name: { contains: filter.search.trim(), mode: 'insensitive' as const } } },
+            { pet: { client: { name: { contains: filter.search.trim(), mode: 'insensitive' as const } } } },
+            { pet: { client: { phone: { contains: filter.search.trim(), mode: 'insensitive' as const } } } },
+            { pet: { client: { email: { contains: filter.search.trim(), mode: 'insensitive' as const } } } },
+          ],
+        }
+      : {};
+
+    const records = await this.prisma.vaccineRecord.findMany({
+      where: {
+        clinicId,
+        OR: [
+          { status: 'SCHEDULED' },
+          { status: 'APPLIED', nextDoseDate: { not: null } },
+        ],
+        ...searchFilter,
+      },
+      include: {
+        pet: {
+          include: {
+            client: true,
+          },
+        },
+        protocol: true,
+        protocolDose: true,
+        notificationLogs: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 3,
+        },
+      },
+    });
+
+    const now = new Date();
+    const utcYear = now.getUTCFullYear();
+    const utcMonth = now.getUTCMonth();
+    const utcDate = now.getUTCDate();
+
+    const d0Start = new Date(Date.UTC(utcYear, utcMonth, utcDate, 0, 0, 0, 0));
+    const d0End = new Date(Date.UTC(utcYear, utcMonth, utcDate, 23, 59, 59, 999));
+
+    const d1Start = new Date(Date.UTC(utcYear, utcMonth, utcDate + 1, 0, 0, 0, 0));
+    const d1End = new Date(Date.UTC(utcYear, utcMonth, utcDate + 1, 23, 59, 59, 999));
+
+    const d7Start = new Date(Date.UTC(utcYear, utcMonth, utcDate + 7, 0, 0, 0, 0));
+    const d7End = new Date(Date.UTC(utcYear, utcMonth, utcDate + 7, 23, 59, 59, 999));
+
+    const mapped = records.map((record) => {
+      const targetDate = record.status === 'SCHEDULED' ? record.date : record.nextDoseDate!;
+      const targetTime = targetDate.getTime();
+
+      let windowTag: 'D0' | 'D-1' | 'D-7' | 'OVERDUE' | 'UPCOMING';
+      if (targetTime < d0Start.getTime()) {
+        windowTag = 'OVERDUE';
+      } else if (targetTime >= d0Start.getTime() && targetTime <= d0End.getTime()) {
+        windowTag = 'D0';
+      } else if (targetTime >= d1Start.getTime() && targetTime <= d1End.getTime()) {
+        windowTag = 'D-1';
+      } else if (targetTime >= d7Start.getTime() && targetTime <= d7End.getTime()) {
+        windowTag = 'D-7';
+      } else {
+        windowTag = 'UPCOMING';
+      }
+
+      const diffMs = targetDate.getTime() - d0Start.getTime();
+      const daysUntilDue = Math.round(diffMs / (24 * 60 * 60 * 1000));
+
+      const lastNotification = record.notificationLogs[0]
+        ? {
+            id: record.notificationLogs[0].id,
+            channel: record.notificationLogs[0].channel,
+            status: record.notificationLogs[0].status,
+            sentAt: record.notificationLogs[0].sentAt,
+            createdAt: record.notificationLogs[0].createdAt,
+          }
+        : null;
+
+      return {
+        id: record.id,
+        name: record.name,
+        date: record.date,
+        nextDoseDate: record.nextDoseDate,
+        targetDate,
+        status: record.status,
+        window: windowTag,
+        daysUntilDue,
+        lotNumber: record.lotNumber,
+        manufacturer: record.manufacturer,
+        pet: {
+          id: record.pet.id,
+          name: record.pet.name,
+          species: record.pet.species,
+          breed: record.pet.breed,
+          client: {
+            id: record.pet.client.id,
+            name: record.pet.client.name,
+            email: record.pet.client.email,
+            phone: record.pet.client.phone,
+          },
+        },
+        protocol: record.protocol ? { id: record.protocol.id, name: record.protocol.name } : null,
+        protocolDose: record.protocolDose ? { doseOrder: record.protocolDose.doseOrder } : null,
+        lastNotification,
+      };
+    });
+
+    const filtered = mapped.filter((item) => {
+      if (!filter?.window || filter.window === 'ALL') return true;
+      if (filter.window === 'D0') return item.window === 'D0';
+      if (filter.window === 'D-1') return item.window === 'D-1';
+      if (filter.window === 'D-7') {
+        return item.window === 'D-7' || (item.daysUntilDue >= 2 && item.daysUntilDue <= 7);
+      }
+      if (filter.window === 'OVERDUE') return item.window === 'OVERDUE';
+      return true;
+    });
+
+    filtered.sort((a, b) => new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime());
+
+    return filtered;
+  }
+
+  async triggerManualReminder(
+    clinicId: string,
+    vaccineId: string,
+    channels?: ('EMAIL' | 'WHATSAPP')[],
+  ) {
+    const vaccine = await this.prisma.vaccineRecord.findFirst({
+      where: {
+        id: vaccineId,
+        clinicId,
+      },
+      include: {
+        pet: {
+          include: {
+            client: true,
+          },
+        },
+        clinic: true,
+      },
+    });
+
+    if (!vaccine) {
+      throw new NotFoundException('Registro de vacina não encontrado nesta clínica.');
+    }
+
+    const client = vaccine.pet?.client;
+    if (!client) {
+      throw new BadRequestException('Paciente não possui tutor vinculado.');
+    }
+
+    const targetDate = vaccine.status === 'SCHEDULED' ? vaccine.date : (vaccine.nextDoseDate || vaccine.date);
+    const formattedDate = targetDate.toLocaleDateString('pt-BR');
+
+    let selectedChannels = channels;
+    if (!selectedChannels || selectedChannels.length === 0) {
+      selectedChannels = await this.notificationsService.getActiveChannelsForEvent(
+        clinicId,
+        'VACCINE_REMINDER_DAY',
+      );
+    }
+
+    if (!selectedChannels || selectedChannels.length === 0) {
+      selectedChannels = [];
+      if (client.email) selectedChannels.push('EMAIL');
+      if (client.phone) selectedChannels.push('WHATSAPP');
+    }
+
+    if (selectedChannels.length === 0) {
+      throw new BadRequestException('Nenhum canal de notificação disponível para este tutor.');
+    }
+
+    const dispatched: string[] = [];
+    const clientName = client.name;
+    const petName = vaccine.pet.name;
+    const vaccineName = vaccine.name;
+    const clinicName = vaccine.clinic?.name || 'Clínica Veterinária';
+
+    for (const channel of selectedChannels) {
+      const to = channel === 'EMAIL' ? client.email : client.phone;
+      if (!to) {
+        continue;
+      }
+
+      const defaultBody = `Olá ${clientName}, lembramos que a vacina ${vaccineName} de ${petName} está programada para ${formattedDate}. Atenciosamente, ${clinicName}`;
+
+      await this.notificationsService.enqueueNotification({
+        clinicId,
+        channel,
+        to,
+        event: 'VACCINE_REMINDER_DAY',
+        subject: `Lembrete de Vacinação: ${vaccineName} - ${petName}`,
+        body: defaultBody,
+        vaccineRecordId: vaccine.id,
+        petId: vaccine.petId,
+        clientId: client.id,
+        clientName,
+        petName,
+        vaccineName,
+        clinicName,
+        nextDoseDate: targetDate,
+      });
+
+      dispatched.push(channel);
+    }
+
+    if (dispatched.length === 0) {
+      throw new BadRequestException(
+        'Não foi possível disparar lembrete. Verifique se o tutor possui e-mail ou telefone cadastrado.',
+      );
+    }
+
+    return {
+      success: true,
+      vaccineId: vaccine.id,
+      channels: dispatched,
+      message: `Lembrete enfileirado com sucesso para ${dispatched.join(', ')}.`,
+    };
+  }
+
+  async getConversionAnalytics(clinicId: string, days = 30) {
+    const periodDays = Number(days) || 30;
+    const sinceDate = new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    const fifteenDaysAgo = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000);
+
+    const [
+      totalNotificationsSent,
+      appliedDosesCount,
+      overdueCount,
+      criticalOverdueCount,
+      sentLogsWithRecord,
+    ] = await Promise.all([
+      this.prisma.notificationLog.count({
+        where: {
+          clinicId,
+          event: {
+            in: [
+              'VACCINE_REMINDER_DAY',
+              'VACCINE_REMINDER_1D',
+              'VACCINE_REMINDER_7D',
+              'VACCINE_EXPIRATION',
+            ],
+          },
+          status: 'SENT',
+          createdAt: { gte: sinceDate },
+        },
+      }),
+      this.prisma.vaccineRecord.count({
+        where: {
+          clinicId,
+          status: 'APPLIED',
+          updatedAt: { gte: sinceDate },
+        },
+      }),
+      this.prisma.vaccineRecord.count({
+        where: {
+          clinicId,
+          status: 'SCHEDULED',
+          date: { lt: now },
+        },
+      }),
+      this.prisma.vaccineRecord.count({
+        where: {
+          clinicId,
+          status: 'SCHEDULED',
+          date: { lt: fifteenDaysAgo },
+        },
+      }),
+      this.prisma.notificationLog.findMany({
+        where: {
+          clinicId,
+          status: 'SENT',
+          vaccineRecordId: { not: null },
+          createdAt: { gte: sinceDate },
+        },
+        select: {
+          vaccineRecordId: true,
+          vaccineRecord: {
+            select: {
+              status: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    const uniqueRecords = new Map<string, string>();
+    for (const log of sentLogsWithRecord) {
+      if (log.vaccineRecordId && log.vaccineRecord) {
+        uniqueRecords.set(log.vaccineRecordId, log.vaccineRecord.status);
+      }
+    }
+
+    const notifiedVaccinesCount = uniqueRecords.size;
+    let appliedAfterNotificationCount = 0;
+    for (const status of uniqueRecords.values()) {
+      if (status === 'APPLIED') {
+        appliedAfterNotificationCount++;
+      }
+    }
+
+    const conversionRate =
+      notifiedVaccinesCount > 0
+        ? Math.round((appliedAfterNotificationCount / notifiedVaccinesCount) * 100)
+        : 0;
+
+    return {
+      days: periodDays,
+      totalNotificationsSent,
+      appliedDosesCount,
+      overdueCount,
+      criticalOverdueCount,
+      notifiedVaccinesCount,
+      appliedAfterNotificationCount,
+      conversionRate,
+    };
   }
 }
 
