@@ -44,6 +44,8 @@ async function main() {
 
   // 1. Safe Cleanup in reverse dependency order
   console.log('🧹 Cleaning up database tables...');
+  await prisma.tutorSession.deleteMany({});
+  await prisma.tutorPortalToken.deleteMany({});
   await prisma.impersonationLog.deleteMany({});
   await prisma.clinicalAttachment.deleteMany({});
   await prisma.prescription.deleteMany({});
@@ -60,6 +62,7 @@ async function main() {
   await prisma.appointment.deleteMany({});
   await prisma.pet.deleteMany({});
   await prisma.client.deleteMany({});
+  await prisma.tutorIdentity.deleteMany({});
   await prisma.user.deleteMany({});
   await prisma.clinicSubscription.deleteMany({});
   await prisma.plan.deleteMany({});
@@ -183,8 +186,38 @@ async function main() {
     },
   });
 
-  // 6. Create Clients (Tutors)
-  console.log('👤 Creating clients/tutors...');
+  // 6. Create TutorIdentities & Clients (Tutors)
+  console.log('👤 Creating tutor identities and clients...');
+  const tutorIdentity1 = await prisma.tutorIdentity.create({
+    data: {
+      publicId: 'TUT-' + crypto.randomBytes(4).toString('hex').toUpperCase(),
+      name: 'João Silva',
+      primaryEmail: 'joao.silva@demo.com',
+      primaryWhatsapp: '(11) 98888-7777',
+      cpf: '123.456.789-00',
+    },
+  });
+
+  const tutorIdentity2 = await prisma.tutorIdentity.create({
+    data: {
+      publicId: 'TUT-' + crypto.randomBytes(4).toString('hex').toUpperCase(),
+      name: 'Juliana Mendes',
+      primaryEmail: 'juliana.mendes@demo.com',
+      primaryWhatsapp: '(11) 99999-8888',
+      cpf: '987.654.321-11',
+    },
+  });
+
+  const tutorIdentity3 = await prisma.tutorIdentity.create({
+    data: {
+      publicId: 'TUT-' + crypto.randomBytes(4).toString('hex').toUpperCase(),
+      name: 'Carlos Santos',
+      primaryEmail: 'carlos.santos@demo.com',
+      primaryWhatsapp: '(41) 95555-4444',
+      cpf: '456.789.123-22',
+    },
+  });
+
   // Client 1 for Alfa
   const clientAlfa1 = await prisma.client.create({
     data: {
@@ -192,6 +225,7 @@ async function main() {
       email: 'joao.silva@demo.com',
       phone: '(11) 98888-7777',
       clinicId: clinicAlfa.id,
+      tutorIdentityId: tutorIdentity1.id,
       cpf: '123.456.789-00',
       rg: '12.345.678-9',
       birthDate: new Date('1985-05-15'),
@@ -215,6 +249,7 @@ async function main() {
       email: 'juliana.mendes@demo.com',
       phone: '(11) 99999-8888',
       clinicId: clinicAlfa.id,
+      tutorIdentityId: tutorIdentity2.id,
       cpf: '987.654.321-11',
       whatsapp: '(11) 99999-8888',
       city: 'São Paulo',
@@ -229,6 +264,7 @@ async function main() {
       email: 'carlos.santos@demo.com',
       phone: '(41) 95555-4444',
       clinicId: clinicBeta.id,
+      tutorIdentityId: tutorIdentity3.id,
       cpf: '456.789.123-22',
       whatsapp: '(41) 95555-4444',
       city: 'Curitiba',
@@ -451,6 +487,7 @@ async function main() {
       storagePath: '/uploads/alfa/alfa_max_hemo_10022.pdf',
       uploadedById: userAlfaAdmin.id,
       notes: 'Laudo normal de triagem pré-consulta.',
+      visibleToTutor: true,
     },
   });
 
