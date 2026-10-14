@@ -602,9 +602,10 @@ async function main() {
       smtpFromName: 'Clínica Alfa',
       smtpFromEmail: 'alfa@demo.com',
       whatsappEnabled: true,
-      whatsappInstanceUrl: 'http://localhost:8080',
-      whatsappInstanceName: 'alfa_whatsapp_instance',
-      whatsappApiKeyEncrypted: 'ENCRYPTED_API_KEY_PLACEHOLDER',
+      whatsappProvider: 'META_CLOUD_API',
+      metaPhoneNumberId: '109876543210987',
+      metaWabaId: '123456789012345',
+      metaAccessTokenEncrypted: 'ENCRYPTED_META_TOKEN_PLACEHOLDER',
     },
   });
 
@@ -621,7 +622,9 @@ async function main() {
         clinicId: clinicAlfa.id,
         event: 'LEMBRETE_VACINA',
         channel: NotificationChannel.WHATSAPP,
-        body: 'Olá {{ tutor }}, a vacina {{ vacina }} de {{ pet }} está próxima do vencimento. Entre em contato para agendar.',
+        body: 'Olá {{ tutor }}, a vacina {{ vacina }} de {{ pet }} está próxima do vencimento.',
+        metaTemplateName: 'vetos_alerta_vacina',
+        metaTemplateLang: 'pt_BR',
       },
     ],
   });
