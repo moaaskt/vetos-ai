@@ -8,12 +8,14 @@ import { WhatsAppMockProvider } from './providers/whatsapp-mock.provider';
 import { MetaCloudApiProvider } from './providers/meta-cloud-api.provider';
 import { TemplateService } from './template.service';
 import { EncryptionModule } from '../encryption/encryption.module';
+import { BillingModule } from '../billing/billing.module';
 import { NotificationsController } from './notifications.controller';
 import { MetaWebhookController } from './webhooks/meta-webhook.controller';
 
 @Module({
   imports: [
     EncryptionModule,
+    BillingModule,
     BullModule.registerQueue({
       name: 'notifications',
     }),

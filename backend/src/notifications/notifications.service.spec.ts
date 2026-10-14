@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getQueueToken } from '@nestjs/bullmq';
 import { NotificationsService } from './notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { BillingService } from '../billing/billing.service';
 
 describe('NotificationsService', () => {
   let service: NotificationsService;
@@ -15,12 +16,16 @@ describe('NotificationsService', () => {
       upsert: jest.fn(),
     },
   };
+  const billingService = {
+    assertCanSendNotification: jest.fn(),
+  };
 
   beforeEach(async () => {
     queue.add.mockReset();
     queue.getJob.mockReset();
     prisma.notificationTemplate.findMany.mockReset();
     prisma.notificationTemplate.upsert.mockReset();
+    billingService.assertCanSendNotification.mockReset();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -28,6 +33,10 @@ describe('NotificationsService', () => {
         {
           provide: PrismaService,
           useValue: prisma,
+        },
+        {
+          provide: BillingService,
+          useValue: billingService,
         },
         {
           provide: getQueueToken('notifications'),

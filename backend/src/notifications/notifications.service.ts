@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PrismaService } from '../prisma/prisma.service';
+import { BillingService } from '../billing/billing.service';
 
 export type NotificationChannel = 'EMAIL' | 'WHATSAPP';
 export type NotificationEvent =
@@ -48,6 +49,7 @@ export class NotificationsService {
   constructor(
     @InjectQueue('notifications') private notificationsQueue: Queue,
     private readonly prisma: PrismaService,
+    private readonly billingService: BillingService,
   ) {}
 
   async ensureDefaultTemplates(clinicId: string): Promise<void> {
@@ -227,6 +229,10 @@ export class NotificationsService {
             event: 'LEGACY_NOTIFICATION',
           }
         : inputOrTo;
+
+    if (payload.clinicId) {
+      await this.billingService.assertCanSendNotification(payload.clinicId);
+    }
 
     await this.notificationsQueue.add('send-message', payload, {
       delay: payload.delayMs,
