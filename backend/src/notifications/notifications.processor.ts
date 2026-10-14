@@ -5,7 +5,7 @@ import { AppointmentStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { SmtpProvider } from './providers/smtp.provider';
 import { WhatsAppMockProvider } from './providers/whatsapp-mock.provider';
-import { EvolutionApiProvider } from './providers/evolution-api.provider';
+import { MetaCloudApiProvider } from './providers/meta-cloud-api.provider';
 import { EnqueueNotificationInput } from './notifications.service';
 import { TemplateService } from './template.service';
 
@@ -18,7 +18,7 @@ export class NotificationsProcessor extends WorkerHost {
     private readonly smtpProvider: SmtpProvider,
     private readonly whatsappProvider: WhatsAppMockProvider,
     private readonly templateService: TemplateService,
-    private readonly evolutionApiProvider: EvolutionApiProvider,
+    private readonly metaCloudApiProvider: MetaCloudApiProvider,
   ) {
     super();
   }
@@ -44,13 +44,15 @@ export class NotificationsProcessor extends WorkerHost {
       compiledBody = resolved.body;
       const htmlBody = resolved.htmlBody;
 
-      const result = await this.send(job.data, compiledSubject, compiledBody, htmlBody);
+      const result: any = await this.send(job.data, compiledSubject, compiledBody, htmlBody);
       await this.createNotificationLog(
         job.data,
         compiledSubject,
         compiledBody,
         'SENT',
-        result.providerMessageId,
+        result?.providerMessageId,
+        undefined,
+        result?.metaMessageId,
       );
       return result;
     } catch (error) {
@@ -239,17 +241,26 @@ export class NotificationsProcessor extends WorkerHost {
         where: { clinicId: payload.clinicId },
       });
 
-      if (
-        config &&
-        config.whatsappEnabled &&
-        config.whatsappInstanceUrl &&
-        config.whatsappInstanceName &&
-        config.whatsappApiKeyEncrypted
-      ) {
-        return this.evolutionApiProvider.send({
+      if (config && config.whatsappEnabled && config.whatsappProvider === 'META_CLOUD_API') {
+        const template = await this.prisma.notificationTemplate.findFirst({
+          where: {
+            clinicId: payload.clinicId,
+            event: payload.event,
+            channel: 'WHATSAPP',
+            active: true,
+          },
+        });
+
+        const templateName = payload.templateName || template?.metaTemplateName || undefined;
+        const templateLang = payload.templateLang || template?.metaTemplateLang || 'pt_BR';
+
+        return this.metaCloudApiProvider.send({
           clinicId: payload.clinicId,
           to: payload.to,
           body,
+          templateName,
+          templateLang,
+          templateParameters: payload.templateParameters,
         });
       }
     }
@@ -267,6 +278,7 @@ export class NotificationsProcessor extends WorkerHost {
     status: 'SENT' | 'FAILED',
     providerMessageId?: string,
     errorMessage?: string,
+    metaMessageId?: string,
   ): Promise<void> {
     if (!payload.clinicId) {
       this.logger.warn(
@@ -284,7 +296,8 @@ export class NotificationsProcessor extends WorkerHost {
         body,
         status,
         errorMessage,
-        providerMessageId,
+        providerMessageId: providerMessageId || metaMessageId,
+        metaMessageId: metaMessageId || providerMessageId,
         event: payload.event,
         scheduledFor: payload.scheduledFor,
         sentAt: status === 'SENT' ? new Date() : undefined,
@@ -320,14 +333,19 @@ export class NotificationsProcessor extends WorkerHost {
       return false;
     }
 
-    return [
-      'clinicId is required for SMTP email notifications',
-      'SMTP configuration is not enabled for this clinic',
-      'SMTP configuration is incomplete for this clinic',
-      'Client has no email for email notification',
-      'Client has no phone for WhatsApp notification',
-      'WhatsApp configuration is not enabled for this clinic',
-      'WhatsApp configuration is incomplete for this clinic',
-    ].includes(error.message);
+    const msg = error.message.toLowerCase();
+    return (
+      [
+        'clinicid is required for smtp email notifications',
+        'smtp configuration is not enabled for this clinic',
+        'smtp configuration is incomplete for this clinic',
+        'client has no email for email notification',
+        'client has no phone for whatsapp notification',
+        'whatsapp configuration is not enabled for this clinic',
+        'whatsapp configuration is incomplete for this clinic',
+      ].includes(msg) ||
+      msg.includes('nenhuma credencial da meta') ||
+      msg.includes('credencial da meta whatsapp')
+    );
   }
 }

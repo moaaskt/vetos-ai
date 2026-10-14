@@ -16,7 +16,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { SmtpProvider } from './providers/smtp.provider';
-import { EvolutionApiProvider } from './providers/evolution-api.provider';
+import { MetaCloudApiProvider } from './providers/meta-cloud-api.provider';
 import { NotificationsService } from './notifications.service';
 import { EncryptionService } from '../encryption/encryption.service';
 import { UpdateNotificationConfigDto } from './dto/update-config.dto';
@@ -30,7 +30,7 @@ export class NotificationsController {
     private readonly smtpProvider: SmtpProvider,
     private readonly notificationsService: NotificationsService,
     private readonly encryptionService: EncryptionService,
-    private readonly evolutionApiProvider: EvolutionApiProvider,
+    private readonly metaCloudApiProvider: MetaCloudApiProvider,
   ) {}
 
   @Get('config')
@@ -49,16 +49,18 @@ export class NotificationsController {
           clinicId: user.clinicId,
           emailEnabled: false,
           whatsappEnabled: false,
+          whatsappProvider: 'META_CLOUD_API',
         },
       });
     }
 
-    // Retorna a config sem a senha e sem a apiKey do whatsapp, por segurança
-    const { smtpPasswordEncrypted, whatsappApiKeyEncrypted, ...rest } = config;
+    // Retorna a config sem a senha e sem o token da Meta, por segurança
+    const { smtpPasswordEncrypted, metaAccessTokenEncrypted, ...rest } = config;
     return {
       ...rest,
       hasSmtpPassword: !!smtpPasswordEncrypted,
-      hasWhatsappApiKey: !!whatsappApiKeyEncrypted,
+      hasMetaAccessToken: !!metaAccessTokenEncrypted,
+      usesSystemDefaultWhatsApp: !config.metaPhoneNumberId,
     };
   }
 
@@ -76,13 +78,13 @@ export class NotificationsController {
     });
 
     let smtpPasswordEncrypted = currentConfig?.smtpPasswordEncrypted;
-    let whatsappApiKeyEncrypted = currentConfig?.whatsappApiKeyEncrypted;
+    let metaAccessTokenEncrypted = currentConfig?.metaAccessTokenEncrypted;
 
     if (dto.smtpPassword) {
       smtpPasswordEncrypted = this.encryptionService.encrypt(dto.smtpPassword);
     }
-    if (dto.whatsappApiKey) {
-      whatsappApiKeyEncrypted = this.encryptionService.encrypt(dto.whatsappApiKey);
+    if (dto.metaAccessToken) {
+      metaAccessTokenEncrypted = this.encryptionService.encrypt(dto.metaAccessToken);
     }
 
     const data: any = {
@@ -93,15 +95,16 @@ export class NotificationsController {
       smtpFromName: dto.smtpFromName,
       smtpFromEmail: dto.smtpFromEmail,
       whatsappEnabled: dto.whatsappEnabled,
-      whatsappInstanceUrl: dto.whatsappInstanceUrl,
-      whatsappInstanceName: dto.whatsappInstanceName,
+      whatsappProvider: dto.whatsappProvider || currentConfig?.whatsappProvider || 'META_CLOUD_API',
+      metaPhoneNumberId: dto.metaPhoneNumberId,
+      metaWabaId: dto.metaWabaId,
     };
 
     if (smtpPasswordEncrypted !== undefined) {
       data.smtpPasswordEncrypted = smtpPasswordEncrypted;
     }
-    if (whatsappApiKeyEncrypted !== undefined) {
-      data.whatsappApiKeyEncrypted = whatsappApiKeyEncrypted;
+    if (metaAccessTokenEncrypted !== undefined) {
+      data.metaAccessTokenEncrypted = metaAccessTokenEncrypted;
     }
 
     const updated = await this.prisma.notificationConfig.upsert({
@@ -113,11 +116,12 @@ export class NotificationsController {
       },
     });
 
-    const { smtpPasswordEncrypted: _, whatsappApiKeyEncrypted: __, ...rest } = updated;
+    const { smtpPasswordEncrypted: _, metaAccessTokenEncrypted: __, ...rest } = updated;
     return {
       ...rest,
       hasSmtpPassword: !!updated.smtpPasswordEncrypted,
-      hasWhatsappApiKey: !!updated.whatsappApiKeyEncrypted,
+      hasMetaAccessToken: !!updated.metaAccessTokenEncrypted,
+      usesSystemDefaultWhatsApp: !updated.metaPhoneNumberId,
     };
   }
 
@@ -185,17 +189,29 @@ export class NotificationsController {
   }
 
   @Post('config/test-whatsapp')
-  async testWhatsappConnection(@CurrentUser() user: any) {
+  async testWhatsappConnection(
+    @CurrentUser() user: any,
+    @Body() body?: { phoneNumberId?: string; accessToken?: string },
+  ) {
     if (!user.clinicId) {
       throw new BadRequestException('Clinic ID is required');
     }
 
     try {
-      return await this.evolutionApiProvider.testConnection(user.clinicId);
+      let phoneId = body?.phoneNumberId;
+      let token = body?.accessToken;
+
+      if (!phoneId || !token) {
+        const creds = await this.metaCloudApiProvider.getCredentials(user.clinicId);
+        phoneId = creds.phoneNumberId;
+        token = creds.accessToken;
+      }
+
+      return await this.metaCloudApiProvider.testConnection(phoneId, token);
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Falha ao testar conexão do WhatsApp',
+        message: error.message || 'Falha ao testar conexão com a Meta Cloud API',
       };
     }
   }
@@ -214,9 +230,8 @@ export class NotificationsController {
     }
 
     try {
-      const body =
-        'Este e um WhatsApp de teste da integracao do VetOS AI via Evolution API.';
-      const result = await this.evolutionApiProvider.send({
+      const body = 'Este é um WhatsApp de teste da integração oficial do VetOS AI via Meta Cloud API.';
+      const result = await this.metaCloudApiProvider.send({
         clinicId: user.clinicId,
         to,
         body,
@@ -229,6 +244,7 @@ export class NotificationsController {
         event: 'TEST_WHATSAPP',
         status: 'SENT',
         providerMessageId: result.providerMessageId,
+        metaMessageId: result.metaMessageId,
       });
       return result;
     } catch (error: any) {
@@ -236,8 +252,7 @@ export class NotificationsController {
         clinicId: user.clinicId,
         channel: 'WHATSAPP',
         to,
-        body:
-          'Este e um WhatsApp de teste da integracao do VetOS AI via Evolution API.',
+        body: 'Este é um WhatsApp de teste da integração oficial do VetOS AI via Meta Cloud API.',
         event: 'TEST_WHATSAPP',
         status: 'FAILED',
         errorMessage: error.message || 'Falha ao enviar WhatsApp de teste',
@@ -245,70 +260,6 @@ export class NotificationsController {
       return {
         success: false,
         message: error.message || 'Falha ao enviar WhatsApp de teste',
-      };
-    }
-  }
-
-  @Post('config/whatsapp/create-instance')
-  async createWhatsappInstance(@CurrentUser() user: any) {
-    if (!user.clinicId) {
-      throw new BadRequestException('Clinic ID is required');
-    }
-
-    try {
-      return await this.evolutionApiProvider.createInstance(user.clinicId);
-    } catch (error: any) {
-      return {
-        success: false,
-        message: error.message || 'Falha ao criar instância do WhatsApp',
-      };
-    }
-  }
-
-  @Get('config/whatsapp/qr')
-  async getWhatsappQr(@CurrentUser() user: any) {
-    if (!user.clinicId) {
-      throw new BadRequestException('Clinic ID is required');
-    }
-
-    try {
-      return await this.evolutionApiProvider.getQrCode(user.clinicId);
-    } catch (error: any) {
-      return {
-        success: false,
-        message: error.message || 'Falha ao obter QR code do WhatsApp',
-      };
-    }
-  }
-
-  @Get('config/whatsapp/status')
-  async getWhatsappStatus(@CurrentUser() user: any) {
-    if (!user.clinicId) {
-      throw new BadRequestException('Clinic ID is required');
-    }
-
-    try {
-      return await this.evolutionApiProvider.getConnectionStatus(user.clinicId);
-    } catch (error: any) {
-      return {
-        success: false,
-        message: error.message || 'Falha ao obter status de conexão do WhatsApp',
-      };
-    }
-  }
-
-  @Delete('config/whatsapp')
-  async deleteWhatsappConfig(@CurrentUser() user: any) {
-    if (!user.clinicId) {
-      throw new BadRequestException('Clinic ID is required');
-    }
-
-    try {
-      return await this.evolutionApiProvider.deleteInstance(user.clinicId);
-    } catch (error: any) {
-      return {
-        success: false,
-        message: error.message || 'Falha ao excluir configuração do WhatsApp',
       };
     }
   }
@@ -348,6 +299,8 @@ export class NotificationsController {
         subject: dto.subject,
         body: dto.body,
         active: dto.active,
+        metaTemplateName: dto.metaTemplateName,
+        metaTemplateLang: dto.metaTemplateLang || 'pt_BR',
       },
       create: {
         clinicId: user.clinicId,
@@ -356,6 +309,8 @@ export class NotificationsController {
         subject: dto.subject,
         body: dto.body,
         active: dto.active,
+        metaTemplateName: dto.metaTemplateName,
+        metaTemplateLang: dto.metaTemplateLang || 'pt_BR',
       },
     });
   }
@@ -473,6 +428,7 @@ export class NotificationsController {
     event: 'TEST_EMAIL' | 'TEST_WHATSAPP';
     status: 'SENT' | 'FAILED';
     providerMessageId?: string;
+    metaMessageId?: string;
     errorMessage?: string;
   }): Promise<void> {
     await this.prisma.notificationLog.create({
@@ -484,7 +440,8 @@ export class NotificationsController {
         body: input.body,
         event: input.event,
         status: input.status,
-        providerMessageId: input.providerMessageId,
+        providerMessageId: input.providerMessageId || input.metaMessageId,
+        metaMessageId: input.metaMessageId || input.providerMessageId,
         errorMessage: input.errorMessage,
         sentAt: input.status === 'SENT' ? new Date() : undefined,
       },
