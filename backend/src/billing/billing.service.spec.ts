@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BillingService } from './billing.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Role, Prisma } from '@prisma/client';
 
 describe('BillingService', () => {
   let service: BillingService;
@@ -159,7 +160,7 @@ describe('BillingService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('updates clinic subscription to new plan successfully', async () => {
+    it('preserva overrides customizados quando acionado por SUPERADMIN', async () => {
       const targetPlan = { id: 'plan-ent', name: 'Enterprise' };
       prisma.plan.findUnique.mockResolvedValue(targetPlan);
 
@@ -176,16 +177,50 @@ describe('BillingService', () => {
         plan: targetPlan,
       });
 
-      const result = await service.changePlan('clinic-1', 'plan-ent');
+      const result = await service.changePlan('clinic-1', 'plan-ent', Role.SUPERADMIN);
 
       expect(result.success).toBe(true);
       expect(result.message).toContain('Enterprise');
       expect(prisma.clinicSubscription.update).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { id: 'sub-1' },
-          data: expect.objectContaining({
-            planId: 'plan-ent',
-          }),
+          data: {
+            plan: { connect: { id: 'plan-ent' } },
+          },
+        }),
+      );
+    });
+
+    it('reseta overrides customizados para null/DbNull quando acionado por ADMIN', async () => {
+      const targetPlan = { id: 'plan-pro', name: 'Professional' };
+      prisma.plan.findUnique.mockResolvedValue(targetPlan);
+
+      const existingSub = {
+        id: 'sub-1',
+        clinicId: 'clinic-1',
+        plan: { id: 'plan-starter', name: 'Starter' },
+      };
+      prisma.clinicSubscription.findUnique.mockResolvedValue(existingSub);
+      prisma.clinicSubscription.update.mockResolvedValue({
+        id: 'sub-1',
+        clinicId: 'clinic-1',
+        planId: 'plan-pro',
+        plan: targetPlan,
+      });
+
+      const result = await service.changePlan('clinic-1', 'plan-pro', Role.ADMIN);
+
+      expect(result.success).toBe(true);
+      expect(prisma.clinicSubscription.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'sub-1' },
+          data: {
+            plan: { connect: { id: 'plan-pro' } },
+            customMaxStaffSeats: null,
+            customMaxNotifications: null,
+            customMaxStorage: null,
+            customFeatures: Prisma.DbNull,
+          },
         }),
       );
     });
