@@ -85,9 +85,13 @@ model Client {
   tutorIdentityId  String?
   tutorIdentity    TutorIdentity?    @relation(fields: [tutorIdentityId], references: [id], onDelete: SetNull)
 
+  // Marco de Retenção e Reengajamento por IA (prevenção de reenvios em < 60 dias)
+  lastReengagementAt DateTime?
+
   @@unique([clinicId, cpf])
   @@index([tutorIdentityId])
 }
+
 
 model Pet {
   id               String            @id @default(uuid())
@@ -176,7 +180,9 @@ enum AppointmentStatus {
   SCHEDULED
   COMPLETED
   CANCELLED
+  NO_SHOW
 }
+
 
 enum ClinicalRecordType {
   NOTE
@@ -327,6 +333,7 @@ model NotificationConfig {
   metaPhoneNumberId       String?
   metaWabaId              String?
   metaAccessTokenEncrypted String?
+  groqApiKeyEncrypted     String?
   createdAt               DateTime          @default(now())
   updatedAt               DateTime          @updatedAt
 
