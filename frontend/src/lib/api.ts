@@ -260,5 +260,116 @@ export type ConsentTerm = {
   updatedAt?: string
 }
 
+export type DiagnosticHypothesis = {
+  name: string
+  cidV: string
+  probability: 'ALTA' | 'MEDIA' | 'BAIXA'
+  justification: string
+}
+
+export type RecommendedExam = {
+  name: string
+  priority: 'ESSENCIAL' | 'COMPLEMENTAR'
+  reason: string
+}
+
+export type ClinicalCopilotSuggestion = {
+  success: boolean
+  source: 'GROQ_AI' | 'FALLBACK'
+  summary: string
+  urgencyLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+  differentialDiagnoses: DiagnosticHypothesis[]
+  recommendedExams: RecommendedExam[]
+  riskAlerts: string[]
+  suggestedConduct: string[]
+}
+
+export type NoShowRiskEvaluation = {
+  score: number
+  level: 'LOW' | 'MEDIUM' | 'HIGH'
+  explanation: string
+  recommendation: string
+  stats: {
+    totalPastAppointments: number
+    noShowCount: number
+    cancelledCount: number
+    completedCount: number
+    absenceRatePercentage: number
+  }
+}
+
+export type ReengagementCandidate = {
+  clientId: string
+  clientName: string
+  phone: string | null
+  whatsapp: string | null
+  email: string | null
+  petId: string
+  petName: string
+  species: string
+  breed: string | null
+  daysInactive: number
+  lastVisitDate: string
+}
+
+export type ReengagementBatchResult = {
+  clinicId: string
+  processedCount: number
+  enqueuedCount: number
+  skippedQuotaCount: number
+  errors: string[]
+}
+
+export const aiApi = {
+  async suggestCopilot(
+    petId: string,
+    symptoms: string,
+    additionalNotes?: string,
+  ): Promise<ClinicalCopilotSuggestion> {
+    const res = await api.post<ClinicalCopilotSuggestion>(
+      '/ai/clinical-copilot/suggest',
+      {
+        petId,
+        symptoms,
+        additionalNotes,
+      },
+    )
+    return res.data
+  },
+
+  async getNoShowRisk(appointmentId: string): Promise<NoShowRiskEvaluation> {
+    const res = await api.get<NoShowRiskEvaluation>(
+      `/ai/no-show-risk/${appointmentId}`,
+    )
+    return res.data
+  },
+
+  async getReengagementCandidates(
+    limit = 20,
+  ): Promise<ReengagementCandidate[]> {
+    const res = await api.get<ReengagementCandidate[]>(
+      '/ai/reengagement/candidates',
+      {
+        params: { limit },
+      },
+    )
+    return res.data
+  },
+
+  async triggerReengagementBatch(
+    limit = 10,
+  ): Promise<ReengagementBatchResult> {
+    const res = await api.post<ReengagementBatchResult>(
+      '/ai/reengagement/trigger-batch',
+      null,
+      {
+        params: { limit },
+      },
+    )
+    return res.data
+  },
+}
+
+
 
 
