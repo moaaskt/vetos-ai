@@ -70,6 +70,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     if (path.includes('settings/messaging/whatsapp')) return 'Configurações / Mensageria / WhatsApp'
     if (path.includes('settings/messaging/templates')) return 'Configurações / Mensageria / Modelos'
     if (path.includes('settings/messaging/logs')) return 'Configurações / Mensageria / Histórico'
+    if (path.includes('settings/messaging/reengagement')) return 'Configurações / Mensageria / Reengajamento IA'
     if (path.includes('settings/messaging')) return 'Configurações / Mensageria'
     if (path.includes('settings')) return 'Configurações'
     if (path.includes('billing')) return 'Faturamento & Assinatura'

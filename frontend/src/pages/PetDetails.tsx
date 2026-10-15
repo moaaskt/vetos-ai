@@ -25,8 +25,10 @@ import {
   FileSignature,
   Lock,
   Printer,
+  Sparkles,
 } from 'lucide-react'
 import { api, type Pet, type VaccineRecord, type ClinicalAttachment } from '../lib/api'
+
 import { Button } from '../components/ui/button'
 import { Card, CardContent } from '../components/ui/card'
 import { Skeleton } from '../components/ui/skeleton'
@@ -38,6 +40,8 @@ import { ShareDocumentModal } from '../components/ShareDocumentModal'
 import { Input } from '../components/ui/input'
 import { getSpeciesLabel, normalizeSpecies } from './Pets'
 import { AttachmentsTab } from '../components/pet-details/AttachmentsTab'
+import { AnamnesisCopilotModal } from '../components/clinical/AnamnesisCopilotModal'
+
 
 type TimelineItem = {
   id: string
@@ -196,7 +200,9 @@ export function PetDetails() {
   // Modais
   const [isAllergyModalOpen, setIsAllergyModalOpen] = useState(false)
   const [isRecordModalOpen, setIsRecordModalOpen] = useState(false)
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false)
   const [isVaccineModalOpen, setIsVaccineModalOpen] = useState(false)
+
   const [isWeightModalOpen, setIsWeightModalOpen] = useState(false)
 
   // Form states
@@ -883,7 +889,11 @@ export function PetDetails() {
                   </div>
                   
                   {/* Botões de Ação Rápida */}
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <Button onClick={() => setIsCopilotOpen(true)} className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold hover:opacity-90 shadow-sm gap-1.5 text-xs h-9">
+                      <Sparkles className="h-4 w-4" />
+                      Sugerir Diagnóstico (IA)
+                    </Button>
                     <Button onClick={() => setIsRecordModalOpen(true)} className="bg-primary text-primary-foreground font-bold hover:opacity-90 shadow-sm gap-1.5 text-xs h-9">
                       <Plus className="h-4 w-4" />
                       Registrar Evolução
@@ -897,6 +907,7 @@ export function PetDetails() {
                       Novo Termo
                     </Button>
                   </div>
+
                 </div>
 
                 {/* Linha do Tempo Visual */}
@@ -1461,7 +1472,26 @@ export function PetDetails() {
       )}
 
       {/* Modal - Registrar Evolução Clínica / Procedimento */}
+      {isCopilotOpen && pet && (
+        <AnamnesisCopilotModal
+          isOpen={isCopilotOpen}
+          onClose={() => setIsCopilotOpen(false)}
+          petId={pet.id}
+          petName={pet.name}
+          currentContent={recordContent}
+          onApplyToRecord={(formattedText) => {
+            setRecordContent((prev) =>
+              prev.trim()
+                ? `${prev}\n\n--- SUGESTÃO DO COPILOT IA ---\n${formattedText}`
+                : formattedText
+            );
+            setIsRecordModalOpen(true);
+          }}
+        />
+      )}
+
       {isRecordModalOpen && (
+
         <Modal title="Registrar Evolução Clínica" onClose={() => setIsRecordModalOpen(false)}>
           <form onSubmit={handleAddRecord} className="space-y-5 pt-2">
             <label className="block space-y-2">
@@ -1488,8 +1518,18 @@ export function PetDetails() {
               />
             </label>
 
-            <label className="block space-y-2">
-              <span className="block text-sm font-semibold text-foreground">Descrição Clínica</span>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="block text-sm font-semibold text-foreground">Descrição Clínica</span>
+                <button
+                  type="button"
+                  onClick={() => setIsCopilotOpen(true)}
+                  className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:opacity-80 flex items-center gap-1 transition-opacity cursor-pointer"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Copilot de Anamnese IA
+                </button>
+              </div>
               <textarea
                 className="flex min-h-[140px] w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-foreground font-medium"
                 placeholder="Descreva detalhadamente a evolução clínica do paciente, medicamentos aplicados, ou o procedimento executado..."
@@ -1497,7 +1537,8 @@ export function PetDetails() {
                 onChange={(e) => setRecordContent(e.target.value)}
                 required
               />
-            </label>
+            </div>
+
 
             <div className="space-y-2">
               <span className="block text-sm font-semibold text-foreground">Anexo Opcional (PDF, Imagem - Máx 10MB)</span>

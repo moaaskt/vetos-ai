@@ -1,6 +1,7 @@
 import { Clock, PawPrint, User } from 'lucide-react'
 import type { Appointment, AppointmentStatus } from '../../lib/api'
 import { Button } from '../ui/button'
+import { NoShowRiskBadge } from './NoShowRiskBadge'
 import { appointmentDate, formatTime, statusLabels, statusStyles } from './calendar-helpers'
 
 type AppointmentCardProps = {
@@ -11,6 +12,7 @@ type AppointmentCardProps = {
 
 export function AppointmentCard({ appointment, onStatusChange, isUpdating }: AppointmentCardProps) {
   const tutorName = appointment.client?.name ?? appointment.pet?.client?.name ?? 'Tutor não informado'
+  const tutorPhone = appointment.client?.whatsapp || appointment.client?.phone || appointment.pet?.client?.whatsapp || appointment.pet?.client?.phone
 
   return (
     <article className="rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-primary/25">
@@ -26,9 +28,21 @@ export function AppointmentCard({ appointment, onStatusChange, isUpdating }: App
             {appointment.reason || 'Consulta clínica'}
           </p>
         </div>
-        <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase ${statusStyles[appointment.status]}`}>
-          {statusLabels[appointment.status]}
-        </span>
+        <div className="flex flex-col items-end gap-1.5 shrink-0">
+          <span className={`rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase ${statusStyles[appointment.status]}`}>
+            {statusLabels[appointment.status]}
+          </span>
+          {appointment.status === 'SCHEDULED' && (
+            <NoShowRiskBadge
+              appointmentId={appointment.id}
+              isFuture={true}
+              clientName={tutorName}
+              clientPhone={tutorPhone}
+              petName={appointment.pet?.name}
+              scheduledAt={appointment.scheduledAt || appointment.date}
+            />
+          )}
+        </div>
       </div>
 
       <div className="mt-4 grid gap-2 text-xs font-medium text-muted-foreground">

@@ -1,5 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AppointmentStatus } from '@prisma/client';
+
 
 @Injectable()
 export class AnalyticsService {
@@ -144,12 +146,18 @@ export class AnalyticsService {
     ]);
 
     // Mapeia agrupamento de agendamentos por status
-    const statusMap = { SCHEDULED: 0, COMPLETED: 0, CANCELLED: 0 };
+    const statusMap: Record<AppointmentStatus, number> = {
+      SCHEDULED: 0,
+      COMPLETED: 0,
+      CANCELLED: 0,
+      NO_SHOW: 0,
+    };
     appointmentsGrouped.forEach((group) => {
       if (group.status in statusMap) {
         statusMap[group.status] = group._count.id;
       }
     });
+
 
     // Mapeia agrupamento de notificações por canal
     const channelMap = { EMAIL: 0, WHATSAPP: 0 };

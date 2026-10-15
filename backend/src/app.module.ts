@@ -29,7 +29,9 @@ import { TutorPlatformModule } from './tutor-platform/tutor-platform.module';
 import { TenantModule } from './tenant/tenant.module';
 import { BillingModule } from './billing/billing.module';
 import { RedisModule } from './redis/redis.module';
+import { AiModule } from './ai/ai.module';
 @Module({
+
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
@@ -72,8 +74,10 @@ import { RedisModule } from './redis/redis.module';
     TutorPlatformModule,
     TenantModule,
     BillingModule,
+    AiModule,
   ],
   controllers: [AppController],
+
   providers: [
     AppService,
     {

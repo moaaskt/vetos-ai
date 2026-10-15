@@ -7,10 +7,18 @@ import {
   History,
   ArrowLeft,
   ChevronRight,
+  Sparkles,
 } from 'lucide-react'
 
 export function MessagingHubPage() {
   const hubItems = [
+    {
+      title: 'Reengajamento por IA (Retenção)',
+      description: 'Identifique tutores inativos (>90 dias) e envie lembretes gerados por LLM via BullMQ.',
+      icon: Sparkles,
+      href: '/settings/messaging/reengagement',
+      color: 'text-rose-500 bg-rose-500/10 border-rose-500/20',
+    },
     {
       title: 'Servidor de E-mail (SMTP)',
       description: 'Configure servidores SMTP reais para envios de e-mails administrativos.',
