@@ -26,6 +26,7 @@ const SmtpSettingsPage = lazy(() => import('./pages/messaging/SmtpSettingsPage')
 const WhatsappSettingsPage = lazy(() => import('./pages/messaging/WhatsappSettingsPage').then(m => ({ default: m.WhatsappSettingsPage })))
 const NotificationTemplatesPage = lazy(() => import('./pages/messaging/NotificationTemplatesPage').then(m => ({ default: m.NotificationTemplatesPage })))
 const NotificationLogsPage = lazy(() => import('./pages/messaging/NotificationLogsPage').then(m => ({ default: m.NotificationLogsPage })))
+const ReengagementPage = lazy(() => import('./pages/messaging/ReengagementPage').then(m => ({ default: m.ReengagementPage })))
 const SuperAdminDashboard = lazy(() => import('./pages/super-admin/SuperAdminDashboard').then(m => ({ default: m.SuperAdminDashboard })))
 const SuperAdminClinics = lazy(() => import('./pages/super-admin/SuperAdminClinics').then(m => ({ default: m.SuperAdminClinics })))
 const PublicDocumentView = lazy(() => import('./pages/PublicDocumentView').then(m => ({ default: m.PublicDocumentView })))
@@ -197,6 +198,7 @@ const router = createBrowserRouter([
       { path: '/settings/messaging/whatsapp', element: <WhatsappSettingsPage /> },
       { path: '/settings/messaging/templates', element: <NotificationTemplatesPage /> },
       { path: '/settings/messaging/logs', element: <NotificationLogsPage /> },
+      { path: '/settings/messaging/reengagement', element: <ReengagementPage /> },
     ],
   },
   {
