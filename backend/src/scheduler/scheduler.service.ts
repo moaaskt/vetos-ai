@@ -2,6 +2,7 @@ import { Injectable, Logger, Inject, Optional } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { ReengagementService } from '../ai/reengagement.service';
 import Redis from 'ioredis';
 import { REDIS_CLIENT } from '../redis/redis.constants';
 
@@ -14,11 +15,25 @@ export class SchedulerService {
   constructor(
     private prisma: PrismaService,
     private notificationsService: NotificationsService,
+    @Optional() private reengagementService?: ReengagementService,
     @Optional() @Inject(REDIS_CLIENT) private readonly redis?: Redis,
   ) {}
 
+  @Cron(CronExpression.EVERY_WEEK)
+  async handleWeeklyAiReengagement() {
+    this.logger.log('Executando cron semanal de reengajamento por IA...');
+    try {
+      if (this.reengagementService) {
+        await this.reengagementService.processAllClinicsReengagement();
+      }
+    } catch (err: any) {
+      this.logger.error('Falha na rotina semanal de reengajamento por IA:', err);
+    }
+  }
+
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
   async handleDailyVeterinaryAutomations() {
+
     this.logger.log('Running daily veterinary automation cron job...');
     await this.enqueueVaccineReminders();
     await this.enqueueRetentionReminders();
