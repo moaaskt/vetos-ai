@@ -128,7 +128,7 @@ export function VaccinesManagementPage() {
             <div className="p-5 bg-card rounded-xl border border-border/80 space-y-3">
               <div className="flex items-center gap-2 text-foreground font-semibold text-sm">
                 <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                Como funciona o Motor de Vacinas (Phase 14A)
+                Como funciona o Motor de Vacinas
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Diariamente às <strong>02:00 UTC</strong>, o sistema varre a agenda de imunizações de todos os pacientes ativos da clínica. Doses que vencem hoje (D0), amanhã (D-1) e em 7 dias (D-7) são enfileiradas automaticamente no BullMQ e disparadas via <strong>Meta WhatsApp Cloud API v20.0</strong> ou <strong>E-mail</strong> para os tutores.
