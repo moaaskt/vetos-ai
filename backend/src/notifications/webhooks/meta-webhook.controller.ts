@@ -1,7 +1,10 @@
-import { Controller, Get, Post, Query, Body, HttpCode, HttpStatus, Logger, Res } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, HttpCode, HttpStatus, Logger, Res, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MetaSignatureGuard } from './meta-signature.guard';
 
+@Throttle({ default: { limit: 200, ttl: 60000 } })
 @Controller('webhooks/meta-whatsapp')
 export class MetaWebhookController {
   private readonly logger = new Logger(MetaWebhookController.name);
@@ -37,6 +40,7 @@ export class MetaWebhookController {
    * Endpoint de recebimento de notificações e status de mensagens enviadas.
    * Status possíveis da Meta: sent, delivered, read, failed.
    */
+  @UseGuards(MetaSignatureGuard)
   @Post()
   @HttpCode(HttpStatus.OK)
   async handleWebhookPayload(@Body() body: any) {
