@@ -1,9 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Inject, Optional } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import Redis from 'ioredis';
+import { REDIS_CLIENT } from '../redis/redis.constants';
 
 @Injectable()
 export class DashboardService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Optional() @Inject(REDIS_CLIENT) private readonly redis?: Redis,
+  ) {}
 
   async getStats(clinicId: string | null) {
     if (!clinicId) {
@@ -172,24 +177,20 @@ export class DashboardService {
       lastUpdated: null,
     };
     try {
-      const Redis = require('ioredis');
-      const redis = new Redis(
-        process.env.REDIS_HOST
-          ? {
-              host: process.env.REDIS_HOST,
-              port: parseInt(process.env.REDIS_PORT || '6379'),
-            }
-          : 'redis://localhost:6379',
-      );
-      const cached = await redis.get('global_metrics:cache');
-      if (cached) {
-        metrics = JSON.parse(cached);
+      if (this.redis) {
+        const cached = await this.redis.get('global_metrics:cache');
+        if (cached) {
+          metrics = JSON.parse(cached);
+        } else {
+          metrics.totalClinics = await this.prisma.clinic.count();
+          metrics.totalAppointments = await this.prisma.appointment.count();
+          metrics.mrr = metrics.totalClinics * 100;
+        }
       } else {
         metrics.totalClinics = await this.prisma.clinic.count();
         metrics.totalAppointments = await this.prisma.appointment.count();
         metrics.mrr = metrics.totalClinics * 100;
       }
-      redis.disconnect();
     } catch (e) {
       // Fallback
       metrics.totalClinics = await this.prisma.clinic.count();
