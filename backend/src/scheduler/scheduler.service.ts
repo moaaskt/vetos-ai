@@ -1,7 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, Optional } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import Redis from 'ioredis';
+import { REDIS_CLIENT } from '../redis/redis.constants';
 
 @Injectable()
 export class SchedulerService {
@@ -12,6 +14,7 @@ export class SchedulerService {
   constructor(
     private prisma: PrismaService,
     private notificationsService: NotificationsService,
+    @Optional() @Inject(REDIS_CLIENT) private readonly redis?: Redis,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
@@ -253,17 +256,9 @@ export class SchedulerService {
         lastUpdated: new Date(),
       };
 
-      const Redis = require('ioredis');
-      const redis = new Redis(
-        process.env.REDIS_HOST
-          ? {
-              host: process.env.REDIS_HOST,
-              port: parseInt(process.env.REDIS_PORT || '6379'),
-            }
-          : 'redis://localhost:6379',
-      );
-      await redis.set('global_metrics:cache', JSON.stringify(metrics));
-      redis.disconnect();
+      if (this.redis) {
+        await this.redis.set('global_metrics:cache', JSON.stringify(metrics));
+      }
     } catch (e) {
       this.logger.error('Failed to aggregate global metrics', e);
     }
