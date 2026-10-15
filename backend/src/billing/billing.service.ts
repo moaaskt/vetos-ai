@@ -4,7 +4,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 
 export interface ResourceUsageMetrics {
   plan: {
@@ -207,7 +207,7 @@ export class BillingService {
   /**
    * Executa a troca de plano (Upgrade ou Downgrade) de uma clínica.
    */
-  async changePlan(clinicId: string, planId: string) {
+  async changePlan(clinicId: string, planId: string, actorRole?: Role) {
     const targetPlan = await this.prisma.plan.findUnique({
       where: { id: planId },
     });
@@ -218,16 +218,24 @@ export class BillingService {
 
     const currentSub = await this.getClinicSubscription(clinicId);
 
+    // Se a alteração for realizada pelo SUPERADMIN, preserva overrides customizados.
+    // Caso seja acionada pelo tenant (ADMIN), reseta os overrides adotando os limites padrões do novo plano.
+    const isSuperAdmin = actorRole === Role.SUPERADMIN;
+    const updateData: Prisma.ClinicSubscriptionUpdateInput = {
+      plan: { connect: { id: targetPlan.id } },
+      ...(isSuperAdmin
+        ? {}
+        : {
+            customMaxStaffSeats: null,
+            customMaxNotifications: null,
+            customMaxStorage: null,
+            customFeatures: Prisma.DbNull,
+          }),
+    };
+
     const updated = await this.prisma.clinicSubscription.update({
       where: { id: currentSub.id },
-      data: {
-        planId: targetPlan.id,
-        // Limpa overrides customizados na mudança manual para adotar as cotas do novo plano
-        customMaxStaffSeats: null,
-        customMaxNotifications: null,
-        customMaxStorage: null,
-        customFeatures: Prisma.DbNull,
-      },
+      data: updateData,
       include: {
         plan: true,
       },
